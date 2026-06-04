@@ -15,6 +15,7 @@ interface SubjectSettingsProps {
 export function SubjectSettings({ subjects, taskTypeMeta, tasks, store }: SubjectSettingsProps) {
   const [newName, setNewName] = useState('')
   const [newColor, setNewColor] = useState(EXAM_COLORS[0])
+  const [userId, setUserId] = useState(() => localStorage.getItem('app:userId') || '')
   const [expandedSections, setExpandedSections] = useState({
     addSubject: true,
     subjectList: true,
@@ -23,6 +24,7 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, store }: Subjec
     status: false,
     badgeImage: false,
     theme: false,
+    userId: false,
   })
 
   const toggleSection = (section: keyof typeof expandedSections) => {
@@ -119,6 +121,71 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, store }: Subjec
               🌙 ダークモード
             </button>
           </div>
+        )}
+      </div>
+
+      <div className="panel">
+        <h3
+          style={{
+            cursor: 'pointer',
+            userSelect: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+          onClick={() => toggleSection('userId')}
+        >
+          {expandedSections.userId ? '▼' : '▶'} ユーザーID（複数デバイス同期用）
+        </h3>
+        {expandedSections.userId && (
+          <>
+            <p style={{ color: 'var(--text-soft)', marginTop: -8 }}>
+              複数デバイス間でデータを同期するために使用されます。全デバイスで同じIDを設定してください。
+            </p>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 12 }}>
+              <input
+                type="text"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                placeholder="ユーザーID"
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  border: '1px solid var(--border)',
+                  borderRadius: 4,
+                  fontSize: 13,
+                  fontFamily: 'monospace',
+                  background: 'var(--surface)',
+                  color: 'var(--text)',
+                }}
+              />
+              <button
+                className="btn btn--primary"
+                onClick={() => {
+                  const newId = userId.trim()
+                  if (newId) {
+                    localStorage.setItem('app:userId', newId)
+                    alert('ユーザーIDを保存しました。ページをリロードしてください。')
+                  } else {
+                    alert('ユーザーIDを入力してください。')
+                  }
+                }}
+                style={{ padding: '8px 16px' }}
+              >
+                保存
+              </button>
+              <button
+                className="btn btn--ghost"
+                onClick={() => {
+                  const currentId = localStorage.getItem('app:userId') || ''
+                  setUserId(currentId)
+                }}
+                style={{ padding: '8px 16px' }}
+              >
+                リセット
+              </button>
+            </div>
+          </>
         )}
       </div>
 

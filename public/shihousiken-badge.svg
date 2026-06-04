@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <radialGradient id="blueGrad" cx="45%" cy="45%" r="55%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="40%" style="stop-color:#6495ED;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4169E1;stop-opacity:1" />
+    </radialGradient>
+    <filter id="shadow3" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- 外枠（濃い青） -->
+  <circle cx="100" cy="100" r="98" fill="#1E3A8A"/>
+
+  <!-- メイン円（グラデーション） -->
+  <circle cx="100" cy="100" r="92" fill="url(#blueGrad)" filter="url(#shadow3)"/>
+
+  <!-- 12個の花びき（札） -->
+  <g fill="#E6F2FF" stroke="#1E40AF" stroke-width="1.5">
+    <!-- 上 -->
+    <ellipse cx="100" cy="28" rx="14" ry="24"/>
+    <!-- 上右45度 -->
+    <ellipse cx="138" cy="38" rx="14" ry="24" transform="rotate(-45 138 38)"/>
+    <!-- 右上 -->
+    <ellipse cx="162" cy="62" rx="14" ry="24" transform="rotate(-90 162 62)"/>
+    <!-- 右 -->
+    <ellipse cx="172" cy="100" rx="14" ry="24" transform="rotate(-135 172 100)"/>
+    <!-- 右下 -->
+    <ellipse cx="162" cy="138" rx="14" ry="24" transform="rotate(-180 162 138)"/>
+    <!-- 下右 -->
+    <ellipse cx="138" cy="162" rx="14" ry="24" transform="rotate(135 138 162)"/>
+    <!-- 下 -->
+    <ellipse cx="100" cy="172" rx="14" ry="24" transform="rotate(90 100 172)"/>
+    <!-- 下左 -->
+    <ellipse cx="62" cy="162" rx="14" ry="24" transform="rotate(45 62 162)"/>
+    <!-- 左下 -->
+    <ellipse cx="38" cy="138" rx="14" ry="24"/>
+    <!-- 左 -->
+    <ellipse cx="28" cy="100" rx="14" ry="24" transform="rotate(45 28 100)"/>
+    <!-- 左上 -->
+    <ellipse cx="38" cy="62" rx="14" ry="24" transform="rotate(90 38 62)"/>
+    <!-- 上左 -->
+    <ellipse cx="62" cy="38" rx="14" ry="24" transform="rotate(135 62 38)"/>
+  </g>
+
+  <!-- 内側の円（より濃い青） -->
+  <circle cx="100" cy="100" r="70" fill="#BFDBFE" opacity="0.4"/>
+
+  <!-- 中央の判決書（用紙と天秤） -->
+  <g fill="none" stroke="#1E3A8A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 用紙 -->
+    <rect x="78" y="78" width="44" height="50" rx="2" fill="#FFFFFF" opacity="0.8"/>
+
+    <!-- 天秤のシンボル -->
+    <line x1="100" y1="85" x2="100" y2="95"/>
+    <line x1="75" y1="95" x2="125" y2="95"/>
+
+    <!-- 左の皿 -->
+    <circle cx="80" cy="100" r="5"/>
+
+    <!-- 右の皿 -->
+    <circle cx="120" cy="100" r="5"/>
+
+    <!-- 装飾的なチェーン -->
+    <line x1="80" y1="95" x2="80" y2="100"/>
+    <line x1="120" y1="95" x2="120" y2="100"/>
+
+    <!-- 用紙の線 -->
+    <line x1="84" y1="110" x2="116" y2="110"/>
+    <line x1="84" y1="118" x2="116" y2="118"/>
+  </g>
+
+  <!-- ハイライト（光沢） -->
+  <ellipse cx="60" cy="40" rx="14" ry="18" fill="#FFFFFF" opacity="0.3"/>
+  <ellipse cx="68" cy="32" rx="8" ry="10" fill="#FFFFFF" opacity="0.5"/>
+
+  <!-- 中央下部のハイライト -->
+  <ellipse cx="100" cy="158" rx="10" ry="6" fill="#FFFFFF" opacity="0.15"/>
+</svg>

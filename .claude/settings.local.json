@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(node -e \"console.log\\('localStorage reset script'\\)\")",
+      "PowerShell(New-Item -ItemType Directory -Path \"C:\\\\Users\\\\User\\\\Desktop\\\\Test Task\\\\public\" -Force)"
+    ]
+  }
+}

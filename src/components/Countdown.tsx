@@ -26,13 +26,13 @@ export function CountdownBar({ exams, onEdit }: CountdownBarProps) {
   return (
     <div className="countdown-bar">
       {sorted.map((exam) => (
-        <CountdownChip key={exam.id} exam={exam} onClick={() => onEdit(exam)} />
+        <CountdownChip key={exam.id} exam={exam} />
       ))}
     </div>
   )
 }
 
-function CountdownChip({ exam, onClick }: { exam: Exam; onClick: () => void }) {
+function CountdownChip({ exam }: { exam: Exam }) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null)
 
   useEffect(() => {

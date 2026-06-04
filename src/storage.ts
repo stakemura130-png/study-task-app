@@ -1,7 +1,7 @@
 import type { AppState, Exam, Subject, Task, Status, ChecklistSubject, ChecklistColorThresholds } from './types'
 import { TASK_TYPE_META, CHECKLIST_SUBJECTS, DEFAULT_STATUS_META } from './types'
 import { uid, todayStr } from './utils'
-import { saveToFirebase, loadFromFirebase } from './firebase'
+import { saveToFirebase } from './firebase'
 
 const STORAGE_KEY = 'study-task-app:v3'
 const LEGACY_KEYS = ['study-task-app:v2', 'study-task-app:v1']
@@ -94,7 +94,10 @@ function seedState(): AppState {
     poorColor: '#000000',
   }
 
-  const checklistColorThresholds: Record<ChecklistSubject, ChecklistColorThresholds> = {}
+  const checklistColorThresholds: Record<ChecklistSubject, ChecklistColorThresholds> = {} as Record<
+    ChecklistSubject,
+    ChecklistColorThresholds
+  >
   CHECKLIST_SUBJECTS.forEach((subject) => {
     checklistColorThresholds[subject.key] = { ...defaultColorThresholds }
   })
@@ -148,7 +151,7 @@ function migrate(raw: string): AppState | null {
 
     // 旧形式の checklist を minpou1 に移行
     const checklists: Record<ChecklistSubject, any[]> = {
-      minpou1: (old.checklist as any[]) ?? [],
+      minpou1: ((old as any).checklist as any[]) ?? [],
       minpou2: [],
       keihoi: [],
       kenshou: [],
@@ -167,7 +170,10 @@ function migrate(raw: string): AppState | null {
       goodColor: '#f59e0b',
       poorColor: '#000000',
     }
-    const checklistColorThresholds: Record<ChecklistSubject, ChecklistColorThresholds> = {}
+    const checklistColorThresholds: Record<ChecklistSubject, ChecklistColorThresholds> = {} as Record<
+      ChecklistSubject,
+      ChecklistColorThresholds
+    >
     CHECKLIST_SUBJECTS.forEach((subject) => {
       checklistColorThresholds[subject.key] = { ...defaultColorThresholds }
     })
@@ -210,7 +216,7 @@ export function loadState(): AppState {
 
         if (hasSingleMinpou) {
           // 以前の統合形式（minpou）は民法Ⅰに統合
-          const oldMinpou = checklists.minpou as any[]
+          const oldMinpou = (checklists as any).minpou as any[]
           checklists = {
             minpou1: oldMinpou,
             minpou2: [],
@@ -224,7 +230,7 @@ export function loadState(): AppState {
           }
         } else if (hasVeryOldFormat) {
           // 最も古い形式から新形式へ移行
-          const oldKeihoi = [...(checklists.keihousou ?? []), ...(checklists.keihokakuron ?? [])]
+          const oldKeihoi = [...((checklists as any).keihousou ?? []), ...((checklists as any).keihokakuron ?? [])]
           checklists = {
             minpou1: (checklists.minpou1 ?? []).concat(checklists.minpou2 ?? []),
             minpou2: [],
@@ -252,7 +258,10 @@ export function loadState(): AppState {
         }
         // checklistColorThresholds がない場合はデフォルト値を使う
         const checklistColorThresholds = parsed.checklistColorThresholds ?? {}
-        const initChecklistColorThresholds: Record<ChecklistSubject, ChecklistColorThresholds> = {}
+        const initChecklistColorThresholds: Record<ChecklistSubject, ChecklistColorThresholds> = {} as Record<
+          ChecklistSubject,
+          ChecklistColorThresholds
+        >
         CHECKLIST_SUBJECTS.forEach((subject) => {
           initChecklistColorThresholds[subject.key] = checklistColorThresholds[subject.key] ?? { ...defaultColorThresholds }
         })

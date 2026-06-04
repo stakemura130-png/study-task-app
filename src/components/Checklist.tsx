@@ -11,8 +11,6 @@ interface ChecklistProps {
 export function Checklist({ checklists, store }: ChecklistProps) {
   const [selectedSubject, setSelectedSubject] = useState<ChecklistSubject>('minpou1')
   const [filter, setFilter] = useState<'all' | 'checked' | 'unchecked'>('all')
-  const [memoEditId, setMemoEditId] = useState<string | null>(null)
-  const [memoText, setMemoText] = useState('')
   const [csvInputOpen, setCsvInputOpen] = useState(false)
   const [csvText, setCsvText] = useState('')
   const [expandedAttempts, setExpandedAttempts] = useState<string | null>(null)
@@ -60,17 +58,6 @@ export function Checklist({ checklists, store }: ChecklistProps) {
     }
   }
   const { allAttempts, successAttempts, successRate, perfectAttempts, perfectRate } = calculateSuccessRate()
-
-  const openMemoEdit = (item: ChecklistItem) => {
-    setMemoEditId(item.id)
-    setMemoText(item.memo)
-  }
-
-  const saveMemo = (id: string) => {
-    store.updateChecklistItem(selectedSubject, id, { memo: memoText })
-    setMemoEditId(null)
-    setMemoText('')
-  }
 
   const parseCSV = (csv: string) => {
     try {

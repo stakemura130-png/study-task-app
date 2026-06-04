@@ -180,7 +180,7 @@ export function useStore() {
       ...s,
       checklists: {
         ...s.checklists,
-        [subject]: s.checklists[subject as any].map((item) =>
+        [subject]: (s.checklists[subject as ChecklistSubject] || []).map((item: any) =>
           item.id === id ? { ...item, checked: !item.checked } : item,
         ),
       },
@@ -193,7 +193,7 @@ export function useStore() {
         ...s,
         checklists: {
           ...s.checklists,
-          [subject]: s.checklists[subject as any].map((item) =>
+          [subject]: (s.checklists[subject as ChecklistSubject] || []).map((item: any) =>
             item.id === id ? { ...item, ...patch } : item,
           ),
         },

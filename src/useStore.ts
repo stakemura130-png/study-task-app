@@ -56,7 +56,7 @@ export function useStore() {
 
       if (lastSaveTime) {
         const timeSinceLastSave = now - parseInt(lastSaveTime)
-        if (timeSinceLastSave < 1000) {
+        if (timeSinceLastSave < 2000) {
           return
         }
       }

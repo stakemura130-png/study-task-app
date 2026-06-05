@@ -45,15 +45,44 @@ export function App() {
     return (
       <div style={{
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         height: '100vh',
         background: 'var(--bg)',
         color: 'var(--text)',
-        fontSize: '18px',
-        fontFamily: 'sans-serif',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        gap: '24px',
       }}>
-        データを読み込み中...
+        {/* スピナー */}
+        <div style={{
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          border: '4px solid var(--text-soft)',
+          borderTopColor: 'var(--text)',
+          animation: 'spin 1s linear infinite',
+        }} />
+        {/* メッセージ */}
+        <div style={{
+          fontSize: '16px',
+          fontWeight: 500,
+          letterSpacing: '0.5px',
+          animation: 'fadeInOut 2s ease-in-out infinite',
+        }}>
+          データを読み込み中...
+        </div>
+        {/* CSS アニメーション定義 */}
+        <style>{`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          @keyframes fadeInOut {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+          }
+        `}</style>
       </div>
     )
   }

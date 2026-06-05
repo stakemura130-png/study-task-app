@@ -67,13 +67,13 @@ export function useStore() {
         return
       }
 
-      // 2 回目以降：ローカルの変更から 2 秒以内はスキップ（競合を避ける）
+      // 2 回目以降：ローカルの変更から 10 秒以内はスキップ（競合を避ける）
       const lastSaveTime = localStorage.getItem('app:lastSaveTime')
       const now = Date.now()
 
       if (lastSaveTime) {
         const timeSinceLastSave = now - parseInt(lastSaveTime)
-        if (timeSinceLastSave < 2000) {
+        if (timeSinceLastSave < 10000) {
           return
         }
       }

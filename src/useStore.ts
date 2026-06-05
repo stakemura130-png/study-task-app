@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AppState, Exam, Status, Subject, Task, ChecklistSubject, ChecklistColorThresholds } from './types'
 import { loadState, saveState, inferSubjectId } from './storage'
 import { uid, todayStr } from './utils'
@@ -7,6 +7,7 @@ import { subscribeToFirebase, loadFromFirebase } from './firebase'
 export function useStore() {
   const [state, setState] = useState<AppState>(() => loadState())
   const [initialized, setInitialized] = useState(false)
+  const isUpdatingFromFirebase = useRef(false)
 
   // 起動時に Firebase から最新データを読み込む（必ず実行）
   useEffect(() => {
@@ -40,15 +41,18 @@ export function useStore() {
     }
   }, [])
 
-  // 変更のたびに localStorage へ保存
+  // 変更のたびに localStorage へ保存（Firebase からの更新は除く）
   useEffect(() => {
-    saveState(state)
+    if (!isUpdatingFromFirebase.current) {
+      saveState(state)
+    } else {
+      isUpdatingFromFirebase.current = false
+    }
   }, [state])
 
   // Firebase リアルタイム同期
   useEffect(() => {
     let isMounted = true
-    let lastRemoteTimestamp = 0
 
     const unsubscribe = subscribeToFirebase((firebaseData) => {
       if (!isMounted) return
@@ -61,9 +65,11 @@ export function useStore() {
           firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
           firebaseData.checklists && typeof firebaseData.checklists === 'object') {
 
-        // 新しいデータのみを反映（デバイス間の最新データを優先）
+        // Firebase からの更新フラグを設定
+        isUpdatingFromFirebase.current = true
         setState(firebaseData)
-        lastRemoteTimestamp = Date.now()
+        localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+        setInitialized(true)
       }
     })
 

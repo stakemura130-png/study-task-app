@@ -48,44 +48,22 @@ export function useStore() {
   // Firebase リアルタイム同期
   useEffect(() => {
     let isMounted = true
-    let firstDataReceived = false
+    let lastRemoteTimestamp = 0
 
     const unsubscribe = subscribeToFirebase((firebaseData) => {
       if (!isMounted) return
 
-      // 最初の受け取りは grace period を無視する（確実に最新データを反映）
-      if (!firstDataReceived) {
-        firstDataReceived = true
-        if (firebaseData &&
-            firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
-            firebaseData.exams && Array.isArray(firebaseData.exams) &&
-            firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
-            firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
-            firebaseData.checklists && typeof firebaseData.checklists === 'object') {
-          setState(firebaseData)
-        }
-        return
-      }
-
-      // 2 回目以降：ローカルの変更から 10 秒以内はスキップ（競合を避ける）
-      const lastSaveTime = localStorage.getItem('app:lastSaveTime')
-      const now = Date.now()
-
-      if (lastSaveTime) {
-        const timeSinceLastSave = now - parseInt(lastSaveTime)
-        if (timeSinceLastSave < 10000) {
-          return
-        }
-      }
-
-      // Firebase のデータを state に反映（検証付き）
+      // Firebase のデータを検証して反映（常に最新データを優先）
       if (firebaseData &&
           firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
           firebaseData.exams && Array.isArray(firebaseData.exams) &&
           firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
           firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
           firebaseData.checklists && typeof firebaseData.checklists === 'object') {
+
+        // 新しいデータのみを反映（デバイス間の最新データを優先）
         setState(firebaseData)
+        lastRemoteTimestamp = Date.now()
       }
     })
 

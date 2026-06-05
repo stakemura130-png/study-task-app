@@ -27,11 +27,29 @@ export const getUserId = () => {
   return userId
 }
 
+// undefined フィールドを再帰的に削除（Firebase は undefined を許可しない）
+function cleanUndefined(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map(cleanUndefined)
+  } else if (obj !== null && typeof obj === 'object') {
+    const cleaned: any = {}
+    for (const key in obj) {
+      if (obj[key] !== undefined) {
+        cleaned[key] = cleanUndefined(obj[key])
+      }
+    }
+    return cleaned
+  }
+  return obj
+}
+
 // Firebase にデータを保存
 export const saveToFirebase = async (data: any) => {
   try {
     const userId = getUserId()
-    await set(ref(db, `users/${userId}/data`), data)
+    // undefined フィールドを削除（Firebase は undefined を許可しない）
+    const cleanData = cleanUndefined(data)
+    await set(ref(db, `users/${userId}/data`), cleanData)
   } catch (error) {
     console.error('Firebase save error:', error)
   }

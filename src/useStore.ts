@@ -7,6 +7,7 @@ import { subscribeToFirebase, loadFromFirebase } from './firebase'
 export function useStore() {
   const [state, setState] = useState<AppState>(() => loadState())
   const [initialized, setInitialized] = useState(false)
+  const [firebaseReady, setFirebaseReady] = useState(false)
   const isUpdatingFromFirebase = useRef(false)
 
   // 起動時に Firebase から最新データを読み込む（必ず実行）
@@ -53,6 +54,7 @@ export function useStore() {
   // Firebase リアルタイム同期（タイムスタンプベース）
   useEffect(() => {
     let isMounted = true
+    let firstData = true
 
     const unsubscribe = subscribeToFirebase((firebaseData) => {
       if (!isMounted) return
@@ -77,7 +79,12 @@ export function useStore() {
         isUpdatingFromFirebase.current = true
         setState(firebaseData)
         localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
-        setInitialized(true)
+      }
+
+      // リスナーから最初のデータを受け取った時点で Firebase 準備完了
+      if (firstData) {
+        firstData = false
+        setFirebaseReady(true)
       }
     })
 
@@ -293,7 +300,7 @@ export function useStore() {
 
   return {
     state,
-    initialized,
+    initialized: firebaseReady,
     addExam,
     updateExam,
     deleteExam,

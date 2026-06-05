@@ -4,35 +4,31 @@ import { loadState, saveState, inferSubjectId } from './storage'
 import { uid, todayStr } from './utils'
 import { subscribeToFirebase, loadFromFirebase } from './firebase'
 
-// 初期データ（Firebase から読み込まれるまでのプレースホルダー）
-function getInitialState(): AppState {
-  const state = loadState()
-  // Firebase を待つ間、最小限のデータのみを使用
-  return state
-}
-
 export function useStore() {
-  const [state, setState] = useState<AppState>(() => getInitialState())
+  const [state, setState] = useState<AppState>(() => loadState())
   const [initialized, setInitialized] = useState(false)
 
-  // 起動時に Firebase から最新データを読み込む（localStorage より優先）
+  // 起動時に Firebase から最新データを読み込む（必ず実行）
   useEffect(() => {
     let isMounted = true
 
     const initializeFromFirebase = async () => {
       try {
         const firebaseData = await loadFromFirebase()
-        if (isMounted && firebaseData &&
-            firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
-            firebaseData.exams && Array.isArray(firebaseData.exams) &&
-            firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
-            firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
-            firebaseData.checklists && typeof firebaseData.checklists === 'object') {
-          setState(firebaseData)
+        if (isMounted) {
+          if (firebaseData &&
+              firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
+              firebaseData.exams && Array.isArray(firebaseData.exams) &&
+              firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
+              firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
+              firebaseData.checklists && typeof firebaseData.checklists === 'object') {
+            setState(firebaseData)
+            localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+          }
+          setInitialized(true)
         }
       } catch (error) {
         console.error('Failed to load from Firebase:', error)
-      } finally {
         if (isMounted) setInitialized(true)
       }
     }

@@ -31,8 +31,13 @@ export function useStore() {
         }
       }
 
-      // Firebase のデータを state に反映
-      if (firebaseData && firebaseData.tasks && Array.isArray(firebaseData.tasks)) {
+      // Firebase のデータを state に反映（検証付き）
+      if (firebaseData &&
+          firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
+          firebaseData.exams && Array.isArray(firebaseData.exams) &&
+          firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
+          firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
+          firebaseData.checklists && typeof firebaseData.checklists === 'object') {
         setState(firebaseData)
       }
     })

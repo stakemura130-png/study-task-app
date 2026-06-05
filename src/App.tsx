@@ -28,7 +28,7 @@ export function App() {
 
   // Hooks は常に同じ順序で呼ぶ（条件付き return の前に）
   const store = useStore()
-  const { state } = store
+  const { state, initialized } = store
 
   const [view, setView] = useState<View>('board')
   const [openTaskId, setOpenTaskId] = useState<string | null>(null)
@@ -38,6 +38,24 @@ export function App() {
   // 認証なければここで LoginScreen を返す
   if (!isAuthenticated) {
     return <LoginScreen onAuthenticate={() => setIsAuthenticated(true)} />
+  }
+
+  // Firebase からのデータ読み込み完了まで待つ
+  if (!initialized) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        background: 'var(--bg)',
+        color: 'var(--text)',
+        fontSize: '18px',
+        fontFamily: 'sans-serif',
+      }}>
+        データを読み込み中...
+      </div>
+    )
   }
 
   // モーダル表示中のタスクは常に最新の state から取り直す

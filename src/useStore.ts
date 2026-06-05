@@ -284,6 +284,7 @@ export function useStore() {
 
   return {
     state,
+    initialized,
     addExam,
     updateExam,
     deleteExam,

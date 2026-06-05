@@ -130,7 +130,7 @@ export function useStore() {
         const updatedMoving: Task = {
           ...moving,
           status: toStatus,
-          completedAt: isComplete ? (moving.completedAt ?? todayStr()) : undefined,
+          ...(isComplete ? { completedAt: moving.completedAt ?? todayStr() } : {}),
         }
         const rest = s.tasks.filter((t) => t.id !== taskId)
         const colTasks = rest

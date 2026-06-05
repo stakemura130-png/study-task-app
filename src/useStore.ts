@@ -2,10 +2,40 @@ import { useCallback, useEffect, useState } from 'react'
 import type { AppState, Exam, Status, Subject, Task, ChecklistSubject, ChecklistColorThresholds } from './types'
 import { loadState, saveState, inferSubjectId } from './storage'
 import { uid, todayStr } from './utils'
-import { subscribeToFirebase } from './firebase'
+import { subscribeToFirebase, loadFromFirebase } from './firebase'
 
 export function useStore() {
   const [state, setState] = useState<AppState>(() => loadState())
+  const [initialized, setInitialized] = useState(false)
+
+  // 起動時に Firebase から最新データを読み込む（localStorage より優先）
+  useEffect(() => {
+    let isMounted = true
+
+    const initializeFromFirebase = async () => {
+      try {
+        const firebaseData = await loadFromFirebase()
+        if (isMounted && firebaseData &&
+            firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
+            firebaseData.exams && Array.isArray(firebaseData.exams) &&
+            firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
+            firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
+            firebaseData.checklists && typeof firebaseData.checklists === 'object') {
+          setState(firebaseData)
+        }
+      } catch (error) {
+        console.error('Failed to load from Firebase:', error)
+      } finally {
+        if (isMounted) setInitialized(true)
+      }
+    }
+
+    initializeFromFirebase()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   // 変更のたびに localStorage へ保存
   useEffect(() => {

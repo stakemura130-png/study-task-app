@@ -4,8 +4,15 @@ import { loadState, saveState, inferSubjectId } from './storage'
 import { uid, todayStr } from './utils'
 import { subscribeToFirebase, loadFromFirebase } from './firebase'
 
+// 初期データ（Firebase から読み込まれるまでのプレースホルダー）
+function getInitialState(): AppState {
+  const state = loadState()
+  // Firebase を待つ間、最小限のデータのみを使用
+  return state
+}
+
 export function useStore() {
-  const [state, setState] = useState<AppState>(() => loadState())
+  const [state, setState] = useState<AppState>(() => getInitialState())
   const [initialized, setInitialized] = useState(false)
 
   // 起動時に Firebase から最新データを読み込む（localStorage より優先）
@@ -45,12 +52,26 @@ export function useStore() {
   // Firebase リアルタイム同期
   useEffect(() => {
     let isMounted = true
+    let firstDataReceived = false
 
     const unsubscribe = subscribeToFirebase((firebaseData) => {
       if (!isMounted) return
 
-      // Firebase から受け取ったデータを state に反映
-      // ただし、ローカルの変更から 1 秒以内はスキップ（競合を避ける）
+      // 最初の受け取りは grace period を無視する（確実に最新データを反映）
+      if (!firstDataReceived) {
+        firstDataReceived = true
+        if (firebaseData &&
+            firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
+            firebaseData.exams && Array.isArray(firebaseData.exams) &&
+            firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
+            firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
+            firebaseData.checklists && typeof firebaseData.checklists === 'object') {
+          setState(firebaseData)
+        }
+        return
+      }
+
+      // 2 回目以降：ローカルの変更から 2 秒以内はスキップ（競合を避ける）
       const lastSaveTime = localStorage.getItem('app:lastSaveTime')
       const now = Date.now()
 

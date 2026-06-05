@@ -108,6 +108,8 @@ export interface AppState {
   /** テーマ設定 */
   theme: 'light' | 'dark'
   studyLog: StudyEntry[]
+  /** 最後の更新時刻（デバイス間の同期判定に使用） */
+  lastUpdatedAt?: number
 }
 
 export const DEFAULT_STATUS_META: { key: Status; label: string; hint: string }[] = [

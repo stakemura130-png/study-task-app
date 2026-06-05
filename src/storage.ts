@@ -288,14 +288,18 @@ export function loadState(): AppState {
 
 export function saveState(state: AppState): void {
   try {
-    // localStorage に保存（オフライン用）
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    // タイムスタンプを追加（デバイス間の最新データ判定に使用）
+    const now = Date.now()
+    const stateWithTimestamp = {
+      ...state,
+      lastUpdatedAt: now,
+    }
 
-    // 保存時刻を記録（Firebase 同期の競合を避ける）
-    localStorage.setItem('app:lastSaveTime', Date.now().toString())
+    // localStorage に保存（オフライン用）
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stateWithTimestamp))
 
     // Firebase に保存（クラウド同期用）
-    saveToFirebase(state).catch((error) => {
+    saveToFirebase(stateWithTimestamp).catch((error) => {
       console.error('Failed to save to Firebase:', error)
     })
   } catch {

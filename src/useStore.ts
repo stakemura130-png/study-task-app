@@ -50,22 +50,30 @@ export function useStore() {
     }
   }, [state])
 
-  // Firebase リアルタイム同期
+  // Firebase リアルタイム同期（タイムスタンプベース）
   useEffect(() => {
     let isMounted = true
 
     const unsubscribe = subscribeToFirebase((firebaseData) => {
       if (!isMounted) return
 
-      // Firebase のデータを検証して反映（常に最新データを優先）
-      if (firebaseData &&
-          firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
-          firebaseData.exams && Array.isArray(firebaseData.exams) &&
-          firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
-          firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
-          firebaseData.checklists && typeof firebaseData.checklists === 'object') {
+      // Firebase のデータを検証
+      if (!firebaseData ||
+          !firebaseData.tasks || !Array.isArray(firebaseData.tasks) ||
+          !firebaseData.exams || !Array.isArray(firebaseData.exams) ||
+          !firebaseData.subjects || !Array.isArray(firebaseData.subjects) ||
+          !firebaseData.statusMeta || !Array.isArray(firebaseData.statusMeta) ||
+          !firebaseData.checklists || typeof firebaseData.checklists !== 'object') {
+        return
+      }
 
-        // Firebase からの更新フラグを設定
+      // タイムスタンプで比較：Firebase の方が新しい場合のみ更新
+      const localData = state
+      const firebaseTimestamp = firebaseData.lastUpdatedAt ?? 0
+      const localTimestamp = localData.lastUpdatedAt ?? 0
+
+      // Firebase の方が新しい場合のみ更新
+      if (firebaseTimestamp > localTimestamp) {
         isUpdatingFromFirebase.current = true
         setState(firebaseData)
         localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
@@ -77,7 +85,7 @@ export function useStore() {
       isMounted = false
       unsubscribe()
     }
-  }, [])
+  }, [state])
 
   // --- 試験日（カウントダウン）操作 ---
   const addExam = useCallback((name: string, examDate: string, color: string) => {

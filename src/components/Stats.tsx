@@ -19,7 +19,9 @@ export function Stats({ tasks, studyLog }: StatsProps) {
   // 日付ごとの合計（分）
   const byDate = useMemo(() => {
     const m = new Map<string, number>()
-    for (const l of studyLog) m.set(l.date, (m.get(l.date) ?? 0) + l.minutes)
+    if (Array.isArray(studyLog)) {
+      for (const l of studyLog) m.set(l.date, (m.get(l.date) ?? 0) + l.minutes)
+    }
     return m
   }, [studyLog])
 
@@ -28,15 +30,17 @@ export function Stats({ tasks, studyLog }: StatsProps) {
   for (const t of tasks) counts[t.status]++
   const doneRate = total === 0 ? 0 : Math.round((counts.done / total) * 100)
 
-  const totalMinutes = useMemo(() => studyLog.reduce((a, l) => a + l.minutes, 0), [studyLog])
+  const totalMinutes = useMemo(() => (Array.isArray(studyLog) ? studyLog.reduce((a, l) => a + l.minutes, 0) : 0), [studyLog])
 
   const today = todayStr()
   const weekMinutes = useMemo(
     () =>
-      studyLog.reduce((a, l) => {
-        const diff = daysBetween(l.date, today)
-        return diff >= 0 && diff < 7 ? a + l.minutes : a
-      }, 0),
+      Array.isArray(studyLog)
+        ? studyLog.reduce((a, l) => {
+            const diff = daysBetween(l.date, today)
+            return diff >= 0 && diff < 7 ? a + l.minutes : a
+          }, 0)
+        : 0,
     [studyLog, today],
   )
 

@@ -73,12 +73,12 @@ export function Marquee({ config }: MarqueeProps) {
         .marquee {
           overflow: hidden;
           white-space: nowrap;
-          flex: 1.2;
-          height: 72px;
+          width: 100%;
+          height: 56px;
           display: flex;
           align-items: center;
-          margin: 0 12px;
-          font-size: 20px;
+          margin: 0;
+          font-size: 16px;
           font-weight: 500;
           border: ${getBorderStyle()};
           border-radius: 8px;
@@ -90,10 +90,10 @@ export function Marquee({ config }: MarqueeProps) {
         /* iPad / タブレット用（1024px 以下） */
         @media (max-width: 1024px) {
           .marquee {
-            flex: 2;
-            height: 120px;
-            font-size: 28px;
-            margin: 0 8px;
+            width: 100%;
+            height: 80px;
+            font-size: 22px;
+            margin: 0;
           }
         }
 

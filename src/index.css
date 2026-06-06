@@ -185,8 +185,8 @@ select {
 
 .topbar {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 12px;
   padding: 18px 28px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);

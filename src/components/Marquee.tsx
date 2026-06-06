@@ -27,7 +27,7 @@ export function Marquee({ config }: MarqueeProps) {
     .map((m) => m.trim())
     .filter((m) => m)
 
-  const marqueeText = messages.join('  •  ') + '  •  ' + messages.join('  •  ')
+  const marqueeText = messages.join('  •  ') + '  •  ' + messages.join('  •  ') + '  •  ' + messages.join('  •  ')
 
   const getBorderStyle = () => {
     if (currentPattern.borderStyle === 'dashed') {
@@ -73,12 +73,12 @@ export function Marquee({ config }: MarqueeProps) {
         .marquee {
           overflow: hidden;
           white-space: nowrap;
-          flex: 0.6;
-          height: 40px;
+          flex: 1;
+          height: 56px;
           display: flex;
           align-items: center;
           margin: 0 12px;
-          font-size: 14px;
+          font-size: 18px;
           font-weight: 500;
           border: ${getBorderStyle()};
           border-radius: 8px;

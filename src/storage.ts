@@ -102,7 +102,15 @@ function seedState(): AppState {
     checklistColorThresholds[subject.key] = { ...defaultColorThresholds }
   })
 
-  return { tasks, exams, subjects, taskTypeMeta: TASK_TYPE_META, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog: [] }
+  // メニュー設定（デフォルト）
+  const menuConfig = [
+    { key: 'board' as const, label: '学習ボード', visible: true, order: 0 },
+    { key: 'stats' as const, label: '統計', visible: true, order: 1 },
+    { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
+    { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
+  ]
+
+  return { tasks, exams, subjects, taskTypeMeta: TASK_TYPE_META, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog: [], menuConfig }
 }
 
 /** 旧バージョンからの移行（試験ごとタスク構造／科目なし構造の両方に対応） */
@@ -178,7 +186,15 @@ function migrate(raw: string): AppState | null {
       checklistColorThresholds[subject.key] = { ...defaultColorThresholds }
     })
 
-    return { tasks, exams, subjects, taskTypeMeta, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog }
+    // メニュー設定（デフォルト）
+    const menuConfig = [
+      { key: 'board' as const, label: '学習ボード', visible: true, order: 0 },
+      { key: 'stats' as const, label: '統計', visible: true, order: 1 },
+      { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
+      { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
+    ]
+
+    return { tasks, exams, subjects, taskTypeMeta, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog, menuConfig }
   } catch {
     return null
   }
@@ -266,7 +282,16 @@ export function loadState(): AppState {
           initChecklistColorThresholds[subject.key] = checklistColorThresholds[subject.key] ?? { ...defaultColorThresholds }
         })
 
-        return { ...parsed, tasks, taskTypeMeta, statusMeta: parsed.statusMeta ?? DEFAULT_STATUS_META, checklists, checklistColorThresholds: initChecklistColorThresholds, theme: parsed.theme ?? 'light' }
+        // menuConfig がない場合はデフォルト値を使う
+        const defaultMenuConfig = [
+          { key: 'board' as const, label: '学習ボード', visible: true, order: 0 },
+          { key: 'stats' as const, label: '統計', visible: true, order: 1 },
+          { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
+          { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
+        ]
+        const menuConfig = parsed.menuConfig ?? defaultMenuConfig
+
+        return { ...parsed, tasks, taskTypeMeta, statusMeta: parsed.statusMeta ?? DEFAULT_STATUS_META, checklists, checklistColorThresholds: initChecklistColorThresholds, theme: parsed.theme ?? 'light', menuConfig }
       }
     }
     // 旧データがあれば移行

@@ -1,5 +1,6 @@
 export type Status = 'todo' | 'learning' | 'review' | 'done'
 export type TaskType = 'tanpa' | 'shiyoku' | 'moshi' | 'text' | 'ichimondai' | 'joubun'
+export type MenuKey = 'board' | 'stats' | 'settings' | 'checklist'
 
 /** 科目（民法・商法など）。カードの色分けに使う。 */
 export interface Subject {
@@ -108,6 +109,8 @@ export interface AppState {
   /** テーマ設定 */
   theme: 'light' | 'dark'
   studyLog: StudyEntry[]
+  /** メニュー設定（順番・名称・表示/非表示） */
+  menuConfig: { key: MenuKey; label: string; visible: boolean; order: number }[]
   /** 最後の更新時刻（デバイス間の同期判定に使用） */
   lastUpdatedAt?: number
 }

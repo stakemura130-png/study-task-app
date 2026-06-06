@@ -286,6 +286,16 @@ export function useStore() {
     }))
   }, [])
 
+  const updateMenuConfig = useCallback(
+    (menuConfig: { key: string; label: string; visible: boolean; order: number }[]) => {
+      setState((s) => ({
+        ...s,
+        menuConfig: menuConfig as any,
+      }))
+    },
+    [],
+  )
+
   const updateStatusMeta = useCallback(
     (index: number, patch: Partial<{ label: string; hint: string }>) => {
       setState((s) => ({
@@ -319,6 +329,7 @@ export function useStore() {
     replaceChecklistData,
     updateChecklistColorThresholds,
     updateTheme,
+    updateMenuConfig,
   }
 }
 

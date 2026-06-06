@@ -41,30 +41,19 @@ export function Sidebar({
       </div>
 
       <div className="sidebar__section">メニュー</div>
-      <button
-        className={`nav-btn${view === 'board' ? ' active' : ''}`}
-        onClick={() => setView('board')}
-      >
-        🗂 学習ボード
-      </button>
-      <button
-        className={`nav-btn${view === 'stats' ? ' active' : ''}`}
-        onClick={() => setView('stats')}
-      >
-        📊 進捗・統計
-      </button>
-      <button
-        className={`nav-btn${view === 'settings' ? ' active' : ''}`}
-        onClick={() => setView('settings')}
-      >
-        ⚙ 各種設定
-      </button>
-      <button
-        className={`nav-btn${view === 'checklist' ? ' active' : ''}`}
-        onClick={() => setView('checklist')}
-      >
-        ✓ 短答過去問パーフェクト
-      </button>
+      {[...state.menuConfig]
+        .filter((m) => m.visible)
+        .sort((a, b) => a.order - b.order)
+        .map((menu) => (
+          <button
+            key={menu.key}
+            className={`nav-btn${view === menu.key ? ' active' : ''}`}
+            onClick={() => setView(menu.key as View)}
+          >
+            {menu.key === 'board' && '🗂'} {menu.key === 'stats' && '📊'} {menu.key === 'settings' && '⚙'}{' '}
+            {menu.key === 'checklist' && '✓'} {menu.label}
+          </button>
+        ))}
 
       <div className="sidebar__section">
         <span>試験日</span>

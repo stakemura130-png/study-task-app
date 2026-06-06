@@ -25,6 +25,7 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, store }: Subjec
     badgeImage: false,
     theme: false,
     userId: false,
+    menu: false,
   })
 
   const toggleSection = (section: keyof typeof expandedSections) => {
@@ -309,6 +310,35 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, store }: Subjec
               {taskTypeMeta.map((type, index) => (
                 <TaskTypeRow key={type.key} type={type} index={index} store={store} />
               ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="panel">
+        <h3
+          style={{
+            cursor: 'pointer',
+            userSelect: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+          onClick={() => toggleSection('menu')}
+        >
+          {expandedSections.menu ? '▼' : '▶'} メニュー設定
+        </h3>
+        {expandedSections.menu && (
+          <>
+            <p style={{ color: 'var(--text-soft)', marginTop: -8 }}>
+              サイドバーのメニュー順序・名称・表示/非表示を変更できます。
+            </p>
+            <div className="subject-list">
+              {[...store.state.menuConfig]
+                .sort((a, b) => a.order - b.order)
+                .map((menu, index) => (
+                  <MenuRow key={menu.key} menu={menu} index={index} store={store} allMenus={store.state.menuConfig} />
+                ))}
             </div>
           </>
         )}
@@ -660,6 +690,119 @@ function ExamBadgeUploader({ exam, store }: { exam: Exam; store: Store }) {
           削除
         </button>
       )}
+    </div>
+  )
+}
+
+function MenuRow({
+  menu,
+  index,
+  store,
+  allMenus,
+}: {
+  menu: { key: string; label: string; visible: boolean; order: number }
+  index: number
+  store: Store
+  allMenus: { key: string; label: string; visible: boolean; order: number }[]
+}) {
+  const [label, setLabel] = useState(menu.label)
+
+  const commitLabel = () => {
+    const l = label.trim()
+    if (l && l !== menu.label) {
+      const newMenus = allMenus.map((m) => (m.key === menu.key ? { ...m, label: l } : m))
+      store.updateMenuConfig(newMenus)
+    } else {
+      setLabel(menu.label)
+    }
+  }
+
+  const toggleVisible = () => {
+    const newMenus = allMenus.map((m) => (m.key === menu.key ? { ...m, visible: !m.visible } : m))
+    store.updateMenuConfig(newMenus)
+  }
+
+  const moveUp = () => {
+    if (index === 0) return
+    const newMenus = [...allMenus].sort((a, b) => a.order - b.order)
+    ;[newMenus[index - 1].order, newMenus[index].order] = [newMenus[index].order, newMenus[index - 1].order]
+    store.updateMenuConfig(newMenus)
+  }
+
+  const moveDown = () => {
+    if (index === allMenus.filter((m) => m.visible).length - 1) return
+    const newMenus = [...allMenus].sort((a, b) => a.order - b.order)
+    ;[newMenus[index].order, newMenus[index + 1].order] = [newMenus[index + 1].order, newMenus[index].order]
+    store.updateMenuConfig(newMenus)
+  }
+
+  return (
+    <div
+      className="subject-row"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: 12,
+        background: menu.visible ? 'var(--surface)' : 'var(--panel)',
+        borderRadius: 6,
+        border: '1px solid var(--border)',
+        opacity: menu.visible ? 1 : 0.6,
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={menu.visible}
+        onChange={toggleVisible}
+        style={{ width: 18, height: 18, cursor: 'pointer' }}
+        title="表示/非表示"
+      />
+      <input
+        className="subject-row__name"
+        value={label}
+        onChange={(e) => setLabel(e.target.value)}
+        onBlur={commitLabel}
+        onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+        placeholder="メニュー名"
+        disabled={!menu.visible}
+        style={{ opacity: menu.visible ? 1 : 0.5 }}
+      />
+      <div style={{ display: 'flex', gap: 4, marginLeft: 'auto' }}>
+        <button
+          onClick={moveUp}
+          disabled={index === 0}
+          style={{
+            padding: '4px 8px',
+            background: 'var(--accent)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 4,
+            cursor: index === 0 ? 'default' : 'pointer',
+            fontSize: 12,
+            opacity: index === 0 ? 0.5 : 1,
+          }}
+          title="上に移動"
+        >
+          ↑
+        </button>
+        <button
+          onClick={moveDown}
+          disabled={index === allMenus.filter((m) => m.visible).length - 1}
+          style={{
+            padding: '4px 8px',
+            background: 'var(--accent)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 4,
+            cursor: index === allMenus.filter((m) => m.visible).length - 1 ? 'default' : 'pointer',
+            fontSize: 12,
+            opacity: index === allMenus.filter((m) => m.visible).length - 1 ? 0.5 : 1,
+          }}
+          title="下に移動"
+        >
+          ↓
+        </button>
+      </div>
     </div>
   )
 }

@@ -318,6 +318,24 @@ export function useStore() {
     [],
   )
 
+  const reloadFromFirebase = useCallback(async () => {
+    try {
+      const firebaseData = await loadFromFirebase()
+      if (firebaseData &&
+          firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
+          firebaseData.exams && Array.isArray(firebaseData.exams) &&
+          firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
+          firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
+          firebaseData.checklists && typeof firebaseData.checklists === 'object') {
+        isUpdatingFromFirebase.current = true
+        setState(firebaseData)
+        localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+      }
+    } catch (error) {
+      console.error('Failed to reload from Firebase:', error)
+    }
+  }, [])
+
   return {
     state,
     initialized: firebaseReady,
@@ -341,6 +359,7 @@ export function useStore() {
     updateTheme,
     updateMenuConfig,
     updateMarqueeConfig,
+    reloadFromFirebase,
   }
 }
 

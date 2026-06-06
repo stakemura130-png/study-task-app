@@ -36,6 +36,56 @@ export function App() {
   const [openTaskId, setOpenTaskId] = useState<string | null>(null)
   // 'new' = 新規作成 / Exam = 編集 / null = 閉じる
   const [examModal, setExamModal] = useState<'new' | Exam | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [pullDistance, setPullDistance] = useState(0)
+
+  // プルトゥリフレッシュ
+  useEffect(() => {
+    let startY = 0
+
+    const handleTouchStart = (e: TouchEvent) => {
+      // ページの上部でのタッチのみ
+      if (window.scrollY === 0) {
+        startY = e.touches[0].clientY
+      }
+    }
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (window.scrollY === 0 && startY > 0) {
+        const currentY = e.touches[0].clientY
+        const distance = currentY - startY
+        if (distance > 0) {
+          setPullDistance(distance)
+        }
+      }
+    }
+
+    const handleTouchEnd = async () => {
+      if (pullDistance > 80) {
+        setIsRefreshing(true)
+        // Firebase から再読み込み
+        try {
+          await store.reloadFromFirebase()
+        } catch (err) {
+          console.error('Failed to refresh:', err)
+        } finally {
+          setIsRefreshing(false)
+        }
+      }
+      setPullDistance(0)
+      startY = 0
+    }
+
+    document.addEventListener('touchstart', handleTouchStart)
+    document.addEventListener('touchmove', handleTouchMove)
+    document.addEventListener('touchend', handleTouchEnd)
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart)
+      document.removeEventListener('touchmove', handleTouchMove)
+      document.removeEventListener('touchend', handleTouchEnd)
+    }
+  }, [pullDistance, store])
 
   // 認証なければここで LoginScreen を返す
   if (!isAuthenticated) {
@@ -96,6 +146,35 @@ export function App() {
 
   return (
     <div className={`app theme-${state.theme}`}>
+      {/* プルトゥリフレッシュ UI */}
+      {pullDistance > 0 && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 248,
+            right: 0,
+            height: Math.min(pullDistance, 80),
+            background: 'var(--surface)',
+            borderBottom: '1px solid var(--border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 200,
+            opacity: Math.min(pullDistance / 80, 1),
+          }}
+        >
+          <div
+            style={{
+              fontSize: '24px',
+              animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
+            }}
+          >
+            ⟳
+          </div>
+        </div>
+      )}
+
       <Sidebar
         store={store}
         view={view}

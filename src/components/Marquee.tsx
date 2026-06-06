@@ -10,12 +10,14 @@ export function Marquee({ config }: MarqueeProps) {
 
   // パターンを時間ベースで切り替え
   useEffect(() => {
+    if (!config.patterns || config.patterns.length === 0) return
+
     const interval = setInterval(() => {
       setCurrentPatternIndex((prev) => (prev + 1) % config.patterns.length)
     }, config.switchIntervalMinutes * 60 * 1000)
 
     return () => clearInterval(interval)
-  }, [config.patterns.length, config.switchIntervalMinutes])
+  }, [config.patterns?.length, config.switchIntervalMinutes])
 
   if (config.patterns.length === 0) return null
 

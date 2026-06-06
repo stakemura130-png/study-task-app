@@ -434,7 +434,12 @@ export function loadState(): AppState {
           speed: 20,
           switchIntervalMinutes: 5,
         }
-        const marqueeConfig = parsed.marqueeConfig ?? defaultMarqueeConfig
+
+        // marqueeConfig がない、または patterns がない場合はデフォルト値を使う
+        const marqueeConfig =
+          parsed.marqueeConfig && Array.isArray(parsed.marqueeConfig.patterns) && parsed.marqueeConfig.patterns.length > 0
+            ? parsed.marqueeConfig
+            : defaultMarqueeConfig
 
         return { ...parsed, tasks, taskTypeMeta, statusMeta: parsed.statusMeta ?? DEFAULT_STATUS_META, checklists, checklistColorThresholds: initChecklistColorThresholds, theme: parsed.theme ?? 'light', menuConfig, marqueeConfig }
       }

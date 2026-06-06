@@ -54,12 +54,12 @@ export function Sidebar({
       <div className="sidebar__brand">
         <div className="sidebar__logo">📚</div>
         <div>
-          学習タスク管理
-          <div style={{ fontSize: 10, color: '#64748b', fontWeight: 400, marginTop: 4 }}>
-            {currentTime}
-          </div>
-          <div style={{ fontSize: 11, color: '#64748b', fontWeight: 400, marginTop: 2 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>学習タスク管理</div>
+          <div style={{ fontSize: 12, color: '#64748b', fontWeight: 400, marginBottom: 12 }}>
             司法・予備・行政書士
+          </div>
+          <div style={{ fontSize: 13, color: '#94a3b8', fontWeight: 500, lineHeight: 1.4 }}>
+            {currentTime}
           </div>
         </div>
       </div>

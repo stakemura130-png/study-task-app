@@ -53,14 +53,13 @@ export function Sidebar({
 
   return (
     <aside className="sidebar">
-      <div className="sidebar__brand" style={{ flexDirection: 'column' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span>📚</span>
-          <span>学習タスク管理</span>
-        </div>
-        <div style={{ fontSize: 11, color: '#64748b', fontWeight: 400, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span>🎓</span>
-          <span>司法・予備・行政書士</span>
+      <div className="sidebar__brand" style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
+        <div style={{ fontSize: 40, lineHeight: 1, marginTop: 2 }}>📚</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>学習タスク管理</div>
+          <div style={{ fontSize: 11, color: '#64748b', fontWeight: 400, marginBottom: 12 }}>
+            司法・予備・行政書士
+          </div>
         </div>
         <div
           style={{

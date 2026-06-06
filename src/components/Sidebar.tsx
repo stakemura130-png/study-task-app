@@ -22,20 +22,22 @@ export function Sidebar({
   onLogout,
 }: SidebarProps) {
   const { state } = store
-  const [currentTime, setCurrentTime] = useState('')
+  const [currentTime, setCurrentTime] = useState({ date: '', time: '' })
 
   useEffect(() => {
     const updateTime = () => {
       const now = new Date()
       const year = now.getFullYear()
-      const month = String(now.getMonth() + 1).padStart(2, '0')
-      const date = String(now.getDate()).padStart(2, '0')
+      const month = now.getMonth() + 1
+      const date = now.getDate()
       const hours = String(now.getHours()).padStart(2, '0')
       const minutes = String(now.getMinutes()).padStart(2, '0')
       const dayNames = ['日', '月', '火', '水', '木', '金', '土']
       const dayName = dayNames[now.getDay()]
 
-      setCurrentTime(`${year}-${month}-${date} ${dayName}曜日 ${hours}:${minutes}`)
+      const dateStr = `${year}年${month}月${date}日(${dayName})`
+      const timeStr = `${hours}：${minutes}`
+      setCurrentTime({ date: dateStr, time: timeStr })
     }
 
     updateTime()
@@ -55,11 +57,12 @@ export function Sidebar({
         <div className="sidebar__logo">📚</div>
         <div>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>学習タスク管理</div>
-          <div style={{ fontSize: 12, color: '#64748b', fontWeight: 400, marginBottom: 12 }}>
+          <div style={{ fontSize: 12, color: '#64748b', fontWeight: 400, marginBottom: 16 }}>
             司法・予備・行政書士
           </div>
-          <div style={{ fontSize: 13, color: '#94a3b8', fontWeight: 500, lineHeight: 1.4 }}>
-            {currentTime}
+          <div style={{ fontSize: 14, color: '#94a3b8', fontWeight: 600, lineHeight: 1.6 }}>
+            <div>{currentTime.date}</div>
+            <div>{currentTime.time}</div>
           </div>
         </div>
       </div>

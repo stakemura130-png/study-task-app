@@ -12,9 +12,10 @@ interface SubjectSettingsProps {
   store: Store
 }
 
-export function SubjectSettings({ subjects, taskTypeMeta, tasks, store }: SubjectSettingsProps) {
+export function SubjectSettings({ subjects, taskTypeMeta, tasks, exams, store }: SubjectSettingsProps) {
   const [newName, setNewName] = useState('')
   const [newColor, setNewColor] = useState(EXAM_COLORS[0])
+  const [newExamDate, setNewExamDate] = useState('')
   const [userId, setUserId] = useState(() => localStorage.getItem('app:userId') || '')
   const [expandedSections, setExpandedSections] = useState({
     addSubject: true,
@@ -27,6 +28,7 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, store }: Subjec
     userId: false,
     menu: false,
     marquee: false,
+    exams: false,
   })
 
   const toggleSection = (section: keyof typeof expandedSections) => {
@@ -341,6 +343,40 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, store }: Subjec
                   <MenuRow key={menu.key} menu={menu} index={index} store={store} allMenus={store.state.menuConfig} />
                 ))}
             </div>
+          </>
+        )}
+      </div>
+
+      <div className="panel">
+        <h3
+          style={{
+            cursor: 'pointer',
+            userSelect: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+          onClick={() => toggleSection('exams')}
+        >
+          {expandedSections.exams ? '▼' : '▶'} 試験日管理
+        </h3>
+        {expandedSections.exams && (
+          <>
+            <p style={{ color: 'var(--text-soft)', marginTop: -8 }}>
+              各試験の日付と情報を管理します。
+            </p>
+            <div style={{ display: 'grid', gap: 12 }}>
+              {exams.map((exam) => (
+                <ExamRow key={exam.id} exam={exam} store={store} />
+              ))}
+            </div>
+            <button
+              className="btn btn--primary"
+              onClick={() => store.addExam('新しい試験', '', EXAM_COLORS[0])}
+              style={{ marginTop: 12, width: '100%' }}
+            >
+              ＋ 試験を追加
+            </button>
           </>
         )}
       </div>
@@ -1078,6 +1114,88 @@ function MarqueePatternRow({
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function ExamRow({ exam, store }: { exam: Exam; store: Store }) {
+  const [name, setName] = useState(exam.name)
+  const [examDate, setExamDate] = useState(exam.examDate)
+
+  const commitName = () => {
+    const n = name.trim()
+    if (n && n !== exam.name) store.updateExam(exam.id, { name: n })
+    else setName(exam.name)
+  }
+
+  const commitDate = () => {
+    if (examDate && examDate !== exam.examDate) store.updateExam(exam.id, { examDate })
+    else setExamDate(exam.examDate)
+  }
+
+  return (
+    <div
+      style={{
+        padding: 12,
+        border: '1px solid var(--border)',
+        borderRadius: 6,
+        background: 'var(--surface)',
+        display: 'grid',
+        gap: 8,
+      }}
+    >
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div
+          style={{
+            width: 24,
+            height: 24,
+            borderRadius: 4,
+            background: exam.color,
+          }}
+        />
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={commitName}
+          onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+          style={{
+            flex: 1,
+            padding: '6px 8px',
+            border: '1px solid var(--border)',
+            borderRadius: 4,
+            fontSize: 13,
+            fontWeight: 600,
+            background: 'var(--surface)',
+            color: 'var(--text)',
+          }}
+        />
+        <button
+          className="btn btn--danger"
+          onClick={() => store.deleteExam(exam.id)}
+          style={{ padding: '4px 8px', fontSize: 12 }}
+        >
+          削除
+        </button>
+      </div>
+      <div>
+        <label style={{ display: 'block', marginBottom: 4, fontSize: 12, fontWeight: 600 }}>試験日</label>
+        <input
+          type="date"
+          value={examDate}
+          onChange={(e) => setExamDate(e.target.value)}
+          onBlur={commitDate}
+          style={{
+            width: '100%',
+            padding: '6px 8px',
+            border: '1px solid var(--border)',
+            borderRadius: 4,
+            fontSize: 13,
+            background: 'var(--surface)',
+            color: 'var(--text)',
+          }}
+        />
+      </div>
     </div>
   )
 }

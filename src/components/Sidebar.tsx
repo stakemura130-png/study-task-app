@@ -79,40 +79,6 @@ export function Sidebar({
           </button>
         ))}
 
-      <div className="sidebar__section">
-        <span>試験日</span>
-        <button
-          onClick={onNewExam}
-          title="試験日を追加"
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: '#94a3b8',
-            fontSize: 16,
-            lineHeight: 1,
-          }}
-        >
-          ＋
-        </button>
-      </div>
-      {sortedExams.map((exam) => {
-        const days = daysUntilExam(exam.examDate)
-        return (
-          <button key={exam.id} className="exam-item" onClick={() => onEditExam(exam)}>
-            <span className="exam-item__dot" style={{ background: exam.color }} />
-            <span className="exam-item__name">{exam.name}</span>
-            {days !== null && (
-              <span className="exam-item__days">
-                {days > 0 ? `${days}日` : days === 0 ? '本番' : '済'}
-              </span>
-            )}
-          </button>
-        )
-      })}
-
-      <button className="sidebar__add" onClick={onNewExam}>
-        ＋ 試験日を追加
-      </button>
 
       <button
         className="sidebar__logout"

@@ -10,6 +10,7 @@ import { Checklist } from './components/Checklist'
 import { TaskModal } from './components/TaskModal'
 import { ExamModal } from './components/ExamModal'
 import { LoginScreen } from './components/LoginScreen'
+import { Marquee } from './components/Marquee'
 
 export type View = 'board' | 'stats' | 'settings' | 'checklist'
 
@@ -108,6 +109,7 @@ export function App() {
           <h1 className="topbar__title">
             {view === 'board' ? '学習ボード' : view === 'stats' ? '統計' : view === 'settings' ? '各種設定' : '学習チェックリスト'}
           </h1>
+          <Marquee />
           <CountdownBar exams={state.exams} onEdit={(exam) => setExamModal(exam)} />
         </div>
 

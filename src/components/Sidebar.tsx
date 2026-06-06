@@ -53,29 +53,30 @@ export function Sidebar({
 
   return (
     <aside className="sidebar">
-      <div className="sidebar__brand" style={{ flexDirection: 'row', gap: 12 }}>
-        <div className="sidebar__logo" style={{ fontSize: 32, lineHeight: 1, marginTop: 4 }}>📚</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>学習タスク管理</div>
-          <div style={{ fontSize: 11, color: '#64748b', fontWeight: 400, marginBottom: 12 }}>
-            司法・予備・行政書士
+      <div className="sidebar__brand" style={{ flexDirection: 'column' }}>
+        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span>📚</span>
+          <span>学習タスク管理</span>
+        </div>
+        <div style={{ fontSize: 11, color: '#64748b', fontWeight: 400, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span>🎓</span>
+          <span>司法・予備・行政書士</span>
+        </div>
+        <div
+          style={{
+            fontFamily: "'SF Mono', Monaco, monospace",
+            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8))',
+            border: '1px solid rgba(99, 102, 241, 0.2)',
+            borderRadius: 8,
+            padding: '10px 12px',
+            backdropFilter: 'blur(10px)',
+          }}
+        >
+          <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400, letterSpacing: '0.5px', marginBottom: 6 }}>
+            {currentTime.date}
           </div>
-          <div
-            style={{
-              fontFamily: "'SF Mono', Monaco, monospace",
-              background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8))',
-              border: '1px solid rgba(99, 102, 241, 0.2)',
-              borderRadius: 8,
-              padding: '10px 12px',
-              backdropFilter: 'blur(10px)',
-            }}
-          >
-            <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400, letterSpacing: '0.5px', marginBottom: 6 }}>
-              {currentTime.date}
-            </div>
-            <div style={{ fontSize: 18, fontWeight: 600, color: '#6366f1', letterSpacing: '1px', fontVariantNumeric: 'tabular-nums' }}>
-              {currentTime.time}
-            </div>
+          <div style={{ fontSize: 18, fontWeight: 600, color: '#6366f1', letterSpacing: '1px', fontVariantNumeric: 'tabular-nums' }}>
+            {currentTime.time}
           </div>
         </div>
       </div>

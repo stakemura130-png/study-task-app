@@ -109,7 +109,7 @@ export function App() {
           <h1 className="topbar__title">
             {view === 'board' ? '学習ボード' : view === 'stats' ? '統計' : view === 'settings' ? '各種設定' : '学習チェックリスト'}
           </h1>
-          <Marquee />
+          <Marquee config={state.marqueeConfig} />
           <CountdownBar exams={state.exams} onEdit={(exam) => setExamModal(exam)} />
         </div>
 

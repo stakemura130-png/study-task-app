@@ -26,6 +26,7 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, store }: Subjec
     theme: false,
     userId: false,
     menu: false,
+    marquee: false,
   })
 
   const toggleSection = (section: keyof typeof expandedSections) => {
@@ -340,6 +341,29 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, store }: Subjec
                   <MenuRow key={menu.key} menu={menu} index={index} store={store} allMenus={store.state.menuConfig} />
                 ))}
             </div>
+          </>
+        )}
+      </div>
+
+      <div className="panel">
+        <h3
+          style={{
+            cursor: 'pointer',
+            userSelect: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+          onClick={() => toggleSection('marquee')}
+        >
+          {expandedSections.marquee ? '▼' : '▶'} マルキー設定
+        </h3>
+        {expandedSections.marquee && (
+          <>
+            <p style={{ color: 'var(--text-soft)', marginTop: -8 }}>
+              タイトルとカウントダウンの間に流れるテキストと枠のスタイルを設定できます。
+            </p>
+            <MarqueeSettings store={store} />
           </>
         )}
       </div>
@@ -802,6 +826,206 @@ function MenuRow({
         >
           ↓
         </button>
+      </div>
+    </div>
+  )
+}
+
+function MarqueeSettings({ store }: { store: Store }) {
+  const config = store.state.marqueeConfig
+  const [messages, setMessages] = useState(config.messages)
+  const [speed, setSpeed] = useState(config.speed.toString())
+  const [bgColor, setBgColor] = useState(config.bgColor)
+  const [textColor, setTextColor] = useState(config.textColor)
+  const [borderColor, setBorderColor] = useState(config.borderColor)
+  const [borderStyle, setBorderStyle] = useState(config.borderStyle)
+
+  const commitMessages = () => {
+    if (messages.trim()) {
+      store.updateMarqueeConfig({ messages })
+    }
+  }
+
+  const commitSpeed = () => {
+    const s = parseInt(speed, 10)
+    if (!isNaN(s) && s > 0) {
+      store.updateMarqueeConfig({ speed: s })
+    } else {
+      setSpeed(config.speed.toString())
+    }
+  }
+
+  return (
+    <div style={{ display: 'grid', gap: 16 }}>
+      {/* テキスト設定 */}
+      <div>
+        <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>流すテキスト（カンマ区切り）</label>
+        <textarea
+          value={messages}
+          onChange={(e) => setMessages(e.target.value)}
+          onBlur={commitMessages}
+          placeholder="💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！"
+          style={{
+            width: '100%',
+            padding: '8px 12px',
+            border: '1px solid var(--border)',
+            borderRadius: 4,
+            fontFamily: 'inherit',
+            fontSize: 13,
+            background: 'var(--surface)',
+            color: 'var(--text)',
+            minHeight: 60,
+            resize: 'vertical',
+          }}
+        />
+      </div>
+
+      {/* 速度設定 */}
+      <div>
+        <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>アニメーション速度（秒）</label>
+        <input
+          type="number"
+          value={speed}
+          onChange={(e) => setSpeed(e.target.value)}
+          onBlur={commitSpeed}
+          min="1"
+          max="60"
+          style={{
+            width: 120,
+            padding: '8px 12px',
+            border: '1px solid var(--border)',
+            borderRadius: 4,
+            fontSize: 13,
+            background: 'var(--surface)',
+            color: 'var(--text)',
+          }}
+        />
+      </div>
+
+      {/* 色設定 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div>
+          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>背景色</label>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input
+              type="color"
+              value={bgColor}
+              onChange={(e) => {
+                setBgColor(e.target.value)
+                store.updateMarqueeConfig({ bgColor: e.target.value })
+              }}
+              style={{ width: 48, height: 40, border: 'none', borderRadius: 4, cursor: 'pointer' }}
+            />
+            <input
+              type="text"
+              value={bgColor}
+              onChange={(e) => {
+                setBgColor(e.target.value)
+                store.updateMarqueeConfig({ bgColor: e.target.value })
+              }}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                border: '1px solid var(--border)',
+                borderRadius: 4,
+                fontSize: 12,
+                fontFamily: 'monospace',
+                background: 'var(--surface)',
+                color: 'var(--text)',
+              }}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>テキスト色</label>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input
+              type="color"
+              value={textColor}
+              onChange={(e) => {
+                setTextColor(e.target.value)
+                store.updateMarqueeConfig({ textColor: e.target.value })
+              }}
+              style={{ width: 48, height: 40, border: 'none', borderRadius: 4, cursor: 'pointer' }}
+            />
+            <input
+              type="text"
+              value={textColor}
+              onChange={(e) => {
+                setTextColor(e.target.value)
+                store.updateMarqueeConfig({ textColor: e.target.value })
+              }}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                border: '1px solid var(--border)',
+                borderRadius: 4,
+                fontSize: 12,
+                fontFamily: 'monospace',
+                background: 'var(--surface)',
+                color: 'var(--text)',
+              }}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>枠線色</label>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input
+              type="color"
+              value={borderColor}
+              onChange={(e) => {
+                setBorderColor(e.target.value)
+                store.updateMarqueeConfig({ borderColor: e.target.value })
+              }}
+              style={{ width: 48, height: 40, border: 'none', borderRadius: 4, cursor: 'pointer' }}
+            />
+            <input
+              type="text"
+              value={borderColor}
+              onChange={(e) => {
+                setBorderColor(e.target.value)
+                store.updateMarqueeConfig({ borderColor: e.target.value })
+              }}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                border: '1px solid var(--border)',
+                borderRadius: 4,
+                fontSize: 12,
+                fontFamily: 'monospace',
+                background: 'var(--surface)',
+                color: 'var(--text)',
+              }}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>枠線スタイル</label>
+          <select
+            value={borderStyle}
+            onChange={(e) => {
+              setBorderStyle(e.target.value as 'solid' | 'dashed' | 'gradient')
+              store.updateMarqueeConfig({ borderStyle: e.target.value as 'solid' | 'dashed' | 'gradient' })
+            }}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              border: '1px solid var(--border)',
+              borderRadius: 4,
+              fontSize: 13,
+              background: 'var(--surface)',
+              color: 'var(--text)',
+            }}
+          >
+            <option value="solid">ソリッド</option>
+            <option value="dashed">ダッシュ</option>
+            <option value="gradient">グラデーション</option>
+          </select>
+        </div>
       </div>
     </div>
   )

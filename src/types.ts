@@ -91,6 +91,21 @@ export interface ChecklistColorThresholds {
   poorColor: string
 }
 
+export interface MarqueeConfig {
+  /** 流す文字（カンマ区切り） */
+  messages: string
+  /** アニメーション速度（秒） */
+  speed: number
+  /** 背景色 */
+  bgColor: string
+  /** テキスト色 */
+  textColor: string
+  /** 枠線色 */
+  borderColor: string
+  /** 枠線スタイル */
+  borderStyle: 'solid' | 'dashed' | 'gradient'
+}
+
 export interface AppState {
   /** 全試験で共通の学習タスク（カンバン） */
   tasks: Task[]
@@ -111,6 +126,8 @@ export interface AppState {
   studyLog: StudyEntry[]
   /** メニュー設定（順番・名称・表示/非表示） */
   menuConfig: { key: MenuKey; label: string; visible: boolean; order: number }[]
+  /** マルキー設定（テキスト・速度・スタイル） */
+  marqueeConfig: MarqueeConfig
   /** 最後の更新時刻（デバイス間の同期判定に使用） */
   lastUpdatedAt?: number
 }

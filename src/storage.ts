@@ -110,7 +110,17 @@ function seedState(): AppState {
     { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
   ]
 
-  return { tasks, exams, subjects, taskTypeMeta: TASK_TYPE_META, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog: [], menuConfig }
+  // マルキー設定（デフォルト）
+  const marqueeConfig = {
+    messages: '💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！,🔥 全力で応援！,📚 今が勝負,⚡ 走り抜けろ！,🏆 栄光を目指して,💡 知識は力',
+    speed: 20,
+    bgColor: '#1e293b',
+    textColor: '#e2e8f0',
+    borderColor: '#6366f1',
+    borderStyle: 'gradient' as const,
+  }
+
+  return { tasks, exams, subjects, taskTypeMeta: TASK_TYPE_META, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog: [], menuConfig, marqueeConfig }
 }
 
 /** 旧バージョンからの移行（試験ごとタスク構造／科目なし構造の両方に対応） */
@@ -194,7 +204,17 @@ function migrate(raw: string): AppState | null {
       { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
     ]
 
-    return { tasks, exams, subjects, taskTypeMeta, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog, menuConfig }
+    // マルキー設定（デフォルト）
+    const marqueeConfig = {
+      messages: '💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！,🔥 全力で応援！,📚 今が勝負,⚡ 走り抜けろ！,🏆 栄光を目指して,💡 知識は力',
+      speed: 20,
+      bgColor: '#1e293b',
+      textColor: '#e2e8f0',
+      borderColor: '#6366f1',
+      borderStyle: 'gradient' as const,
+    }
+
+    return { tasks, exams, subjects, taskTypeMeta, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog, menuConfig, marqueeConfig }
   } catch {
     return null
   }
@@ -291,7 +311,18 @@ export function loadState(): AppState {
         ]
         const menuConfig = parsed.menuConfig ?? defaultMenuConfig
 
-        return { ...parsed, tasks, taskTypeMeta, statusMeta: parsed.statusMeta ?? DEFAULT_STATUS_META, checklists, checklistColorThresholds: initChecklistColorThresholds, theme: parsed.theme ?? 'light', menuConfig }
+        // marqueeConfig がない場合はデフォルト値を使う
+        const defaultMarqueeConfig = {
+          messages: '💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！,🔥 全力で応援！,📚 今が勝負,⚡ 走り抜けろ！,🏆 栄光を目指して,💡 知識は力',
+          speed: 20,
+          bgColor: '#1e293b',
+          textColor: '#e2e8f0',
+          borderColor: '#6366f1',
+          borderStyle: 'gradient' as const,
+        }
+        const marqueeConfig = parsed.marqueeConfig ?? defaultMarqueeConfig
+
+        return { ...parsed, tasks, taskTypeMeta, statusMeta: parsed.statusMeta ?? DEFAULT_STATUS_META, checklists, checklistColorThresholds: initChecklistColorThresholds, theme: parsed.theme ?? 'light', menuConfig, marqueeConfig }
       }
     }
     // 旧データがあれば移行

@@ -73,23 +73,23 @@ export function Marquee({ config }: MarqueeProps) {
         .marquee {
           overflow: hidden;
           white-space: nowrap;
-          flex: 1;
+          flex: 0.6;
           height: 40px;
           display: flex;
           align-items: center;
-          margin: 0 24px;
+          margin: 0 12px;
           font-size: 14px;
           font-weight: 500;
           border: ${getBorderStyle()};
           border-radius: 8px;
-          padding: 0 16px;
+          padding: 0 12px;
           box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
           position: relative;
         }
 
         .marquee__text {
           display: inline-block;
-          padding-left: 100%;
+          padding-left: 0;
           animation: marquee linear infinite;
         }
 
@@ -118,10 +118,10 @@ export function Marquee({ config }: MarqueeProps) {
 
         @keyframes marquee {
           0% {
-            transform: translateX(0);
+            transform: translateX(100%);
           }
           100% {
-            transform: translateX(-50%);
+            transform: translateX(-100%);
           }
         }
       `}</style>

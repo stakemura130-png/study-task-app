@@ -108,6 +108,7 @@ function seedState(): AppState {
     { key: 'stats' as const, label: '統計', visible: true, order: 1 },
     { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
     { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
+    { key: 'calendar' as const, label: 'カレンダー', visible: true, order: 4 },
   ]
 
   // マルキー設定（デフォルト）
@@ -240,6 +241,7 @@ function migrate(raw: string): AppState | null {
       { key: 'stats' as const, label: '統計', visible: true, order: 1 },
       { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
       { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
+      { key: 'calendar' as const, label: 'カレンダー', visible: true, order: 4 },
     ]
 
     // マルキー設定（デフォルト）
@@ -384,6 +386,7 @@ export function loadState(): AppState {
           { key: 'stats' as const, label: '統計', visible: true, order: 1 },
           { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
           { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
+          { key: 'calendar' as const, label: 'カレンダー', visible: true, order: 4 },
         ]
         const menuConfig = parsed.menuConfig ?? defaultMenuConfig
 

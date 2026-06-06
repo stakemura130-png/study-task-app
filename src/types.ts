@@ -1,6 +1,6 @@
 export type Status = 'todo' | 'learning' | 'review' | 'done'
 export type TaskType = 'tanpa' | 'shiyoku' | 'moshi' | 'text' | 'ichimondai' | 'joubun'
-export type MenuKey = 'board' | 'stats' | 'settings' | 'checklist'
+export type MenuKey = 'board' | 'stats' | 'settings' | 'checklist' | 'calendar'
 
 /** 科目（民法・商法など）。カードの色分けに使う。 */
 export interface Subject {

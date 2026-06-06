@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { Exam } from '../types'
 import type { Store } from '../useStore'
 import type { View } from '../App'
@@ -21,6 +22,26 @@ export function Sidebar({
   onLogout,
 }: SidebarProps) {
   const { state } = store
+  const [currentTime, setCurrentTime] = useState('')
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const date = String(now.getDate()).padStart(2, '0')
+      const hours = String(now.getHours()).padStart(2, '0')
+      const minutes = String(now.getMinutes()).padStart(2, '0')
+      const dayNames = ['日', '月', '火', '水', '木', '金', '土']
+      const dayName = dayNames[now.getDay()]
+
+      setCurrentTime(`${year}-${month}-${date} ${dayName}曜日 ${hours}:${minutes}`)
+    }
+
+    updateTime()
+    const interval = setInterval(updateTime, 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   const sortedExams = [...state.exams].sort((a, b) => {
     if (!a.examDate) return 1
@@ -34,7 +55,10 @@ export function Sidebar({
         <div className="sidebar__logo">📚</div>
         <div>
           学習タスク管理
-          <div style={{ fontSize: 11, color: '#64748b', fontWeight: 400 }}>
+          <div style={{ fontSize: 10, color: '#64748b', fontWeight: 400, marginTop: 4 }}>
+            {currentTime}
+          </div>
+          <div style={{ fontSize: 11, color: '#64748b', fontWeight: 400, marginTop: 2 }}>
             司法・予備・行政書士
           </div>
         </div>
@@ -51,7 +75,7 @@ export function Sidebar({
             onClick={() => setView(menu.key as View)}
           >
             {menu.key === 'board' && '🗂'} {menu.key === 'stats' && '📊'} {menu.key === 'settings' && '⚙'}{' '}
-            {menu.key === 'checklist' && '✓'} {menu.label}
+            {menu.key === 'checklist' && '✓'} {menu.key === 'calendar' && '📅'} {menu.label}
           </button>
         ))}
 

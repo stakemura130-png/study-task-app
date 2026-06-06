@@ -74,11 +74,11 @@ export function Marquee({ config }: MarqueeProps) {
           overflow: hidden;
           white-space: nowrap;
           width: 100%;
-          height: 40px;
+          height: 28px;
           display: flex;
           align-items: center;
           margin: 0;
-          font-size: 16px;
+          font-size: 13px;
           font-weight: 500;
           border: ${getBorderStyle()};
           border-radius: 8px;
@@ -91,8 +91,8 @@ export function Marquee({ config }: MarqueeProps) {
         @media (max-width: 1024px) {
           .marquee {
             width: 100%;
-            height: 60px;
-            font-size: 22px;
+            height: 36px;
+            font-size: 16px;
             margin: 0;
           }
         }

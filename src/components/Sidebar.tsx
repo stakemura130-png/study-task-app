@@ -57,12 +57,12 @@ export function Sidebar({
         <div className="sidebar__logo">📚</div>
         <div>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>学習タスク管理</div>
-          <div style={{ fontSize: 12, color: '#64748b', fontWeight: 400, marginBottom: 16 }}>
+          <div style={{ fontSize: 11, color: '#64748b', fontWeight: 400, marginBottom: 16 }}>
             司法・予備・行政書士
           </div>
-          <div style={{ fontSize: 14, color: '#94a3b8', fontWeight: 600, lineHeight: 1.6 }}>
-            <div>{currentTime.date}</div>
-            <div>{currentTime.time}</div>
+          <div style={{ fontFamily: 'monospace', fontSize: 13, color: '#cbd5e1', fontWeight: 400, lineHeight: 1.8, letterSpacing: '0.5px' }}>
+            <div style={{ fontSize: 12, color: '#94a3b8' }}>{currentTime.date}</div>
+            <div style={{ fontSize: 16, fontWeight: 600, marginTop: 6 }}>{currentTime.time}</div>
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { MarqueeConfig } from '../types'
 
 interface MarqueeProps {
@@ -5,7 +6,21 @@ interface MarqueeProps {
 }
 
 export function Marquee({ config }: MarqueeProps) {
-  const messages = config.messages
+  const [currentPatternIndex, setCurrentPatternIndex] = useState(0)
+
+  // パターンを時間ベースで切り替え
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPatternIndex((prev) => (prev + 1) % config.patterns.length)
+    }, config.switchIntervalMinutes * 60 * 1000)
+
+    return () => clearInterval(interval)
+  }, [config.patterns.length, config.switchIntervalMinutes])
+
+  if (config.patterns.length === 0) return null
+
+  const currentPattern = config.patterns[currentPatternIndex]
+  const messages = currentPattern.messages
     .split(',')
     .map((m) => m.trim())
     .filter((m) => m)
@@ -13,20 +28,20 @@ export function Marquee({ config }: MarqueeProps) {
   const marqueeText = messages.join('  •  ') + '  •  ' + messages.join('  •  ')
 
   const getBorderStyle = () => {
-    if (config.borderStyle === 'dashed') {
-      return `2px dashed ${config.borderColor}`
+    if (currentPattern.borderStyle === 'dashed') {
+      return `2px dashed ${currentPattern.borderColor}`
     }
-    if (config.borderStyle === 'gradient') {
-      return `2px solid ${config.borderColor}`
+    if (currentPattern.borderStyle === 'gradient') {
+      return `2px solid ${currentPattern.borderColor}`
     }
-    return `2px solid ${config.borderColor}`
+    return `2px solid ${currentPattern.borderColor}`
   }
 
   const getGradientBackground = () => {
-    if (config.borderStyle === 'gradient') {
-      return `linear-gradient(90deg, ${config.bgColor}, rgba(99, 102, 241, 0.1))`
+    if (currentPattern.borderStyle === 'gradient') {
+      return `linear-gradient(90deg, ${currentPattern.bgColor}, rgba(99, 102, 241, 0.1))`
     }
-    return config.bgColor
+    return currentPattern.bgColor
   }
 
   return (
@@ -34,13 +49,24 @@ export function Marquee({ config }: MarqueeProps) {
       className="marquee"
       style={{
         background: getGradientBackground(),
-        borderColor: config.borderColor,
-        color: config.textColor,
+        borderColor: currentPattern.borderColor,
+        color: currentPattern.textColor,
       }}
     >
       <div className="marquee__text" style={{ animationDuration: `${config.speed}s` }}>
         {marqueeText}
       </div>
+      {/* パターン数が2つ以上の場合、インジケーターを表示 */}
+      {config.patterns.length > 1 && (
+        <div className="marquee__indicators">
+          {config.patterns.map((_, index) => (
+            <span
+              key={index}
+              className={`marquee__dot${index === currentPatternIndex ? ' active' : ''}`}
+            />
+          ))}
+        </div>
+      )}
       <style>{`
         .marquee {
           overflow: hidden;
@@ -56,12 +82,36 @@ export function Marquee({ config }: MarqueeProps) {
           border-radius: 8px;
           padding: 0 16px;
           box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+          position: relative;
         }
 
         .marquee__text {
           display: inline-block;
           padding-left: 100%;
           animation: marquee linear infinite;
+        }
+
+        .marquee__indicators {
+          display: flex;
+          gap: 4px;
+          margin-left: 8px;
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+
+        .marquee__dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: currentColor;
+          opacity: 0.5;
+          transition: opacity 0.3s;
+        }
+
+        .marquee__dot.active {
+          opacity: 1;
         }
 
         @keyframes marquee {

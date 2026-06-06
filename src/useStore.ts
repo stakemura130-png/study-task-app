@@ -297,7 +297,7 @@ export function useStore() {
   )
 
   const updateMarqueeConfig = useCallback(
-    (marqueeConfig: Partial<{ messages: string; speed: number; bgColor: string; textColor: string; borderColor: string; borderStyle: 'solid' | 'dashed' | 'gradient' }>) => {
+    (marqueeConfig: Partial<{ patterns: any[]; speed: number; switchIntervalMinutes: number }>) => {
       setState((s) => ({
         ...s,
         marqueeConfig: { ...s.marqueeConfig, ...marqueeConfig },

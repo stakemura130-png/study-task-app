@@ -112,12 +112,50 @@ function seedState(): AppState {
 
   // マルキー設定（デフォルト）
   const marqueeConfig = {
-    messages: '💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！,🔥 全力で応援！,📚 今が勝負,⚡ 走り抜けろ！,🏆 栄光を目指して,💡 知識は力',
+    patterns: [
+      {
+        id: uid(),
+        messages: '💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！,🔥 全力で応援！',
+        bgColor: '#1e293b',
+        textColor: '#e2e8f0',
+        borderColor: '#6366f1',
+        borderStyle: 'gradient' as const,
+      },
+      {
+        id: uid(),
+        messages: '📚 今が勝負,⚡ 走り抜けろ！,🏆 栄光を目指して,💡 知識は力',
+        bgColor: '#172554',
+        textColor: '#f1f5f9',
+        borderColor: '#ec4899',
+        borderStyle: 'solid' as const,
+      },
+      {
+        id: uid(),
+        messages: '🌟 君ならできる！,💯 完璧を目指して,🎊 一緒に頑張ろう,✊ 負けるな',
+        bgColor: '#1f2937',
+        textColor: '#fbbf24',
+        borderColor: '#f59e0b',
+        borderStyle: 'dashed' as const,
+      },
+      {
+        id: uid(),
+        messages: '🚀 突き進め！,🔥 熱くなれ！,💎 宝物を手に入れろ,🎯 目標必達',
+        bgColor: '#1e3a1f',
+        textColor: '#86efac',
+        borderColor: '#10b981',
+        borderStyle: 'gradient' as const,
+      },
+      {
+        id: uid(),
+        messages: '⭐ 星になれ！,🎸 楽しくやろう,😊 笑顔で乗り切れ,👊 応援してる',
+        bgColor: '#312e81',
+        textColor: '#c4b5fd',
+        borderColor: '#a78bfa',
+        borderStyle: 'solid' as const,
+      },
+    ],
     speed: 20,
-    bgColor: '#1e293b',
-    textColor: '#e2e8f0',
-    borderColor: '#6366f1',
-    borderStyle: 'gradient' as const,
+    switchIntervalMinutes: 5,
   }
 
   return { tasks, exams, subjects, taskTypeMeta: TASK_TYPE_META, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog: [], menuConfig, marqueeConfig }
@@ -206,12 +244,50 @@ function migrate(raw: string): AppState | null {
 
     // マルキー設定（デフォルト）
     const marqueeConfig = {
-      messages: '💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！,🔥 全力で応援！,📚 今が勝負,⚡ 走り抜けろ！,🏆 栄光を目指して,💡 知識は力',
+      patterns: [
+        {
+          id: uid(),
+          messages: '💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！,🔥 全力で応援！',
+          bgColor: '#1e293b',
+          textColor: '#e2e8f0',
+          borderColor: '#6366f1',
+          borderStyle: 'gradient' as const,
+        },
+        {
+          id: uid(),
+          messages: '📚 今が勝負,⚡ 走り抜けろ！,🏆 栄光を目指して,💡 知識は力',
+          bgColor: '#172554',
+          textColor: '#f1f5f9',
+          borderColor: '#ec4899',
+          borderStyle: 'solid' as const,
+        },
+        {
+          id: uid(),
+          messages: '🌟 君ならできる！,💯 完璧を目指して,🎊 一緒に頑張ろう,✊ 負けるな',
+          bgColor: '#1f2937',
+          textColor: '#fbbf24',
+          borderColor: '#f59e0b',
+          borderStyle: 'dashed' as const,
+        },
+        {
+          id: uid(),
+          messages: '🚀 突き進め！,🔥 熱くなれ！,💎 宝物を手に入れろ,🎯 目標必達',
+          bgColor: '#1e3a1f',
+          textColor: '#86efac',
+          borderColor: '#10b981',
+          borderStyle: 'gradient' as const,
+        },
+        {
+          id: uid(),
+          messages: '⭐ 星になれ！,🎸 楽しくやろう,😊 笑顔で乗り切れ,👊 応援してる',
+          bgColor: '#312e81',
+          textColor: '#c4b5fd',
+          borderColor: '#a78bfa',
+          borderStyle: 'solid' as const,
+        },
+      ],
       speed: 20,
-      bgColor: '#1e293b',
-      textColor: '#e2e8f0',
-      borderColor: '#6366f1',
-      borderStyle: 'gradient' as const,
+      switchIntervalMinutes: 5,
     }
 
     return { tasks, exams, subjects, taskTypeMeta, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog, menuConfig, marqueeConfig }
@@ -313,12 +389,50 @@ export function loadState(): AppState {
 
         // marqueeConfig がない場合はデフォルト値を使う
         const defaultMarqueeConfig = {
-          messages: '💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！,🔥 全力で応援！,📚 今が勝負,⚡ 走り抜けろ！,🏆 栄光を目指して,💡 知識は力',
+          patterns: [
+            {
+              id: uid(),
+              messages: '💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！,🔥 全力で応援！',
+              bgColor: '#1e293b',
+              textColor: '#e2e8f0',
+              borderColor: '#6366f1',
+              borderStyle: 'gradient' as const,
+            },
+            {
+              id: uid(),
+              messages: '📚 今が勝負,⚡ 走り抜けろ！,🏆 栄光を目指して,💡 知識は力',
+              bgColor: '#172554',
+              textColor: '#f1f5f9',
+              borderColor: '#ec4899',
+              borderStyle: 'solid' as const,
+            },
+            {
+              id: uid(),
+              messages: '🌟 君ならできる！,💯 完璧を目指して,🎊 一緒に頑張ろう,✊ 負けるな',
+              bgColor: '#1f2937',
+              textColor: '#fbbf24',
+              borderColor: '#f59e0b',
+              borderStyle: 'dashed' as const,
+            },
+            {
+              id: uid(),
+              messages: '🚀 突き進め！,🔥 熱くなれ！,💎 宝物を手に入れろ,🎯 目標必達',
+              bgColor: '#1e3a1f',
+              textColor: '#86efac',
+              borderColor: '#10b981',
+              borderStyle: 'gradient' as const,
+            },
+            {
+              id: uid(),
+              messages: '⭐ 星になれ！,🎸 楽しくやろう,😊 笑顔で乗り切れ,👊 応援してる',
+              bgColor: '#312e81',
+              textColor: '#c4b5fd',
+              borderColor: '#a78bfa',
+              borderStyle: 'solid' as const,
+            },
+          ],
           speed: 20,
-          bgColor: '#1e293b',
-          textColor: '#e2e8f0',
-          borderColor: '#6366f1',
-          borderStyle: 'gradient' as const,
+          switchIntervalMinutes: 5,
         }
         const marqueeConfig = parsed.marqueeConfig ?? defaultMarqueeConfig
 

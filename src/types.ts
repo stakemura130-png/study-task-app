@@ -91,11 +91,11 @@ export interface ChecklistColorThresholds {
   poorColor: string
 }
 
-export interface MarqueeConfig {
+export interface MarqueePattern {
+  /** パターンID */
+  id: string
   /** 流す文字（カンマ区切り） */
   messages: string
-  /** アニメーション速度（秒） */
-  speed: number
   /** 背景色 */
   bgColor: string
   /** テキスト色 */
@@ -104,6 +104,15 @@ export interface MarqueeConfig {
   borderColor: string
   /** 枠線スタイル */
   borderStyle: 'solid' | 'dashed' | 'gradient'
+}
+
+export interface MarqueeConfig {
+  /** パターン一覧 */
+  patterns: MarqueePattern[]
+  /** アニメーション速度（秒） */
+  speed: number
+  /** 切り替え間隔（分） */
+  switchIntervalMinutes: number
 }
 
 export interface AppState {

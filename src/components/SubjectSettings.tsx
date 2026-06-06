@@ -833,18 +833,8 @@ function MenuRow({
 
 function MarqueeSettings({ store }: { store: Store }) {
   const config = store.state.marqueeConfig
-  const [messages, setMessages] = useState(config.messages)
   const [speed, setSpeed] = useState(config.speed.toString())
-  const [bgColor, setBgColor] = useState(config.bgColor)
-  const [textColor, setTextColor] = useState(config.textColor)
-  const [borderColor, setBorderColor] = useState(config.borderColor)
-  const [borderStyle, setBorderStyle] = useState(config.borderStyle)
-
-  const commitMessages = () => {
-    if (messages.trim()) {
-      store.updateMarqueeConfig({ messages })
-    }
-  }
+  const [switchInterval, setSwitchInterval] = useState(config.switchIntervalMinutes.toString())
 
   const commitSpeed = () => {
     const s = parseInt(speed, 10)
@@ -855,162 +845,54 @@ function MarqueeSettings({ store }: { store: Store }) {
     }
   }
 
+  const commitSwitchInterval = () => {
+    const i = parseInt(switchInterval, 10)
+    if (!isNaN(i) && i > 0) {
+      store.updateMarqueeConfig({ switchIntervalMinutes: i })
+    } else {
+      setSwitchInterval(config.switchIntervalMinutes.toString())
+    }
+  }
+
+  const updatePattern = (patternIndex: number, patch: Partial<any>) => {
+    const newPatterns = config.patterns.map((p, i) => (i === patternIndex ? { ...p, ...patch } : p))
+    store.updateMarqueeConfig({ patterns: newPatterns })
+  }
+
+  const addPattern = () => {
+    const newPattern = {
+      id: 'pat_' + Math.random().toString(36).substr(2, 9),
+      messages: '新しいパターン',
+      bgColor: '#1e293b',
+      textColor: '#e2e8f0',
+      borderColor: '#6366f1',
+      borderStyle: 'solid' as const,
+    }
+    store.updateMarqueeConfig({ patterns: [...config.patterns, newPattern] })
+  }
+
+  const deletePattern = (patternIndex: number) => {
+    if (config.patterns.length <= 1) {
+      alert('最低1つのパターンが必要です')
+      return
+    }
+    const newPatterns = config.patterns.filter((_, i) => i !== patternIndex)
+    store.updateMarqueeConfig({ patterns: newPatterns })
+  }
+
   return (
     <div style={{ display: 'grid', gap: 16 }}>
-      {/* テキスト設定 */}
-      <div>
-        <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>流すテキスト（カンマ区切り）</label>
-        <textarea
-          value={messages}
-          onChange={(e) => setMessages(e.target.value)}
-          onBlur={commitMessages}
-          placeholder="💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！"
-          style={{
-            width: '100%',
-            padding: '8px 12px',
-            border: '1px solid var(--border)',
-            borderRadius: 4,
-            fontFamily: 'inherit',
-            fontSize: 13,
-            background: 'var(--surface)',
-            color: 'var(--text)',
-            minHeight: 60,
-            resize: 'vertical',
-          }}
-        />
-      </div>
-
-      {/* 速度設定 */}
-      <div>
-        <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>アニメーション速度（秒）</label>
-        <input
-          type="number"
-          value={speed}
-          onChange={(e) => setSpeed(e.target.value)}
-          onBlur={commitSpeed}
-          min="1"
-          max="60"
-          style={{
-            width: 120,
-            padding: '8px 12px',
-            border: '1px solid var(--border)',
-            borderRadius: 4,
-            fontSize: 13,
-            background: 'var(--surface)',
-            color: 'var(--text)',
-          }}
-        />
-      </div>
-
-      {/* 色設定 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      {/* 共通設定 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: 12, background: 'var(--panel)', borderRadius: 6 }}>
         <div>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>背景色</label>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <input
-              type="color"
-              value={bgColor}
-              onChange={(e) => {
-                setBgColor(e.target.value)
-                store.updateMarqueeConfig({ bgColor: e.target.value })
-              }}
-              style={{ width: 48, height: 40, border: 'none', borderRadius: 4, cursor: 'pointer' }}
-            />
-            <input
-              type="text"
-              value={bgColor}
-              onChange={(e) => {
-                setBgColor(e.target.value)
-                store.updateMarqueeConfig({ bgColor: e.target.value })
-              }}
-              style={{
-                flex: 1,
-                padding: '8px 12px',
-                border: '1px solid var(--border)',
-                borderRadius: 4,
-                fontSize: 12,
-                fontFamily: 'monospace',
-                background: 'var(--surface)',
-                color: 'var(--text)',
-              }}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>テキスト色</label>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <input
-              type="color"
-              value={textColor}
-              onChange={(e) => {
-                setTextColor(e.target.value)
-                store.updateMarqueeConfig({ textColor: e.target.value })
-              }}
-              style={{ width: 48, height: 40, border: 'none', borderRadius: 4, cursor: 'pointer' }}
-            />
-            <input
-              type="text"
-              value={textColor}
-              onChange={(e) => {
-                setTextColor(e.target.value)
-                store.updateMarqueeConfig({ textColor: e.target.value })
-              }}
-              style={{
-                flex: 1,
-                padding: '8px 12px',
-                border: '1px solid var(--border)',
-                borderRadius: 4,
-                fontSize: 12,
-                fontFamily: 'monospace',
-                background: 'var(--surface)',
-                color: 'var(--text)',
-              }}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>枠線色</label>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <input
-              type="color"
-              value={borderColor}
-              onChange={(e) => {
-                setBorderColor(e.target.value)
-                store.updateMarqueeConfig({ borderColor: e.target.value })
-              }}
-              style={{ width: 48, height: 40, border: 'none', borderRadius: 4, cursor: 'pointer' }}
-            />
-            <input
-              type="text"
-              value={borderColor}
-              onChange={(e) => {
-                setBorderColor(e.target.value)
-                store.updateMarqueeConfig({ borderColor: e.target.value })
-              }}
-              style={{
-                flex: 1,
-                padding: '8px 12px',
-                border: '1px solid var(--border)',
-                borderRadius: 4,
-                fontSize: 12,
-                fontFamily: 'monospace',
-                background: 'var(--surface)',
-                color: 'var(--text)',
-              }}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>枠線スタイル</label>
-          <select
-            value={borderStyle}
-            onChange={(e) => {
-              setBorderStyle(e.target.value as 'solid' | 'dashed' | 'gradient')
-              store.updateMarqueeConfig({ borderStyle: e.target.value as 'solid' | 'dashed' | 'gradient' })
-            }}
+          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>アニメーション速度（秒）</label>
+          <input
+            type="number"
+            value={speed}
+            onChange={(e) => setSpeed(e.target.value)}
+            onBlur={commitSpeed}
+            min="1"
+            max="60"
             style={{
               width: '100%',
               padding: '8px 12px',
@@ -1020,12 +902,220 @@ function MarqueeSettings({ store }: { store: Store }) {
               background: 'var(--surface)',
               color: 'var(--text)',
             }}
-          >
-            <option value="solid">ソリッド</option>
-            <option value="dashed">ダッシュ</option>
-            <option value="gradient">グラデーション</option>
-          </select>
+          />
         </div>
+        <div>
+          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 13 }}>切り替え間隔（分）</label>
+          <input
+            type="number"
+            value={switchInterval}
+            onChange={(e) => setSwitchInterval(e.target.value)}
+            onBlur={commitSwitchInterval}
+            min="1"
+            max="120"
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              border: '1px solid var(--border)',
+              borderRadius: 4,
+              fontSize: 13,
+              background: 'var(--surface)',
+              color: 'var(--text)',
+            }}
+          />
+        </div>
+      </div>
+
+      {/* パターン一覧 */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <h4 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>パターン（{config.patterns.length}）</h4>
+          <button className="btn btn--primary" onClick={addPattern} style={{ padding: '4px 12px', fontSize: 12 }}>
+            ＋ 追加
+          </button>
+        </div>
+        <div style={{ display: 'grid', gap: 12 }}>
+          {config.patterns.map((pattern, index) => (
+            <MarqueePatternRow key={pattern.id} pattern={pattern} index={index} onUpdate={updatePattern} onDelete={deletePattern} />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function MarqueePatternRow({
+  pattern,
+  index,
+  onUpdate,
+  onDelete,
+}: {
+  pattern: any
+  index: number
+  onUpdate: (index: number, patch: Partial<any>) => void
+  onDelete: (index: number) => void
+}) {
+  const [messages, setMessages] = useState(pattern.messages)
+  const [expanded, setExpanded] = useState(false)
+
+  const commitMessages = () => {
+    if (messages.trim()) {
+      onUpdate(index, { messages })
+    }
+  }
+
+  return (
+    <div
+      style={{
+        padding: 12,
+        border: '1px solid var(--border)',
+        borderRadius: 6,
+        background: 'var(--surface)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: expanded ? 12 : 0 }}>
+        <button
+          onClick={() => setExpanded(!expanded)}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text)',
+            cursor: 'pointer',
+            fontSize: 14,
+            padding: 0,
+          }}
+        >
+          {expanded ? '▼' : '▶'}
+        </button>
+        <span style={{ fontWeight: 600, fontSize: 13 }}>パターン {index + 1}</span>
+        <div
+          style={{
+            width: 24,
+            height: 24,
+            borderRadius: 4,
+            background: pattern.bgColor,
+            border: `2px solid ${pattern.borderColor}`,
+            marginLeft: 'auto',
+          }}
+        />
+        <button
+          onClick={() => onDelete(index)}
+          style={{
+            padding: '4px 8px',
+            background: '#ef4444',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 4,
+            fontSize: 12,
+            cursor: 'pointer',
+          }}
+        >
+          削除
+        </button>
+      </div>
+
+      {expanded && (
+        <div style={{ display: 'grid', gap: 12 }}>
+          {/* テキスト */}
+          <div>
+            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 12 }}>テキスト（カンマ区切り）</label>
+            <textarea
+              value={messages}
+              onChange={(e) => setMessages(e.target.value)}
+              onBlur={commitMessages}
+              style={{
+                width: '100%',
+                padding: '6px 8px',
+                border: '1px solid var(--border)',
+                borderRadius: 4,
+                fontSize: 12,
+                fontFamily: 'inherit',
+                background: 'var(--surface)',
+                color: 'var(--text)',
+                minHeight: 60,
+                resize: 'vertical',
+              }}
+            />
+          </div>
+
+          {/* 色設定 */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <ColorPicker
+              label="背景色"
+              value={pattern.bgColor}
+              onChange={(color) => onUpdate(index, { bgColor: color })}
+            />
+            <ColorPicker
+              label="テキスト色"
+              value={pattern.textColor}
+              onChange={(color) => onUpdate(index, { textColor: color })}
+            />
+            <ColorPicker
+              label="枠線色"
+              value={pattern.borderColor}
+              onChange={(color) => onUpdate(index, { borderColor: color })}
+            />
+            <div>
+              <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 12 }}>枠線スタイル</label>
+              <select
+                value={pattern.borderStyle}
+                onChange={(e) => onUpdate(index, { borderStyle: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '6px 8px',
+                  border: '1px solid var(--border)',
+                  borderRadius: 4,
+                  fontSize: 12,
+                  background: 'var(--surface)',
+                  color: 'var(--text)',
+                }}
+              >
+                <option value="solid">ソリッド</option>
+                <option value="dashed">ダッシュ</option>
+                <option value="gradient">グラデーション</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ColorPicker({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: string
+  onChange: (color: string) => void
+}) {
+  return (
+    <div>
+      <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: 12 }}>{label}</label>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{ width: 40, height: 32, border: 'none', borderRadius: 4, cursor: 'pointer' }}
+        />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          style={{
+            flex: 1,
+            padding: '4px 8px',
+            border: '1px solid var(--border)',
+            borderRadius: 4,
+            fontSize: 11,
+            fontFamily: 'monospace',
+            background: 'var(--surface)',
+            color: 'var(--text)',
+          }}
+        />
       </div>
     </div>
   )

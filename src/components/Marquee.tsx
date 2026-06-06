@@ -73,12 +73,12 @@ export function Marquee({ config }: MarqueeProps) {
         .marquee {
           overflow: hidden;
           white-space: nowrap;
-          flex: 1;
-          height: 56px;
+          flex: 1.2;
+          height: 72px;
           display: flex;
           align-items: center;
           margin: 0 12px;
-          font-size: 18px;
+          font-size: 20px;
           font-weight: 500;
           border: ${getBorderStyle()};
           border-radius: 8px;

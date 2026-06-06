@@ -7,7 +7,10 @@
       "mcp__Claude_Preview__preview_start",
       "Bash(node -e \"console.log\\('localStorage reset script'\\)\")",
       "PowerShell(New-Item -ItemType Directory -Path \"C:\\\\Users\\\\User\\\\Desktop\\\\Test Task\\\\public\" -Force)",
-      "Bash(grep -n \"^  \\)\\\\$\" \"C:\\\\Users\\\\User\\\\Desktop\\\\Test Task\\\\src\\\\components\\\\SubjectSettings.tsx\")"
+      "Bash(grep -n \"^  \\)\\\\$\" \"C:\\\\Users\\\\User\\\\Desktop\\\\Test Task\\\\src\\\\components\\\\SubjectSettings.tsx\")",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }

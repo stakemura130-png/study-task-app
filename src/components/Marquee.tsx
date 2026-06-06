@@ -87,6 +87,16 @@ export function Marquee({ config }: MarqueeProps) {
           position: relative;
         }
 
+        /* iPad / タブレット用（1024px 以下） */
+        @media (max-width: 1024px) {
+          .marquee {
+            flex: 2;
+            height: 120px;
+            font-size: 28px;
+            margin: 0 8px;
+          }
+        }
+
         .marquee__text {
           display: inline-block;
           padding-left: 0;
@@ -110,6 +120,14 @@ export function Marquee({ config }: MarqueeProps) {
           background: currentColor;
           opacity: 0.5;
           transition: opacity 0.3s;
+        }
+
+        /* iPad / タブレット用（1024px 以下） */
+        @media (max-width: 1024px) {
+          .marquee__dot {
+            width: 8px;
+            height: 8px;
+          }
         }
 
         .marquee__dot.active {

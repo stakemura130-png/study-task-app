@@ -92,7 +92,7 @@ export function useStore() {
       isMounted = false
       unsubscribe()
     }
-  }, [state])
+  }, [])
 
   // --- 試験日（カウントダウン）操作 ---
   const addExam = useCallback((name: string, examDate: string, color: string) => {

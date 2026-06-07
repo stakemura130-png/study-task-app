@@ -27,10 +27,11 @@ export function useStore() {
             setState(firebaseData)
             localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
           }
-          setInitialized(true)
+          // setInitialized は Firebase listener の準備完了まで待つ（下記の useEffect で実行）
         }
       } catch (error) {
         console.error('Failed to load from Firebase:', error)
+        // エラー時のみ即座に initialized を true に（ローディング解除）
         if (isMounted) setInitialized(true)
       }
     }
@@ -85,6 +86,7 @@ export function useStore() {
       if (firstData) {
         firstData = false
         setFirebaseReady(true)
+        setInitialized(true)  // ← ここで初期化完了（ローディング終了）
       }
     })
 

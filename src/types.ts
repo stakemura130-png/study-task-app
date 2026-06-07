@@ -1,6 +1,6 @@
 export type Status = 'todo' | 'learning' | 'review' | 'done'
 export type TaskType = 'tanpa' | 'shiyoku' | 'moshi' | 'text' | 'ichimondai' | 'joubun'
-export type MenuKey = 'board' | 'stats' | 'settings' | 'checklist' | 'calendar'
+export type MenuKey = 'board' | 'stats' | 'settings' | 'checklist' | 'calendar' | 'timer'
 
 /** 科目（民法・商法など）。カードの色分けに使う。 */
 export interface Subject {
@@ -113,6 +113,23 @@ export interface MarqueeConfig {
   speed: number
   /** 切り替え間隔（分） */
   switchIntervalMinutes: number
+}
+
+export type AlarmSound = 'bell' | 'beep' | 'chime' | 'notification' | 'alarm'
+
+export interface PomodoroConfig {
+  /** セット数 */
+  sets: number
+  /** 現在のセット */
+  currentSet: number
+  /** 残り時間（秒） */
+  timeLeft: number
+  /** タイマー実行中 */
+  isRunning: boolean
+  /** 休憩中フラグ */
+  isBreak: boolean
+  /** アラーム音 */
+  alarmSound: AlarmSound
 }
 
 export interface AppState {

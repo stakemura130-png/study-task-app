@@ -20,7 +20,8 @@ const DEFAULT_MENU_CONFIG = [
   { key: 'stats' as const, label: '統計', visible: true, order: 1 },
   { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
   { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
-  { key: 'calendar' as const, label: 'カレンダー', visible: true, order: 4 },
+  { key: 'timer' as const, label: 'ポモドーロ', visible: true, order: 4 },
+  { key: 'calendar' as const, label: 'カレンダー', visible: true, order: 5 },
 ]
 
 const DEFAULT_MARQUEE_PATTERNS = [
@@ -331,7 +332,16 @@ export function loadState(): AppState {
         })
 
         // menuConfig がない場合はデフォルト値を使う
-        const menuConfig = parsed.menuConfig ?? DEFAULT_MENU_CONFIG
+        // 既存の menuConfig がある場合は、新しいメニュー項目を追加（timer）
+        let menuConfig = parsed.menuConfig ?? DEFAULT_MENU_CONFIG
+        const existingKeys = new Set(menuConfig.map((m: any) => m.key))
+        if (!existingKeys.has('timer')) {
+          // timer メニューを既存の config に追加
+          menuConfig = [
+            ...menuConfig.map((m: any) => (m.key === 'calendar' ? { ...m, order: m.order + 1 } : m)),
+            { key: 'timer' as const, label: 'ポモドーロ', visible: true, order: 4 },
+          ]
+        }
 
         // marqueeConfig がない、または patterns がない場合はデフォルト値を使う
         const defaultMarqueeConfig = {

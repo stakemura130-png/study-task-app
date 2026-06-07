@@ -75,7 +75,8 @@ export function Sidebar({
             onClick={() => setView(menu.key as View)}
           >
             {menu.key === 'board' && '🗂'} {menu.key === 'stats' && '📊'} {menu.key === 'settings' && '⚙'}{' '}
-            {menu.key === 'checklist' && '✓'} {menu.key === 'calendar' && '📅'} {menu.label}
+            {menu.key === 'checklist' && '✓'} {menu.key === 'calendar' && '📅'} {menu.key === 'timer' && '⏱'}{' '}
+            {menu.label}
           </button>
         ))}
 

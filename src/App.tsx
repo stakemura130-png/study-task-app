@@ -8,12 +8,13 @@ import { Stats } from './components/Stats'
 import { SubjectSettings } from './components/SubjectSettings'
 import { Checklist } from './components/Checklist'
 import { Calendar } from './components/Calendar'
+import { PomodoroTimer } from './components/PomodoroTimer'
 import { TaskModal } from './components/TaskModal'
 import { ExamModal } from './components/ExamModal'
 import { LoginScreen } from './components/LoginScreen'
 import { Marquee } from './components/Marquee'
 
-export type View = 'board' | 'stats' | 'settings' | 'checklist' | 'calendar'
+export type View = 'board' | 'stats' | 'settings' | 'checklist' | 'calendar' | 'timer'
 
 export function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -144,7 +145,17 @@ export function App() {
         <div className="topbar">
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%' }}>
             <h1 className="topbar__title">
-              {view === 'board' ? '学習ボードあい' : view === 'stats' ? '統計' : view === 'settings' ? '各種設定' : view === 'checklist' ? '学習チェックリスト' : 'カレンダー'}
+              {view === 'board'
+                ? '学習ボード'
+                : view === 'stats'
+                  ? '統計'
+                  : view === 'settings'
+                    ? '各種設定'
+                    : view === 'checklist'
+                      ? '学習チェックリスト'
+                      : view === 'timer'
+                        ? 'ポモドーロタイマー'
+                        : 'カレンダー'}
             </h1>
             <CountdownBar exams={state.exams} onEdit={(exam) => setExamModal(exam)} />
           </div>
@@ -157,6 +168,8 @@ export function App() {
           <SubjectSettings subjects={state.subjects} taskTypeMeta={state.taskTypeMeta} tasks={state.tasks} exams={state.exams} store={store} />
         ) : view === 'checklist' ? (
           <Checklist checklists={state.checklists} store={store} />
+        ) : view === 'timer' ? (
+          <PomodoroTimer />
         ) : view === 'calendar' ? (
           <Calendar />
         ) : (

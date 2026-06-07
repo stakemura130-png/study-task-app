@@ -337,7 +337,7 @@ export function PomodoroTimer() {
     <div className="pomodoro-container">
       <div className="pomodoro-card">
         {/* パターン選択 */}
-        <div className="pomodoro-pattern-selector">
+        <div className="pomodoro-section pomodoro-section--compact">
           <label className="pomodoro-label">ポモドーロパターン</label>
           <select
             value={state.patternId}
@@ -351,48 +351,66 @@ export function PomodoroTimer() {
               </option>
             ))}
           </select>
-          <div className="pomodoro-pattern-info">
-            {currentPattern && (
-              <span className="pomodoro-pattern-name">{currentPattern.name}</span>
-            )}
-          </div>
         </div>
 
-        {/* ヘッダー */}
-        <div className="pomodoro-header">
-          <div className="pomodoro-status" style={{ color: state.isBreak ? '#10b981' : '#0ea5e9' }}>
+        {/* ステータスと進捗情報 */}
+        <div className="pomodoro-status-bar">
+          <div className="pomodoro-status-badge" style={{
+            background: state.isBreak ? 'rgba(16, 185, 129, 0.15)' : 'rgba(14, 165, 233, 0.15)',
+            borderColor: state.isBreak ? '#10b981' : '#0ea5e9',
+            color: state.isBreak ? '#10b981' : '#0ea5e9',
+          }}>
             {state.isBreak ? '休憩中' : '学習中'}
           </div>
-          <div className="pomodoro-set">セット {state.currentSet}/{state.sets}</div>
+          <div className="pomodoro-progress-info">セット {state.currentSet}/{state.sets}</div>
         </div>
 
-        {/* タイマー表示 - Nixie Tube Style */}
-        <div className="pomodoro-timer-nixie">
-          <div className="pomodoro-timer__display-nixie">{formatTime(state.timeLeft)}</div>
+        {/* メインタイマー表示 - Modern Glassmorphism */}
+        <div className="pomodoro-timer-modern" style={{
+          borderColor: state.isBreak ? '#10b981' : '#0ea5e9',
+        }}>
+          <div className="pomodoro-timer-display">
+            {formatTime(state.timeLeft).split(':').slice(1).join(':')}
+          </div>
+          <div className="pomodoro-timer-label">
+            {state.isBreak ? '休憩時間' : '学習時間'}
+          </div>
         </div>
 
         {/* 完了メッセージ */}
         {showCompletion && isCompleted && (
-          <div className="pomodoro-completion">
+          <div className="pomodoro-completion-modern">
             🎉 全セット完了しました！お疲れ様でした！
           </div>
         )}
 
+        {/* プリセット情報 */}
+        <div className="pomodoro-preset-grid">
+          <div className="preset-item">
+            <span className="preset-label">学習時間</span>
+            <span className="preset-value">{Math.floor(currentPattern.studyDuration / 60)}分</span>
+          </div>
+          <div className="preset-item">
+            <span className="preset-label">休憩時間</span>
+            <span className="preset-value">{Math.floor(currentPattern.breakDuration / 60)}分</span>
+          </div>
+        </div>
+
         {/* コントロール */}
-        <div className="pomodoro-controls">
-          <button className="pomodoro-btn pomodoro-btn--primary" onClick={handleStart} disabled={state.isRunning}>
+        <div className="pomodoro-controls-modern">
+          <button className="pomodoro-btn-modern pomodoro-btn-modern--primary" onClick={handleStart} disabled={state.isRunning}>
             開始
           </button>
-          <button className="pomodoro-btn pomodoro-btn--secondary" onClick={handlePause} disabled={!state.isRunning}>
+          <button className="pomodoro-btn-modern pomodoro-btn-modern--secondary" onClick={handlePause} disabled={!state.isRunning}>
             一時停止
           </button>
-          <button className="pomodoro-btn pomodoro-btn--reset" onClick={handleReset}>
+          <button className="pomodoro-btn-modern pomodoro-btn-modern--reset" onClick={handleReset}>
             リセット
           </button>
         </div>
 
-        {/* 設定 */}
-        <div className="pomodoro-settings">
+        {/* 設定セクション */}
+        <div className="pomodoro-settings-modern">
           {/* セット数 */}
           <div className="pomodoro-setting-group">
             <label className="pomodoro-label">セット数</label>
@@ -403,32 +421,20 @@ export function PomodoroTimer() {
               value={inputSets}
               onChange={handleSetChange}
               disabled={state.isRunning}
-              className="pomodoro-input"
+              className="pomodoro-input-modern"
             />
           </div>
 
           {/* アラーム音 */}
           <div className="pomodoro-setting-group">
             <label className="pomodoro-label">アラーム音</label>
-            <select value={state.alarmSound} onChange={handleAlarmChange} className="pomodoro-select">
+            <select value={state.alarmSound} onChange={handleAlarmChange} className="pomodoro-select-modern">
               {ALARM_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
             </select>
-          </div>
-        </div>
-
-        {/* プリセット情報 */}
-        <div className="pomodoro-preset">
-          <div>
-            <span className="pomodoro-preset__label">学習時間:</span>
-            <span className="pomodoro-preset__value">{Math.floor(currentPattern.studyDuration / 60)}分</span>
-          </div>
-          <div>
-            <span className="pomodoro-preset__label">休憩時間:</span>
-            <span className="pomodoro-preset__value">{Math.floor(currentPattern.breakDuration / 60)}分</span>
           </div>
         </div>
       </div>

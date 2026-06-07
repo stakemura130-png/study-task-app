@@ -58,22 +58,9 @@ export function Sidebar({
           <div style={{ fontSize: 32, lineHeight: 1, marginRight: 2 }}>📚</div>
           <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.2 }}>学習タスク管理</div>
         </div>
-        <div
-          style={{
-            fontFamily: "'SF Mono', Monaco, monospace",
-            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8))',
-            border: '1px solid rgba(99, 102, 241, 0.2)',
-            borderRadius: 8,
-            padding: '10px 12px',
-            backdropFilter: 'blur(10px)',
-          }}
-        >
-          <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400, letterSpacing: '0.5px', marginBottom: 6 }}>
-            {currentTime.date}
-          </div>
-          <div style={{ fontSize: 18, fontWeight: 600, color: '#6366f1', letterSpacing: '1px', fontVariantNumeric: 'tabular-nums' }}>
-            {currentTime.time}
-          </div>
+        <div className="time-display">
+          <div className="time-display__date">{currentTime.date}</div>
+          <div className="time-display__time">{currentTime.time}</div>
         </div>
       </div>
 

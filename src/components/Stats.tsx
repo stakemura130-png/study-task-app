@@ -1,14 +1,7 @@
 import { useMemo } from 'react'
 import type { StudyEntry, Status, Task } from '../types'
-import { STATUS_META } from '../types'
+import { STATUS_META, STATUS_COLOR } from '../types'
 import { formatMinutes, todayStr, daysBetween } from '../utils'
-
-const STATUS_COLOR: Record<Status, string> = {
-  todo: '#94a3b8',
-  learning: '#0ea5e9',
-  review: '#f59e0b',
-  done: '#10b981',
-}
 
 interface StatsProps {
   tasks: Task[]

@@ -95,46 +95,9 @@ export function App() {
   // Firebase からのデータ読み込み完了まで待つ
   if (!initialized) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        background: 'var(--bg)',
-        color: 'var(--text)',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        gap: '24px',
-      }}>
-        {/* スピナー */}
-        <div style={{
-          width: '60px',
-          height: '60px',
-          borderRadius: '50%',
-          border: '4px solid var(--text-soft)',
-          borderTopColor: 'var(--text)',
-          animation: 'spin 1s linear infinite',
-        }} />
-        {/* メッセージ */}
-        <div style={{
-          fontSize: '16px',
-          fontWeight: 500,
-          letterSpacing: '0.5px',
-          animation: 'fadeInOut 2s ease-in-out infinite',
-        }}>
-          データを読み込み中...
-        </div>
-        {/* CSS アニメーション定義 */}
-        <style>{`
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-          @keyframes fadeInOut {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
-          }
-        `}</style>
+      <div className="loading-container">
+        <div className="loading-spinner" />
+        <div className="loading-message">データを読み込み中...</div>
       </div>
     )
   }
@@ -149,29 +112,13 @@ export function App() {
       {/* プルトゥリフレッシュ UI */}
       {pullDistance > 0 && (
         <div
+          className="pull-to-refresh"
           style={{
-            position: 'fixed',
-            top: 0,
-            left: 248,
-            right: 0,
             height: Math.min(pullDistance, 80),
-            background: 'var(--surface)',
-            borderBottom: '1px solid var(--border)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 200,
             opacity: Math.min(pullDistance / 80, 1),
           }}
         >
-          <div
-            style={{
-              fontSize: '24px',
-              animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
-            }}
-          >
-            ⟳
-          </div>
+          <div className="pull-to-refresh__icon">⟳</div>
         </div>
       )}
 
@@ -188,7 +135,7 @@ export function App() {
         <div className="topbar">
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%' }}>
             <h1 className="topbar__title">
-              {view === 'board' ? '学習ボード🌈a' : view === 'stats' ? '統計' : view === 'settings' ? '各種設定' : view === 'checklist' ? '学習チェックリスト' : 'カレンダー'}
+              {view === 'board' ? '学習ボードあい' : view === 'stats' ? '統計' : view === 'settings' ? '各種設定' : view === 'checklist' ? '学習チェックリスト' : 'カレンダー'}
             </h1>
             <CountdownBar exams={state.exams} onEdit={(exam) => setExamModal(exam)} />
           </div>

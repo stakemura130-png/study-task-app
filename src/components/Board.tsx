@@ -1,15 +1,8 @@
 import { useMemo, useState } from 'react'
 import type { Status, Subject, Task, TaskType } from '../types'
-import { STATUS_META } from '../types'
+import { STATUS_META, STATUS_COLOR } from '../types'
 import type { Store } from '../useStore'
 import { formatMinutes, stripSubjectFromTitle } from '../utils'
-
-const STATUS_COLOR: Record<Status, string> = {
-  todo: '#94a3b8',
-  learning: '#0ea5e9',
-  review: '#f59e0b',
-  done: '#10b981',
-}
 
 interface BoardProps {
   tasks: Task[]

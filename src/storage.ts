@@ -6,6 +6,74 @@ import { saveToFirebase } from './firebase'
 const STORAGE_KEY = 'study-task-app:v3'
 const LEGACY_KEYS = ['study-task-app:v2', 'study-task-app:v1']
 
+// Default configuration constants
+const DEFAULT_CHECKLIST_COLOR_THRESHOLDS: ChecklistColorThresholds = {
+  excellentThreshold: 80,
+  goodThreshold: 60,
+  excellentColor: '#ec4899',
+  goodColor: '#f59e0b',
+  poorColor: '#000000',
+}
+
+const DEFAULT_MENU_CONFIG = [
+  { key: 'board' as const, label: '学習ボード', visible: true, order: 0 },
+  { key: 'stats' as const, label: '統計', visible: true, order: 1 },
+  { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
+  { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
+  { key: 'calendar' as const, label: 'カレンダー', visible: true, order: 4 },
+]
+
+const DEFAULT_MARQUEE_PATTERNS = [
+  {
+    id: undefined as any, // Will be replaced with uid() during initialization
+    messages: '💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！,🔥 全力で応援！',
+    bgColor: '#1e293b',
+    textColor: '#e2e8f0',
+    borderColor: '#6366f1',
+    borderStyle: 'gradient' as const,
+  },
+  {
+    id: undefined as any,
+    messages: '📚 今が勝負,⚡ 走り抜けろ！,🏆 栄光を目指して,💡 知識は力',
+    bgColor: '#172554',
+    textColor: '#f1f5f9',
+    borderColor: '#ec4899',
+    borderStyle: 'solid' as const,
+  },
+  {
+    id: undefined as any,
+    messages: '🌟 君ならできる！,💯 完璧を目指して,🎊 一緒に頑張ろう,✊ 負けるな',
+    bgColor: '#1f2937',
+    textColor: '#fbbf24',
+    borderColor: '#f59e0b',
+    borderStyle: 'dashed' as const,
+  },
+  {
+    id: undefined as any,
+    messages: '🚀 突き進め！,🔥 熱くなれ！,💎 宝物を手に入れろ,🎯 目標必達',
+    bgColor: '#1e3a1f',
+    textColor: '#86efac',
+    borderColor: '#10b981',
+    borderStyle: 'gradient' as const,
+  },
+  {
+    id: undefined as any,
+    messages: '⭐ 星になれ！,🎸 楽しくやろう,😊 笑顔で乗り切れ,👊 応援してる',
+    bgColor: '#312e81',
+    textColor: '#c4b5fd',
+    borderColor: '#a78bfa',
+    borderStyle: 'solid' as const,
+  },
+]
+
+// Helper function to create marquee patterns with fresh IDs
+function createMarqueePatterns() {
+  return DEFAULT_MARQUEE_PATTERNS.map((pattern) => ({
+    ...pattern,
+    id: uid(),
+  }))
+}
+
 /** 既定の科目とカラー */
 function seedSubjects(): Subject[] {
   return [
@@ -86,75 +154,20 @@ function seedState(): AppState {
   }
 
   // チェックリスト色分け設定
-  const defaultColorThresholds: ChecklistColorThresholds = {
-    excellentThreshold: 80,
-    goodThreshold: 60,
-    excellentColor: '#ec4899',
-    goodColor: '#f59e0b',
-    poorColor: '#000000',
-  }
-
   const checklistColorThresholds: Record<ChecklistSubject, ChecklistColorThresholds> = {} as Record<
     ChecklistSubject,
     ChecklistColorThresholds
   >
   CHECKLIST_SUBJECTS.forEach((subject) => {
-    checklistColorThresholds[subject.key] = { ...defaultColorThresholds }
+    checklistColorThresholds[subject.key] = { ...DEFAULT_CHECKLIST_COLOR_THRESHOLDS }
   })
 
   // メニュー設定（デフォルト）
-  const menuConfig = [
-    { key: 'board' as const, label: '学習ボード', visible: true, order: 0 },
-    { key: 'stats' as const, label: '統計', visible: true, order: 1 },
-    { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
-    { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
-    { key: 'calendar' as const, label: 'カレンダー', visible: true, order: 4 },
-  ]
+  const menuConfig = DEFAULT_MENU_CONFIG
 
   // マルキー設定（デフォルト）
   const marqueeConfig = {
-    patterns: [
-      {
-        id: uid(),
-        messages: '💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！,🔥 全力で応援！',
-        bgColor: '#1e293b',
-        textColor: '#e2e8f0',
-        borderColor: '#6366f1',
-        borderStyle: 'gradient' as const,
-      },
-      {
-        id: uid(),
-        messages: '📚 今が勝負,⚡ 走り抜けろ！,🏆 栄光を目指して,💡 知識は力',
-        bgColor: '#172554',
-        textColor: '#f1f5f9',
-        borderColor: '#ec4899',
-        borderStyle: 'solid' as const,
-      },
-      {
-        id: uid(),
-        messages: '🌟 君ならできる！,💯 完璧を目指して,🎊 一緒に頑張ろう,✊ 負けるな',
-        bgColor: '#1f2937',
-        textColor: '#fbbf24',
-        borderColor: '#f59e0b',
-        borderStyle: 'dashed' as const,
-      },
-      {
-        id: uid(),
-        messages: '🚀 突き進め！,🔥 熱くなれ！,💎 宝物を手に入れろ,🎯 目標必達',
-        bgColor: '#1e3a1f',
-        textColor: '#86efac',
-        borderColor: '#10b981',
-        borderStyle: 'gradient' as const,
-      },
-      {
-        id: uid(),
-        messages: '⭐ 星になれ！,🎸 楽しくやろう,😊 笑顔で乗り切れ,👊 応援してる',
-        bgColor: '#312e81',
-        textColor: '#c4b5fd',
-        borderColor: '#a78bfa',
-        borderStyle: 'solid' as const,
-      },
-    ],
+    patterns: createMarqueePatterns(),
     speed: 20,
     switchIntervalMinutes: 5,
   }
@@ -220,74 +233,20 @@ function migrate(raw: string): AppState | null {
     }
 
     // デフォルト色分け設定
-    const defaultColorThresholds: ChecklistColorThresholds = {
-      excellentThreshold: 80,
-      goodThreshold: 60,
-      excellentColor: '#ec4899',
-      goodColor: '#f59e0b',
-      poorColor: '#000000',
-    }
     const checklistColorThresholds: Record<ChecklistSubject, ChecklistColorThresholds> = {} as Record<
       ChecklistSubject,
       ChecklistColorThresholds
     >
     CHECKLIST_SUBJECTS.forEach((subject) => {
-      checklistColorThresholds[subject.key] = { ...defaultColorThresholds }
+      checklistColorThresholds[subject.key] = { ...DEFAULT_CHECKLIST_COLOR_THRESHOLDS }
     })
 
     // メニュー設定（デフォルト）
-    const menuConfig = [
-      { key: 'board' as const, label: '学習ボード', visible: true, order: 0 },
-      { key: 'stats' as const, label: '統計', visible: true, order: 1 },
-      { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
-      { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
-      { key: 'calendar' as const, label: 'カレンダー', visible: true, order: 4 },
-    ]
+    const menuConfig = DEFAULT_MENU_CONFIG
 
     // マルキー設定（デフォルト）
     const marqueeConfig = {
-      patterns: [
-        {
-          id: uid(),
-          messages: '💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！,🔥 全力で応援！',
-          bgColor: '#1e293b',
-          textColor: '#e2e8f0',
-          borderColor: '#6366f1',
-          borderStyle: 'gradient' as const,
-        },
-        {
-          id: uid(),
-          messages: '📚 今が勝負,⚡ 走り抜けろ！,🏆 栄光を目指して,💡 知識は力',
-          bgColor: '#172554',
-          textColor: '#f1f5f9',
-          borderColor: '#ec4899',
-          borderStyle: 'solid' as const,
-        },
-        {
-          id: uid(),
-          messages: '🌟 君ならできる！,💯 完璧を目指して,🎊 一緒に頑張ろう,✊ 負けるな',
-          bgColor: '#1f2937',
-          textColor: '#fbbf24',
-          borderColor: '#f59e0b',
-          borderStyle: 'dashed' as const,
-        },
-        {
-          id: uid(),
-          messages: '🚀 突き進め！,🔥 熱くなれ！,💎 宝物を手に入れろ,🎯 目標必達',
-          bgColor: '#1e3a1f',
-          textColor: '#86efac',
-          borderColor: '#10b981',
-          borderStyle: 'gradient' as const,
-        },
-        {
-          id: uid(),
-          messages: '⭐ 星になれ！,🎸 楽しくやろう,😊 笑顔で乗り切れ,👊 応援してる',
-          bgColor: '#312e81',
-          textColor: '#c4b5fd',
-          borderColor: '#a78bfa',
-          borderStyle: 'solid' as const,
-        },
-      ],
+      patterns: createMarqueePatterns(),
       speed: 20,
       switchIntervalMinutes: 5,
     }
@@ -311,15 +270,6 @@ export function loadState(): AppState {
         }))
         // taskTypeMeta がない場合はデフォルト値を使う
         const taskTypeMeta = parsed.taskTypeMeta ?? TASK_TYPE_META
-
-        // デフォルト色分け設定
-        const defaultColorThresholds: ChecklistColorThresholds = {
-          excellentThreshold: 80,
-          goodThreshold: 60,
-          excellentColor: '#ec4899',
-          goodColor: '#f59e0b',
-          poorColor: '#000000',
-        }
 
         // checklists がない場合は空にする。旧形式から新形式へ移行
         let checklists = parsed.checklists ?? {}
@@ -377,68 +327,18 @@ export function loadState(): AppState {
           ChecklistColorThresholds
         >
         CHECKLIST_SUBJECTS.forEach((subject) => {
-          initChecklistColorThresholds[subject.key] = checklistColorThresholds[subject.key] ?? { ...defaultColorThresholds }
+          initChecklistColorThresholds[subject.key] = checklistColorThresholds[subject.key] ?? { ...DEFAULT_CHECKLIST_COLOR_THRESHOLDS }
         })
 
         // menuConfig がない場合はデフォルト値を使う
-        const defaultMenuConfig = [
-          { key: 'board' as const, label: '学習ボード', visible: true, order: 0 },
-          { key: 'stats' as const, label: '統計', visible: true, order: 1 },
-          { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
-          { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
-          { key: 'calendar' as const, label: 'カレンダー', visible: true, order: 4 },
-        ]
-        const menuConfig = parsed.menuConfig ?? defaultMenuConfig
+        const menuConfig = parsed.menuConfig ?? DEFAULT_MENU_CONFIG
 
-        // marqueeConfig がない場合はデフォルト値を使う
+        // marqueeConfig がない、または patterns がない場合はデフォルト値を使う
         const defaultMarqueeConfig = {
-          patterns: [
-            {
-              id: uid(),
-              messages: '💪 頑張れ！,🎯 目標達成に向けて,✨ 絶対合格！,🔥 全力で応援！',
-              bgColor: '#1e293b',
-              textColor: '#e2e8f0',
-              borderColor: '#6366f1',
-              borderStyle: 'gradient' as const,
-            },
-            {
-              id: uid(),
-              messages: '📚 今が勝負,⚡ 走り抜けろ！,🏆 栄光を目指して,💡 知識は力',
-              bgColor: '#172554',
-              textColor: '#f1f5f9',
-              borderColor: '#ec4899',
-              borderStyle: 'solid' as const,
-            },
-            {
-              id: uid(),
-              messages: '🌟 君ならできる！,💯 完璧を目指して,🎊 一緒に頑張ろう,✊ 負けるな',
-              bgColor: '#1f2937',
-              textColor: '#fbbf24',
-              borderColor: '#f59e0b',
-              borderStyle: 'dashed' as const,
-            },
-            {
-              id: uid(),
-              messages: '🚀 突き進め！,🔥 熱くなれ！,💎 宝物を手に入れろ,🎯 目標必達',
-              bgColor: '#1e3a1f',
-              textColor: '#86efac',
-              borderColor: '#10b981',
-              borderStyle: 'gradient' as const,
-            },
-            {
-              id: uid(),
-              messages: '⭐ 星になれ！,🎸 楽しくやろう,😊 笑顔で乗り切れ,👊 応援してる',
-              bgColor: '#312e81',
-              textColor: '#c4b5fd',
-              borderColor: '#a78bfa',
-              borderStyle: 'solid' as const,
-            },
-          ],
+          patterns: createMarqueePatterns(),
           speed: 20,
           switchIntervalMinutes: 5,
         }
-
-        // marqueeConfig がない、または patterns がない場合はデフォルト値を使う
         const marqueeConfig =
           parsed.marqueeConfig && Array.isArray(parsed.marqueeConfig.patterns) && parsed.marqueeConfig.patterns.length > 0
             ? parsed.marqueeConfig

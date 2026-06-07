@@ -149,3 +149,10 @@ export const DEFAULT_STATUS_META: { key: Status; label: string; hint: string }[]
 ]
 
 export const STATUS_META: { key: Status; label: string; hint: string }[] = DEFAULT_STATUS_META
+
+export const STATUS_COLOR: Record<Status, string> = {
+  todo: '#94a3b8',
+  learning: '#0ea5e9',
+  review: '#f59e0b',
+  done: '#10b981',
+}

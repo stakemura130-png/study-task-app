@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { useState } from 'react'
 
 interface LoginScreenProps {
@@ -8,7 +9,7 @@ export function LoginScreen({ onAuthenticate }: LoginScreenProps) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState(false)
 
-  const PASSWORD = 'take0130'
+  const PASSWORD = import.meta.env.VITE_APP_PASSWORD || 'demo'
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

@@ -51,7 +51,7 @@ export function Marquee({ config }: MarqueeProps) {
       className="marquee"
       style={{
         background: getGradientBackground(),
-        borderColor: currentPattern.borderColor,
+        border: getBorderStyle(),
         color: currentPattern.textColor,
       }}
     >
@@ -69,80 +69,6 @@ export function Marquee({ config }: MarqueeProps) {
           ))}
         </div>
       )}
-      <style>{`
-        .marquee {
-          overflow: hidden;
-          white-space: nowrap;
-          width: 100%;
-          height: 48px;
-          display: flex;
-          align-items: center;
-          margin: 0;
-          font-size: 15px;
-          font-weight: 500;
-          border: ${getBorderStyle()};
-          border-radius: 8px;
-          padding: 0 12px;
-          box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
-          position: relative;
-        }
-
-        /* iPad / タブレット用（1024px 以下） */
-        @media (max-width: 1024px) {
-          .marquee {
-            width: 100%;
-            height: 56px;
-            font-size: 18px;
-            margin: 0;
-          }
-        }
-
-        .marquee__text {
-          display: inline-block;
-          padding-left: 0;
-          animation: marquee linear infinite;
-        }
-
-        .marquee__indicators {
-          display: flex;
-          gap: 4px;
-          margin-left: 8px;
-          position: absolute;
-          right: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-        }
-
-        .marquee__dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: currentColor;
-          opacity: 0.5;
-          transition: opacity 0.3s;
-        }
-
-        /* iPad / タブレット用（1024px 以下） */
-        @media (max-width: 1024px) {
-          .marquee__dot {
-            width: 8px;
-            height: 8px;
-          }
-        }
-
-        .marquee__dot.active {
-          opacity: 1;
-        }
-
-        @keyframes marquee {
-          0% {
-            transform: translateX(100%);
-          }
-          100% {
-            transform: translateX(-100%);
-          }
-        }
-      `}</style>
     </div>
   )
 }

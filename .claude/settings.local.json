@@ -10,7 +10,13 @@
       "Bash(grep -n \"^  \\)\\\\$\" \"C:\\\\Users\\\\User\\\\Desktop\\\\Test Task\\\\src\\\\components\\\\SubjectSettings.tsx\")",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\Desktop\\\\Test Task\" -Recurse -Include \"*.tsx\", \"*.ts\", \"*.jsx\", \"*.js\", \"*.css\", \"*.json\")",
+      "Bash(Select-Object -Property FullName)",
+      "Bash(ConvertTo-Json)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\User\\\\Desktop\\\\Test Task\" -Recurse -File)",
+      "Bash(Select-Object -First 20)",
+      "Bash(Format-Table FullName)"
     ]
   }
 }

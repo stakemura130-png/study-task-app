@@ -39,6 +39,15 @@ export function App() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [pullDistance, setPullDistance] = useState(0)
 
+  // URL パラメータから userId を読み込み
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const userIdFromUrl = params.get('userId')
+    if (userIdFromUrl) {
+      localStorage.setItem('app:userId', userIdFromUrl)
+    }
+  }, [])
+
   // プルトゥリフレッシュ
   useEffect(() => {
     let startY = 0

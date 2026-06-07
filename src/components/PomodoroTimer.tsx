@@ -2,6 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 
 type AlarmSound = 'bell' | 'beep' | 'chime' | 'notification' | 'alarm'
 
+interface PomodoroPattern {
+  name: string
+  studyDuration: number
+  breakDuration: number
+}
+
 interface PomodoroState {
   sets: number
   currentSet: number
@@ -9,10 +15,34 @@ interface PomodoroState {
   isRunning: boolean
   isBreak: boolean
   alarmSound: AlarmSound
+  patternId: string
 }
 
-const STUDY_DURATION = 25 * 60 // 25 minutes in seconds
-const BREAK_DURATION = 5 * 60 // 5 minutes in seconds
+const POMODORO_PATTERNS: { [key: string]: PomodoroPattern } = {
+  standard: {
+    name: '25分+5分（標準）',
+    studyDuration: 25 * 60,
+    breakDuration: 5 * 60,
+  },
+  short: {
+    name: '15分+3分（短時間）',
+    studyDuration: 15 * 60,
+    breakDuration: 3 * 60,
+  },
+  long: {
+    name: '50分+10分（長時間）',
+    studyDuration: 50 * 60,
+    breakDuration: 10 * 60,
+  },
+  ultra: {
+    name: '90分+15分（ウルトラディアンリズム）',
+    studyDuration: 90 * 60,
+    breakDuration: 15 * 60,
+  },
+}
+
+const STUDY_DURATION = POMODORO_PATTERNS.standard.studyDuration
+const BREAK_DURATION = POMODORO_PATTERNS.standard.breakDuration
 
 const ALARM_OPTIONS: { value: AlarmSound; label: string }[] = [
   { value: 'bell', label: 'ベル' },
@@ -152,12 +182,15 @@ export function PomodoroTimer() {
     isRunning: false,
     isBreak: false,
     alarmSound: 'bell',
+    patternId: 'standard',
   })
 
   const [inputSets, setInputSets] = useState('3')
   const [showCompletion, setShowCompletion] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const hasPlayedRef = useRef(false)
+
+  const currentPattern = POMODORO_PATTERNS[state.patternId]
 
   // タイマーロジック
   useEffect(() => {
@@ -193,18 +226,20 @@ export function PomodoroTimer() {
             }
             // 次のセットへ（学習開始）
             hasPlayedRef.current = false
+            const pattern = POMODORO_PATTERNS[prevState.patternId]
             return {
               ...prevState,
               currentSet: prevState.currentSet + 1,
-              timeLeft: STUDY_DURATION,
+              timeLeft: pattern.studyDuration,
               isBreak: false,
             }
           } else {
             // 学習時間が終わった、休憩へ
             hasPlayedRef.current = false
+            const pattern = POMODORO_PATTERNS[prevState.patternId]
             return {
               ...prevState,
-              timeLeft: BREAK_DURATION,
+              timeLeft: pattern.breakDuration,
               isBreak: true,
             }
           }
@@ -246,13 +281,15 @@ export function PomodoroTimer() {
   }
 
   const handleReset = () => {
+    const pattern = POMODORO_PATTERNS[state.patternId]
     setState({
       sets: parseInt(inputSets) || 3,
       currentSet: 1,
-      timeLeft: STUDY_DURATION,
+      timeLeft: pattern.studyDuration,
       isRunning: false,
       isBreak: false,
       alarmSound: state.alarmSound,
+      patternId: state.patternId,
     })
     setShowCompletion(false)
     hasPlayedRef.current = false
@@ -273,6 +310,19 @@ export function PomodoroTimer() {
     }))
   }
 
+  const handlePatternChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const patternId = e.target.value
+    const pattern = POMODORO_PATTERNS[patternId]
+    setState((prev) => ({
+      ...prev,
+      patternId,
+      timeLeft: pattern.studyDuration,
+      isRunning: false,
+      currentSet: 1,
+    }))
+    hasPlayedRef.current = false
+  }
+
   const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
@@ -286,6 +336,28 @@ export function PomodoroTimer() {
   return (
     <div className="pomodoro-container">
       <div className="pomodoro-card">
+        {/* パターン選択 */}
+        <div className="pomodoro-pattern-selector">
+          <label className="pomodoro-label">ポモドーロパターン</label>
+          <select
+            value={state.patternId}
+            onChange={handlePatternChange}
+            disabled={state.isRunning}
+            className="pomodoro-select"
+          >
+            {Object.entries(POMODORO_PATTERNS).map(([id, pattern]) => (
+              <option key={id} value={id}>
+                {pattern.name}
+              </option>
+            ))}
+          </select>
+          <div className="pomodoro-pattern-info">
+            {currentPattern && (
+              <span className="pomodoro-pattern-name">{currentPattern.name}</span>
+            )}
+          </div>
+        </div>
+
         {/* ヘッダー */}
         <div className="pomodoro-header">
           <div className="pomodoro-status" style={{ color: state.isBreak ? '#10b981' : '#0ea5e9' }}>
@@ -294,15 +366,9 @@ export function PomodoroTimer() {
           <div className="pomodoro-set">セット {state.currentSet}/{state.sets}</div>
         </div>
 
-        {/* タイマー表示 */}
-        <div
-          className={`pomodoro-timer${state.isBreak ? ' break-mode' : ' learning-mode'}`}
-          style={{
-            backgroundColor: state.isBreak ? 'rgba(16, 185, 129, 0.1)' : 'rgba(14, 165, 233, 0.1)',
-            borderColor: state.isBreak ? '#10b981' : '#0ea5e9',
-          }}
-        >
-          <div className="pomodoro-timer__display">{formatTime(state.timeLeft)}</div>
+        {/* タイマー表示 - Nixie Tube Style */}
+        <div className="pomodoro-timer-nixie">
+          <div className="pomodoro-timer__display-nixie">{formatTime(state.timeLeft)}</div>
         </div>
 
         {/* 完了メッセージ */}
@@ -358,11 +424,11 @@ export function PomodoroTimer() {
         <div className="pomodoro-preset">
           <div>
             <span className="pomodoro-preset__label">学習時間:</span>
-            <span className="pomodoro-preset__value">25分</span>
+            <span className="pomodoro-preset__value">{Math.floor(currentPattern.studyDuration / 60)}分</span>
           </div>
           <div>
             <span className="pomodoro-preset__label">休憩時間:</span>
-            <span className="pomodoro-preset__value">5分</span>
+            <span className="pomodoro-preset__value">{Math.floor(currentPattern.breakDuration / 60)}分</span>
           </div>
         </div>
       </div>

@@ -63,7 +63,7 @@ export function App() {
     const handleTouchEnd = async () => {
       if (pullDistance > 80) {
         setIsRefreshing(true)
-        // Firebase から再読み込み
+        // Firebase から再読み込む
         try {
           await store.reloadFromFirebase()
         } catch (err) {
@@ -188,7 +188,7 @@ export function App() {
         <div className="topbar">
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%' }}>
             <h1 className="topbar__title">
-              {view === 'board' ? '学習ボード' : view === 'stats' ? '統計' : view === 'settings' ? '各種設定' : view === 'checklist' ? '学習チェックリスト' : 'カレンダー'}
+              {view === 'board' ? '学習ボード🌈a' : view === 'stats' ? '統計' : view === 'settings' ? '各種設定' : view === 'checklist' ? '学習チェックリスト' : 'カレンダー'}
             </h1>
             <CountdownBar exams={state.exams} onEdit={(exam) => setExamModal(exam)} />
           </div>

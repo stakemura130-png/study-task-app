@@ -24,6 +24,15 @@ const DEFAULT_MENU_CONFIG = [
   { key: 'calendar' as const, label: 'カレンダー', visible: true, order: 5 },
 ]
 
+const DEFAULT_POMODORO_CUSTOMIZATION = {
+  learningColor: '#0ea5e9',
+  breakColor: '#10b981',
+  backgroundImage: null,
+  backgroundOpacity: 100,
+  enablePulseAnimation: true,
+  soundVolume: 100,
+}
+
 const DEFAULT_MARQUEE_PATTERNS = [
   {
     id: undefined as any, // Will be replaced with uid() during initialization
@@ -173,7 +182,10 @@ function seedState(): AppState {
     switchIntervalMinutes: 5,
   }
 
-  return { tasks, exams, subjects, taskTypeMeta: TASK_TYPE_META, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog: [], menuConfig, marqueeConfig }
+  // ポモドーロカスタマイズ設定（デフォルト）
+  const pomodoroCustomization = DEFAULT_POMODORO_CUSTOMIZATION
+
+  return { tasks, exams, subjects, taskTypeMeta: TASK_TYPE_META, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog: [], menuConfig, marqueeConfig, pomodoroCustomization }
 }
 
 /** 旧バージョンからの移行（試験ごとタスク構造／科目なし構造の両方に対応） */
@@ -252,7 +264,10 @@ function migrate(raw: string): AppState | null {
       switchIntervalMinutes: 5,
     }
 
-    return { tasks, exams, subjects, taskTypeMeta, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog, menuConfig, marqueeConfig }
+    // ポモドーロカスタマイズ設定（デフォルト）
+    const pomodoroCustomization = DEFAULT_POMODORO_CUSTOMIZATION
+
+    return { tasks, exams, subjects, taskTypeMeta, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog, menuConfig, marqueeConfig, pomodoroCustomization }
   } catch {
     return null
   }
@@ -354,7 +369,10 @@ export function loadState(): AppState {
             ? parsed.marqueeConfig
             : defaultMarqueeConfig
 
-        return { ...parsed, tasks, taskTypeMeta, statusMeta: parsed.statusMeta ?? DEFAULT_STATUS_META, checklists, checklistColorThresholds: initChecklistColorThresholds, theme: parsed.theme ?? 'light', menuConfig, marqueeConfig }
+        // pomodoroCustomization がない場合はデフォルト値を使う
+        const pomodoroCustomization = parsed.pomodoroCustomization ?? DEFAULT_POMODORO_CUSTOMIZATION
+
+        return { ...parsed, tasks, taskTypeMeta, statusMeta: parsed.statusMeta ?? DEFAULT_STATUS_META, checklists, checklistColorThresholds: initChecklistColorThresholds, theme: parsed.theme ?? 'light', menuConfig, marqueeConfig, pomodoroCustomization }
       }
     }
     // 旧データがあれば移行

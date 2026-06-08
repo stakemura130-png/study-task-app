@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type { Store } from '../useStore'
 
 type AlarmSound = 'bell' | 'beep' | 'chime' | 'notification' | 'alarm'
 
@@ -44,6 +45,12 @@ const POMODORO_PATTERNS: { [key: string]: PomodoroPattern } = {
 const STUDY_DURATION = POMODORO_PATTERNS.standard.studyDuration
 const BREAK_DURATION = POMODORO_PATTERNS.standard.breakDuration
 
+// Helper function to convert hex color to RGB array
+function hexToRgb(hex: string): [number, number, number] {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : [0, 0, 0]
+}
+
 const ALARM_OPTIONS: { value: AlarmSound; label: string }[] = [
   { value: 'bell', label: 'ベル' },
   { value: 'beep', label: 'ビープ' },
@@ -53,10 +60,11 @@ const ALARM_OPTIONS: { value: AlarmSound; label: string }[] = [
 ]
 
 // Web Audio API でアラーム音を生成
-function playAlarmSound(soundType: AlarmSound) {
+function playAlarmSound(soundType: AlarmSound, volume: number = 100) {
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
     const currentTime = audioContext.currentTime
+    const volumeFactor = Math.max(0, Math.min(1, volume / 100))
 
     switch (soundType) {
       case 'bell': {
@@ -67,8 +75,8 @@ function playAlarmSound(soundType: AlarmSound) {
 
         osc1.frequency.value = 880
         osc2.frequency.value = 1320
-        gain.gain.setValueAtTime(0.3, currentTime)
-        gain.gain.exponentialRampToValueAtTime(0.01, currentTime + 1)
+        gain.gain.setValueAtTime(0.3 * volumeFactor, currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.01 * volumeFactor, currentTime + 1)
 
         osc1.connect(gain)
         osc2.connect(gain)
@@ -90,8 +98,8 @@ function playAlarmSound(soundType: AlarmSound) {
           gains.push(gain)
 
           osc.frequency.value = 1000
-          gain.gain.setValueAtTime(0.2, currentTime + i * 0.15)
-          gain.gain.exponentialRampToValueAtTime(0.01, currentTime + i * 0.15 + 0.1)
+          gain.gain.setValueAtTime(0.2 * volumeFactor, currentTime + i * 0.15)
+          gain.gain.exponentialRampToValueAtTime(0.01 * volumeFactor, currentTime + i * 0.15 + 0.1)
 
           osc.connect(gain)
           gain.connect(audioContext.destination)
@@ -113,8 +121,8 @@ function playAlarmSound(soundType: AlarmSound) {
           gains.push(gain)
 
           osc.frequency.value = freq
-          gain.gain.setValueAtTime(0.25, currentTime + index * 0.2)
-          gain.gain.exponentialRampToValueAtTime(0.01, currentTime + index * 0.2 + 0.3)
+          gain.gain.setValueAtTime(0.25 * volumeFactor, currentTime + index * 0.2)
+          gain.gain.exponentialRampToValueAtTime(0.01 * volumeFactor, currentTime + index * 0.2 + 0.3)
 
           osc.connect(gain)
           gain.connect(audioContext.destination)
@@ -136,8 +144,8 @@ function playAlarmSound(soundType: AlarmSound) {
           gains.push(gain)
 
           osc.frequency.value = freq
-          gain.gain.setValueAtTime(0.2, currentTime + index * 0.15)
-          gain.gain.exponentialRampToValueAtTime(0.01, currentTime + index * 0.15 + 0.2)
+          gain.gain.setValueAtTime(0.2 * volumeFactor, currentTime + index * 0.15)
+          gain.gain.exponentialRampToValueAtTime(0.01 * volumeFactor, currentTime + index * 0.15 + 0.2)
 
           osc.connect(gain)
           gain.connect(audioContext.destination)
@@ -156,8 +164,8 @@ function playAlarmSound(soundType: AlarmSound) {
         osc.frequency.setValueAtTime(1200, currentTime)
         osc.frequency.setValueAtTime(1000, currentTime + 0.1)
 
-        gain.gain.setValueAtTime(0.3, currentTime)
-        gain.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.8)
+        gain.gain.setValueAtTime(0.3 * volumeFactor, currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.01 * volumeFactor, currentTime + 0.8)
 
         osc.connect(gain)
         gain.connect(audioContext.destination)
@@ -174,7 +182,8 @@ function playAlarmSound(soundType: AlarmSound) {
   }
 }
 
-export function PomodoroTimer() {
+export function PomodoroTimer({ store }: { store: Store }) {
+  const customization = store.state.pomodoroCustomization
   const [state, setState] = useState<PomodoroState>({
     sets: 3,
     currentSet: 1,
@@ -210,7 +219,7 @@ export function PomodoroTimer() {
         if (newTimeLeft <= 0) {
           if (!hasPlayedRef.current) {
             hasPlayedRef.current = true
-            playAlarmSound(prevState.alarmSound)
+            playAlarmSound(prevState.alarmSound, customization.soundVolume)
           }
 
           // セット完了時
@@ -334,7 +343,10 @@ export function PomodoroTimer() {
   const isCompleted = state.currentSet > state.sets && state.timeLeft === 0
 
   return (
-    <div className="pomodoro-container">
+    <div className="pomodoro-container" style={{
+      maxHeight: '100%',
+      overflowY: 'auto',
+    }}>
       <div className="pomodoro-card">
         {/* パターン選択 */}
         <div className="pomodoro-section pomodoro-section--compact">
@@ -356,9 +368,9 @@ export function PomodoroTimer() {
         {/* ステータスと進捗情報 */}
         <div className="pomodoro-status-bar">
           <div className="pomodoro-status-badge" style={{
-            background: state.isBreak ? 'rgba(16, 185, 129, 0.15)' : 'rgba(14, 165, 233, 0.15)',
-            borderColor: state.isBreak ? '#10b981' : '#0ea5e9',
-            color: state.isBreak ? '#10b981' : '#0ea5e9',
+            background: state.isBreak ? `rgba(${hexToRgb(customization.breakColor).join(', ')}, 0.15)` : `rgba(${hexToRgb(customization.learningColor).join(', ')}, 0.15)`,
+            borderColor: state.isBreak ? customization.breakColor : customization.learningColor,
+            color: state.isBreak ? customization.breakColor : customization.learningColor,
           }}>
             {state.isBreak ? '休憩中' : '学習中'}
           </div>
@@ -366,14 +378,47 @@ export function PomodoroTimer() {
         </div>
 
         {/* メインタイマー表示 - Modern Glassmorphism */}
-        <div className="pomodoro-timer-modern" style={{
-          borderColor: state.isBreak ? '#10b981' : '#0ea5e9',
-        }}>
-          <div className="pomodoro-timer-display">
-            {formatTime(state.timeLeft).split(':').slice(1).join(':')}
-          </div>
-          <div className="pomodoro-timer-label">
-            {state.isBreak ? '休憩時間' : '学習時間'}
+        <div
+          className="pomodoro-timer-modern"
+          style={{
+            borderColor: state.isBreak ? customization.breakColor : customization.learningColor,
+            backgroundImage: customization.backgroundImage ? `url(${customization.backgroundImage})` : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+          {customization.backgroundImage && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: `rgba(240, 237, 232, ${(100 - customization.backgroundOpacity) / 100})`,
+                borderRadius: '20px',
+                pointerEvents: 'none',
+              }}
+            />
+          )}
+          <div
+            style={{
+              position: 'relative',
+              zIndex: 1,
+            }}
+          >
+            <div
+              className="pomodoro-timer-display"
+              style={{
+                color: state.isBreak ? customization.breakColor : customization.learningColor,
+                animation: customization.enablePulseAnimation ? 'subtleTimerPulse 2s ease-in-out infinite' : 'none',
+              }}
+            >
+              {formatTime(state.timeLeft).split(':').slice(1).join(':')}
+            </div>
+            <div className="pomodoro-timer-label">
+              {state.isBreak ? '休憩時間' : '学習時間'}
+            </div>
           </div>
         </div>
 

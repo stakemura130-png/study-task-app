@@ -308,6 +308,16 @@ export function useStore() {
     [],
   )
 
+  const updatePomodoroCustomization = useCallback(
+    (customization: Partial<any>) => {
+      setState((s) => ({
+        ...s,
+        pomodoroCustomization: { ...s.pomodoroCustomization, ...customization },
+      }))
+    },
+    [],
+  )
+
   const updateStatusMeta = useCallback(
     (index: number, patch: Partial<{ label: string; hint: string }>) => {
       setState((s) => ({
@@ -361,6 +371,7 @@ export function useStore() {
     updateTheme,
     updateMenuConfig,
     updateMarqueeConfig,
+    updatePomodoroCustomization,
     reloadFromFirebase,
   }
 }

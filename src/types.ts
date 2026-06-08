@@ -132,6 +132,22 @@ export interface PomodoroConfig {
   alarmSound: AlarmSound
 }
 
+/** ポモドーロタイマーのカスタマイズ設定 */
+export interface PomodoroCustomization {
+  /** 学習中（Learning）の色 */
+  learningColor: string
+  /** 休憩中（Break）の色 */
+  breakColor: string
+  /** 背景画像（base64 データURL） */
+  backgroundImage: string | null
+  /** 背景画像の透明度（0-100） */
+  backgroundOpacity: number
+  /** サブトルなパルスアニメーション */
+  enablePulseAnimation: boolean
+  /** 音量（0-100） */
+  soundVolume: number
+}
+
 export interface AppState {
   /** 全試験で共通の学習タスク（カンバン） */
   tasks: Task[]
@@ -154,6 +170,8 @@ export interface AppState {
   menuConfig: { key: MenuKey; label: string; visible: boolean; order: number }[]
   /** マルキー設定（テキスト・速度・スタイル） */
   marqueeConfig: MarqueeConfig
+  /** ポモドーロタイマーのカスタマイズ設定 */
+  pomodoroCustomization: PomodoroCustomization
   /** 最後の更新時刻（デバイス間の同期判定に使用） */
   lastUpdatedAt?: number
 }

@@ -29,6 +29,7 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, exams, store }:
     menu: false,
     marquee: false,
     exams: false,
+    pomodoroSettings: false,
   })
 
   const toggleSection = (section: keyof typeof expandedSections) => {
@@ -400,6 +401,29 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, exams, store }:
               タイトルとカウントダウンの間に流れるテキストと枠のスタイルを設定できます。
             </p>
             <MarqueeSettings store={store} />
+          </>
+        )}
+      </div>
+
+      <div className="panel">
+        <h3
+          style={{
+            cursor: 'pointer',
+            userSelect: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+          onClick={() => toggleSection('pomodoroSettings')}
+        >
+          {expandedSections.pomodoroSettings ? '▼' : '▶'} ポモドーロ設定
+        </h3>
+        {expandedSections.pomodoroSettings && (
+          <>
+            <p style={{ color: 'var(--text-soft)', marginTop: -8 }}>
+              ポモドーロタイマーのカラーと背景をカスタマイズできます。
+            </p>
+            <PomodoroSettings store={store} />
           </>
         )}
       </div>
@@ -1234,6 +1258,265 @@ function ColorPicker({
             color: 'var(--text)',
           }}
         />
+      </div>
+    </div>
+  )
+}
+
+function PomodoroSettings({ store }: { store: Store }) {
+  const customization = store.state.pomodoroCustomization
+  const [learningColor, setLearningColor] = useState(customization.learningColor)
+  const [breakColor, setBreakColor] = useState(customization.breakColor)
+  const [backgroundOpacity, setBackgroundOpacity] = useState(customization.backgroundOpacity.toString())
+  const [enablePulseAnimation, setEnablePulseAnimation] = useState(customization.enablePulseAnimation)
+  const [soundVolume, setSoundVolume] = useState(customization.soundVolume.toString())
+
+  const commitLearningColor = () => {
+    if (learningColor && learningColor !== customization.learningColor) {
+      store.updatePomodoroCustomization({ learningColor })
+    }
+  }
+
+  const commitBreakColor = () => {
+    if (breakColor && breakColor !== customization.breakColor) {
+      store.updatePomodoroCustomization({ breakColor })
+    }
+  }
+
+  const commitBackgroundOpacity = () => {
+    const val = parseInt(backgroundOpacity, 10)
+    if (!isNaN(val) && val >= 0 && val <= 100 && val !== customization.backgroundOpacity) {
+      store.updatePomodoroCustomization({ backgroundOpacity: val })
+    } else {
+      setBackgroundOpacity(customization.backgroundOpacity.toString())
+    }
+  }
+
+  const commitSoundVolume = () => {
+    const val = parseInt(soundVolume, 10)
+    if (!isNaN(val) && val >= 0 && val <= 100 && val !== customization.soundVolume) {
+      store.updatePomodoroCustomization({ soundVolume: val })
+    } else {
+      setSoundVolume(customization.soundVolume.toString())
+    }
+  }
+
+  const handleBackgroundUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // JPG と PNG のみを許可
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      alert('JPG または PNG 形式のみ対応しています')
+      return
+    }
+
+    // 5MB 以下に制限
+    if (file.size > 5 * 1024 * 1024) {
+      alert('ファイルサイズは 5MB 以下にしてください')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const imageData = event.target?.result as string
+      store.updatePomodoroCustomization({ backgroundImage: imageData })
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveBackground = () => {
+    store.updatePomodoroCustomization({ backgroundImage: null })
+  }
+
+  return (
+    <div style={{ display: 'grid', gap: 16 }}>
+      {/* Color Customization */}
+      <div style={{ padding: 12, background: 'var(--panel)', borderRadius: 6, display: 'grid', gap: 12 }}>
+        <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>色設定</h4>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 12 }}>学習中（Learning）</label>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <input
+                type="color"
+                value={learningColor}
+                onChange={(e) => setLearningColor(e.target.value)}
+                onBlur={commitLearningColor}
+                style={{ width: 40, height: 32, border: 'none', borderRadius: 4, cursor: 'pointer' }}
+              />
+              <input
+                type="text"
+                value={learningColor}
+                onChange={(e) => setLearningColor(e.target.value)}
+                onBlur={commitLearningColor}
+                style={{
+                  flex: 1,
+                  padding: '6px 8px',
+                  border: '1px solid var(--border)',
+                  borderRadius: 4,
+                  fontSize: 11,
+                  fontFamily: 'monospace',
+                  background: 'var(--surface)',
+                  color: 'var(--text)',
+                }}
+              />
+            </div>
+            <div style={{ marginTop: 8, padding: 8, background: learningColor, borderRadius: 4, height: 32 }} title="プレビュー" />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: 6, fontWeight: 600, fontSize: 12 }}>休憩中（Break）</label>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <input
+                type="color"
+                value={breakColor}
+                onChange={(e) => setBreakColor(e.target.value)}
+                onBlur={commitBreakColor}
+                style={{ width: 40, height: 32, border: 'none', borderRadius: 4, cursor: 'pointer' }}
+              />
+              <input
+                type="text"
+                value={breakColor}
+                onChange={(e) => setBreakColor(e.target.value)}
+                onBlur={commitBreakColor}
+                style={{
+                  flex: 1,
+                  padding: '6px 8px',
+                  border: '1px solid var(--border)',
+                  borderRadius: 4,
+                  fontSize: 11,
+                  fontFamily: 'monospace',
+                  background: 'var(--surface)',
+                  color: 'var(--text)',
+                }}
+              />
+            </div>
+            <div style={{ marginTop: 8, padding: 8, background: breakColor, borderRadius: 4, height: 32 }} title="プレビュー" />
+          </div>
+        </div>
+      </div>
+
+      {/* Background Image */}
+      <div style={{ padding: 12, background: 'var(--panel)', borderRadius: 6, display: 'grid', gap: 12 }}>
+        <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>背景画像</h4>
+
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <label
+            style={{
+              padding: '8px 16px',
+              background: 'var(--accent)',
+              color: '#fff',
+              borderRadius: 6,
+              cursor: 'pointer',
+              fontSize: 12,
+              fontWeight: 600,
+              display: 'inline-block',
+            }}
+          >
+            画像を選択
+            <input
+              type="file"
+              accept="image/jpeg,image/png"
+              onChange={handleBackgroundUpload}
+              style={{ display: 'none' }}
+            />
+          </label>
+          {customization.backgroundImage && (
+            <button
+              onClick={handleRemoveBackground}
+              style={{
+                padding: '8px 16px',
+                background: '#ef4444',
+                color: '#fff',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontSize: 12,
+                fontWeight: 600,
+                border: 'none',
+              }}
+            >
+              削除
+            </button>
+          )}
+        </div>
+
+        {customization.backgroundImage && (
+          <div>
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 12 }}>背景の透明度</label>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={backgroundOpacity}
+                onChange={(e) => setBackgroundOpacity(e.target.value)}
+                onBlur={commitBackgroundOpacity}
+                style={{ flex: 1, cursor: 'pointer' }}
+              />
+              <span style={{ minWidth: 40, textAlign: 'right', fontSize: 12, fontWeight: 600 }}>
+                {backgroundOpacity}%
+              </span>
+            </div>
+          </div>
+        )}
+
+        {customization.backgroundImage && (
+          <div style={{ marginTop: 8 }}>
+            <p style={{ fontSize: 11, color: 'var(--text-soft)', margin: '0 0 8px 0' }}>プレビュー</p>
+            <img
+              src={customization.backgroundImage}
+              alt="Background"
+              style={{
+                width: '100%',
+                maxHeight: 150,
+                borderRadius: 6,
+                objectFit: 'cover',
+                opacity: parseInt(backgroundOpacity) / 100,
+              }}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Additional Settings */}
+      <div style={{ padding: 12, background: 'var(--panel)', borderRadius: 6, display: 'grid', gap: 12 }}>
+        <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>その他の設定</h4>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <input
+            type="checkbox"
+            id="enable-pulse"
+            checked={enablePulseAnimation}
+            onChange={(e) => {
+              setEnablePulseAnimation(e.target.checked)
+              store.updatePomodoroCustomization({ enablePulseAnimation: e.target.checked })
+            }}
+            style={{ width: 18, height: 18, cursor: 'pointer' }}
+          />
+          <label htmlFor="enable-pulse" style={{ flex: 1, cursor: 'pointer', fontSize: 13 }}>
+            タイマーの微かなパルスアニメーション
+          </label>
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 12 }}>音量（0-100%）</label>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={soundVolume}
+              onChange={(e) => setSoundVolume(e.target.value)}
+              onBlur={commitSoundVolume}
+              style={{ flex: 1, cursor: 'pointer' }}
+            />
+            <span style={{ minWidth: 40, textAlign: 'right', fontSize: 12, fontWeight: 600 }}>
+              {soundVolume}%
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   )

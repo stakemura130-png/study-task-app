@@ -169,7 +169,7 @@ export function App() {
         ) : view === 'checklist' ? (
           <Checklist checklists={state.checklists} store={store} />
         ) : view === 'timer' ? (
-          <PomodoroTimer />
+          <PomodoroTimer store={store} />
         ) : view === 'calendar' ? (
           <Calendar />
         ) : (

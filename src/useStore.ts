@@ -76,6 +76,7 @@ export function useStore() {
   // Listener から最初のデータを受け取るまで initialized は false に保つ
   useEffect(() => {
     let isMounted = true
+    let listenerReadyTimeout: NodeJS.Timeout | null = null
 
     const unsubscribe = subscribeToFirebase((firebaseData) => {
       if (!isMounted) return
@@ -116,6 +117,13 @@ export function useStore() {
       if (!listenerFirstDataRef.current) {
         listenerFirstDataRef.current = true
         setFirebaseReady(true)
+
+        // Clear the timeout if it was set
+        if (listenerReadyTimeout) {
+          clearTimeout(listenerReadyTimeout)
+          listenerReadyTimeout = null
+        }
+
         // 初期 Firebase ロード完了後に初期化完了とする
         // 両条件が満たされたら initialized = true（Firebase ロード + listener 初回データ）
         if (firebaseLoadCompletedRef.current) {
@@ -125,8 +133,27 @@ export function useStore() {
       }
     })
 
+    // Safety timeout: If listener hasn't received valid data after 3 seconds,
+    // mark it as ready anyway to prevent infinite loading
+    // This handles cases where Firebase data keeps failing validation
+    listenerReadyTimeout = setTimeout(() => {
+      if (isMounted && !listenerFirstDataRef.current) {
+        console.warn('[Firebase Sync] Listener timeout - marking as ready with current state')
+        listenerFirstDataRef.current = true
+        setFirebaseReady(true)
+
+        if (firebaseLoadCompletedRef.current) {
+          console.log('[Firebase Sync] Timeout reached - initialization complete with fallback')
+          setInitialized(true)
+        }
+      }
+    }, 3000)
+
     return () => {
       isMounted = false
+      if (listenerReadyTimeout) {
+        clearTimeout(listenerReadyTimeout)
+      }
       unsubscribe()
     }
   }, [])

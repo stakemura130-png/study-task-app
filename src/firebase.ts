@@ -79,93 +79,125 @@ const DEFAULT_CHECKLIST_COLOR_THRESHOLDS = {
 
 // Validate and repair Firebase data structure
 // Ensures all required fields exist with proper defaults if missing
+// This function is PERMISSIVE - it always returns valid AppState or creates defaults
+// It never returns null if data exists at all
 export function validateAndRepairAppState(data: any): AppState | null {
   if (!data || typeof data !== 'object') {
+    console.warn('[Firebase Repair] Data is not an object')
     return null
   }
 
-  // Check basic structure - these are critical fields that must exist
-  if (
-    !Array.isArray(data.tasks) ||
-    !Array.isArray(data.exams) ||
-    !Array.isArray(data.subjects) ||
-    !Array.isArray(data.statusMeta) ||
-    typeof data.checklists !== 'object'
-  ) {
-    return null
-  }
+  // Import default values for repair
+  const DEFAULT_STATUS_META = [
+    { key: 'todo' as const, label: '未着手', hint: 'これから取り組む' },
+    { key: 'learning' as const, label: '学習中', hint: 'いま勉強している' },
+    { key: 'review' as const, label: '復習', hint: '繰り返し定着させる' },
+    { key: 'done' as const, label: '完了', hint: 'マスターした' },
+  ]
 
-  // Ensure all checklist subjects exist
+  const TASK_TYPE_META = [
+    { key: 'tanpa' as const, label: '短パ', icon: '📄' },
+    { key: 'shiyoku' as const, label: '肢別', icon: '✔️' },
+    { key: 'moshi' as const, label: '模試', icon: '📝' },
+    { key: 'text' as const, label: 'テキスト', icon: '📖' },
+    { key: 'ichimondai' as const, label: '一問一答', icon: '❓' },
+    { key: 'joubun' as const, label: '条文', icon: '⚖️' },
+  ]
+
   const checklistSubjects = ['minpou1', 'minpou2', 'keihoi', 'kenshou', 'gyousei', 'shougou', 'minjisoshou', 'keijisoshou', 'ippanchiski']
+
+  // Repair arrays - ensure they exist and are arrays
+  const tasks = Array.isArray(data.tasks) ? data.tasks : []
+  const exams = Array.isArray(data.exams) ? data.exams : []
+  const subjects = Array.isArray(data.subjects) ? data.subjects : []
+  const statusMeta = Array.isArray(data.statusMeta) && data.statusMeta.length > 0 ? data.statusMeta : DEFAULT_STATUS_META
+  const taskTypeMeta = Array.isArray(data.taskTypeMeta) && data.taskTypeMeta.length > 0 ? data.taskTypeMeta : TASK_TYPE_META
+  const studyLog = Array.isArray(data.studyLog) ? data.studyLog : []
+
+  // Repair checklists - ensure all subjects exist
   const repairedChecklists: any = {}
   for (const subject of checklistSubjects) {
-    repairedChecklists[subject] = Array.isArray(data.checklists[subject]) ? data.checklists[subject] : []
+    repairedChecklists[subject] = Array.isArray(data.checklists?.[subject]) ? data.checklists[subject] : []
   }
 
-  // Repair marqueeConfig if missing or incomplete
+  // Repair marqueeConfig - must have patterns array, speed, and switchIntervalMinutes
   let marqueeConfig = data.marqueeConfig
   if (!marqueeConfig || typeof marqueeConfig !== 'object') {
     marqueeConfig = { ...DEFAULT_MARQUEE_CONFIG }
   } else {
-    // Ensure required marquee fields exist
-    if (!Array.isArray(marqueeConfig.patterns)) {
-      marqueeConfig.patterns = []
-    }
-    if (typeof marqueeConfig.speed !== 'number') {
-      marqueeConfig.speed = DEFAULT_MARQUEE_CONFIG.speed
-    }
-    if (typeof marqueeConfig.switchIntervalMinutes !== 'number') {
-      marqueeConfig.switchIntervalMinutes = DEFAULT_MARQUEE_CONFIG.switchIntervalMinutes
+    marqueeConfig = {
+      patterns: Array.isArray(marqueeConfig.patterns) ? marqueeConfig.patterns : [],
+      speed: typeof marqueeConfig.speed === 'number' ? marqueeConfig.speed : DEFAULT_MARQUEE_CONFIG.speed,
+      switchIntervalMinutes: typeof marqueeConfig.switchIntervalMinutes === 'number' ? marqueeConfig.switchIntervalMinutes : DEFAULT_MARQUEE_CONFIG.switchIntervalMinutes,
     }
   }
 
-  // Repair pomodoroCustomization if missing or incomplete
+  // Repair pomodoroCustomization - ensure all fields exist with proper types
   let pomodoroCustomization = data.pomodoroCustomization
-  if (!pomodoroCustomization || typeof pomodoroCustomization !== 'object') {
-    pomodoroCustomization = { ...DEFAULT_POMODORO_CUSTOMIZATION }
-  } else {
-    // Ensure all required pomodoro fields exist with defaults
-    pomodoroCustomization = {
-      learningColor: pomodoroCustomization.learningColor ?? DEFAULT_POMODORO_CUSTOMIZATION.learningColor,
-      breakColor: pomodoroCustomization.breakColor ?? DEFAULT_POMODORO_CUSTOMIZATION.breakColor,
-      backgroundImage: pomodoroCustomization.backgroundImage ?? DEFAULT_POMODORO_CUSTOMIZATION.backgroundImage,
-      backgroundOpacity: typeof pomodoroCustomization.backgroundOpacity === 'number' ? pomodoroCustomization.backgroundOpacity : DEFAULT_POMODORO_CUSTOMIZATION.backgroundOpacity,
-      enablePulseAnimation: typeof pomodoroCustomization.enablePulseAnimation === 'boolean' ? pomodoroCustomization.enablePulseAnimation : DEFAULT_POMODORO_CUSTOMIZATION.enablePulseAnimation,
-      soundVolume: typeof pomodoroCustomization.soundVolume === 'number' ? pomodoroCustomization.soundVolume : DEFAULT_POMODORO_CUSTOMIZATION.soundVolume,
-    }
+  pomodoroCustomization = {
+    learningColor: typeof pomodoroCustomization?.learningColor === 'string' ? pomodoroCustomization.learningColor : DEFAULT_POMODORO_CUSTOMIZATION.learningColor,
+    breakColor: typeof pomodoroCustomization?.breakColor === 'string' ? pomodoroCustomization.breakColor : DEFAULT_POMODORO_CUSTOMIZATION.breakColor,
+    backgroundImage: typeof pomodoroCustomization?.backgroundImage === 'string' ? pomodoroCustomization.backgroundImage : DEFAULT_POMODORO_CUSTOMIZATION.backgroundImage,
+    backgroundOpacity: typeof pomodoroCustomization?.backgroundOpacity === 'number' ? pomodoroCustomization.backgroundOpacity : DEFAULT_POMODORO_CUSTOMIZATION.backgroundOpacity,
+    enablePulseAnimation: typeof pomodoroCustomization?.enablePulseAnimation === 'boolean' ? pomodoroCustomization.enablePulseAnimation : DEFAULT_POMODORO_CUSTOMIZATION.enablePulseAnimation,
+    soundVolume: typeof pomodoroCustomization?.soundVolume === 'number' ? pomodoroCustomization.soundVolume : DEFAULT_POMODORO_CUSTOMIZATION.soundVolume,
   }
 
-  // Repair menuConfig if missing
+  // Repair menuConfig - must be array with proper structure
   let menuConfig = data.menuConfig
   if (!Array.isArray(menuConfig) || menuConfig.length === 0) {
     menuConfig = [...DEFAULT_MENU_CONFIG]
+  } else {
+    // Validate structure of each menu item
+    menuConfig = menuConfig.map((item: any) => ({
+      key: item.key ?? 'board',
+      label: typeof item.label === 'string' ? item.label : '学習ボード',
+      visible: typeof item.visible === 'boolean' ? item.visible : true,
+      order: typeof item.order === 'number' ? item.order : 0,
+    }))
   }
 
-  // Repair checklistColorThresholds if missing
-  const checklistColorThresholds: any = data.checklistColorThresholds || {}
+  // Repair checklistColorThresholds - ensure all subjects have color settings
+  const checklistColorThresholds: any = {}
   for (const subject of checklistSubjects) {
-    if (!checklistColorThresholds[subject]) {
+    const existing = data.checklistColorThresholds?.[subject]
+    if (existing && typeof existing === 'object') {
+      checklistColorThresholds[subject] = {
+        excellentThreshold: typeof existing.excellentThreshold === 'number' ? existing.excellentThreshold : DEFAULT_CHECKLIST_COLOR_THRESHOLDS.excellentThreshold,
+        goodThreshold: typeof existing.goodThreshold === 'number' ? existing.goodThreshold : DEFAULT_CHECKLIST_COLOR_THRESHOLDS.goodThreshold,
+        excellentColor: typeof existing.excellentColor === 'string' ? existing.excellentColor : DEFAULT_CHECKLIST_COLOR_THRESHOLDS.excellentColor,
+        goodColor: typeof existing.goodColor === 'string' ? existing.goodColor : DEFAULT_CHECKLIST_COLOR_THRESHOLDS.goodColor,
+        poorColor: typeof existing.poorColor === 'string' ? existing.poorColor : DEFAULT_CHECKLIST_COLOR_THRESHOLDS.poorColor,
+      }
+    } else {
       checklistColorThresholds[subject] = { ...DEFAULT_CHECKLIST_COLOR_THRESHOLDS }
     }
   }
 
-  // Construct repaired AppState
+  // Repair theme
+  const theme = data.theme === 'dark' ? 'dark' : 'light'
+
+  // Repair lastUpdatedAt - keep it if it's a number, otherwise omit
+  const lastUpdatedAt = typeof data.lastUpdatedAt === 'number' ? data.lastUpdatedAt : undefined
+
+  // Construct repaired AppState - all fields must be present
   const repairedData: AppState = {
-    tasks: data.tasks || [],
-    exams: data.exams || [],
-    subjects: data.subjects || [],
-    taskTypeMeta: data.taskTypeMeta || [],
-    statusMeta: data.statusMeta || [],
+    tasks,
+    exams,
+    subjects,
+    taskTypeMeta,
+    statusMeta,
     checklists: repairedChecklists,
     checklistColorThresholds,
-    theme: data.theme === 'dark' ? 'dark' : 'light',
-    studyLog: Array.isArray(data.studyLog) ? data.studyLog : [],
+    theme,
+    studyLog,
     menuConfig,
     marqueeConfig,
     pomodoroCustomization,
-    lastUpdatedAt: data.lastUpdatedAt,
+    lastUpdatedAt,
   }
 
+  console.log('[Firebase Repair] Data repaired successfully - all fields present and valid')
   return repairedData
 }
 

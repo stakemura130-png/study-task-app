@@ -22,25 +22,31 @@ export function useStore() {
     const initializeFromFirebase = async () => {
       try {
         console.log('[Firebase Init] Starting initial Firebase load...')
-
-        // Firebase を唯一のデータソースにするため、古い localStorage を削除
-        // This prevents stale data from being used when device is reopened
-        localStorage.removeItem('study-task-app:v3')
-
         const firebaseData = await loadFromFirebase()
 
         if (!isMounted) return
 
-        // Firebase にデータが存在する場合、それを最優先で使用
-        // loadFromFirebase already validates and repairs the data, so we just check if it's null
-        if (firebaseData) {
-          console.log('[Firebase Init] Firebase has valid data, using it as primary source')
+        // Firebase データと localStorage を比較して、新しい方を使う
+        const localState = loadState()
+        const firebaseTimestamp = firebaseData?.lastUpdatedAt ?? 0
+        const localTimestamp = localState.lastUpdatedAt ?? 0
+
+        console.log('[Firebase Init] Comparing data - Firebase timestamp:', firebaseTimestamp, 'Local timestamp:', localTimestamp)
+
+        if (firebaseData && firebaseTimestamp >= localTimestamp) {
+          // Firebase のデータが新しい（または同じ）場合は Firebase を使用
+          console.log('[Firebase Init] Firebase data is newer or equal, using Firebase data')
           isUpdatingFromFirebase.current = true
           setState(firebaseData)
           localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+        } else if (localState) {
+          // localStorage のデータが新しい場合は localStorage を使用
+          console.log('[Firebase Init] Local data is newer, using localStorage data')
+          isUpdatingFromFirebase.current = true
+          setState(localState)
         } else {
-          // Firebase が空の場合は空の state で開始（ユーザーが最初のデータを作成する）
-          console.log('[Firebase Init] Firebase is empty, starting with empty state')
+          // 両方とも無い場合は空の state で開始
+          console.log('[Firebase Init] No data available, starting with empty state')
           isUpdatingFromFirebase.current = true
           setState(createEmptyState())
         }

@@ -473,13 +473,40 @@ export function PomodoroTimer({ store }: { store: Store }) {
           {/* アラーム音 */}
           <div className="pomodoro-setting-group">
             <label className="pomodoro-label">アラーム音</label>
-            <select value={state.alarmSound} onChange={handleAlarmChange} className="pomodoro-select-modern">
-              {ALARM_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <select value={state.alarmSound} onChange={handleAlarmChange} className="pomodoro-select-modern" style={{ flex: 1 }}>
+                {ALARM_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={() => playAlarmSound(state.alarmSound, 100)}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  background: 'rgba(59, 130, 246, 0.2)',
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease',
+                  backdropFilter: 'blur(10px)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)'
+                  e.currentTarget.style.color = 'rgba(255, 255, 255, 1)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)'
+                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.8)'
+                }}
+              >
+                🔊 テスト
+              </button>
+            </div>
           </div>
         </div>
       </div>

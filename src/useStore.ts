@@ -433,29 +433,6 @@ export function useStore() {
     }
   }, [])
 
-  // App が focus を取得したときに Firebase から最新データを強制的に再読み込み
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        console.log('[Focus] App regained focus, syncing with Firebase...')
-        reloadFromFirebase()
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
-    // Window focus イベント（タブ切り替え）にも対応
-    const handleWindowFocus = () => {
-      console.log('[Focus] Window focus detected, syncing with Firebase...')
-      reloadFromFirebase()
-    }
-    window.addEventListener('focus', handleWindowFocus)
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-      window.removeEventListener('focus', handleWindowFocus)
-    }
-  }, [reloadFromFirebase])
 
   return {
     state,

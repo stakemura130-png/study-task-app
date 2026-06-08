@@ -2,90 +2,40 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AppState, Exam, Status, Subject, Task, ChecklistSubject, ChecklistColorThresholds } from './types'
 import { loadState, saveState, inferSubjectId, createEmptyState } from './storage'
 import { uid, todayStr } from './utils'
-import { loadFromFirebase, subscribeToFirebase } from './firebase'
+import { loadFromFirebase } from './firebase'
 
 export function useStore() {
   // Start with empty state to avoid rendering stale data while Firebase loads
   const [state, setState] = useState<AppState>(() => createEmptyState())
   const [initialized, setInitialized] = useState(false)
   const isUpdatingFromFirebase = useRef(false)
-  const firebaseLoadCompletedRef = useRef(false)
 
-  // Track the latest state timestamp to avoid closure issues
-  const latestStateTimestampRef = useRef<number>(0)
-  const isInitializingRef = useRef<boolean>(true)
-
-  // Firebase is the ONLY source of truth for app data
-  // All state changes must go through Firebase
+  // Load data from Firebase on startup
   useEffect(() => {
     let isMounted = true
-    let unsubscribe: (() => void) | null = null
 
     const initializeFromFirebase = async () => {
       try {
-        console.log('[Firebase Init] Starting initial Firebase load...')
+        console.log('[Firebase Init] Loading data from Firebase...')
         const firebaseData = await loadFromFirebase()
 
         if (!isMounted) return
 
         if (firebaseData) {
-          // Firebase data is the ONLY source - no localStorage comparison
-          console.log('[Firebase Init] Firebase data loaded successfully, using Firebase as source of truth')
+          console.log('[Firebase Init] Data loaded successfully')
           isUpdatingFromFirebase.current = true
-          latestStateTimestampRef.current = firebaseData.lastUpdatedAt ?? 0
           setState(firebaseData)
         } else {
-          // No Firebase data - start with empty state
           console.log('[Firebase Init] No data in Firebase, starting with empty state')
           isUpdatingFromFirebase.current = true
-          const emptyState = createEmptyState()
-          latestStateTimestampRef.current = emptyState.lastUpdatedAt ?? 0
-          setState(emptyState)
+          setState(createEmptyState())
         }
 
-        // Mark initialization as complete so future state changes will save
-        isInitializingRef.current = false
-
-        firebaseLoadCompletedRef.current = true
-
-        // Mark initialization complete immediately after initial load
-        if (isMounted) {
-          console.log('[Firebase Init] Initial Firebase load complete - marking initialized')
-          setInitialized(true)
-        }
-
-        // Set up real-time listener after initial load completes
-        console.log('[Firebase Listener] Setting up real-time listener...')
-        unsubscribe = subscribeToFirebase((firebaseData) => {
-          if (!isMounted) return
-
-          // Use ref to get the latest timestamp (avoids closure issues)
-          const firebaseLastUpdatedAt = firebaseData.lastUpdatedAt ?? 0
-          const currentLastUpdatedAt = latestStateTimestampRef.current
-
-          if (firebaseLastUpdatedAt > currentLastUpdatedAt) {
-            console.log('[Firebase Listener] Firebase data is newer, updating state. Firebase timestamp:', firebaseLastUpdatedAt, 'Current timestamp:', currentLastUpdatedAt)
-            latestStateTimestampRef.current = firebaseLastUpdatedAt
-            isUpdatingFromFirebase.current = true
-            setState(firebaseData)
-          } else if (firebaseLastUpdatedAt === currentLastUpdatedAt && firebaseLastUpdatedAt > 0) {
-            // Same timestamp - likely our own debounced save coming back
-            console.log('[Firebase Listener] Same timestamp detected - likely our own save, skipping update')
-            isUpdatingFromFirebase.current = true
-          } else {
-            console.log('[Firebase Listener] Firebase data is older, ignoring. Firebase timestamp:', firebaseLastUpdatedAt, 'Current timestamp:', currentLastUpdatedAt)
-          }
-        })
+        setInitialized(true)
       } catch (error) {
         console.error('[Firebase Init] Failed to load from Firebase:', error)
-        // If Firebase fails completely, still start with empty state
         if (isMounted) {
-          console.log('[Firebase Init] Error occurred, starting with empty state')
-          isUpdatingFromFirebase.current = true
-          const emptyState = createEmptyState()
-          latestStateTimestampRef.current = emptyState.lastUpdatedAt ?? 0
-          setState(emptyState)
-          firebaseLoadCompletedRef.current = true
+          setState(createEmptyState())
           setInitialized(true)
         }
       }
@@ -95,14 +45,10 @@ export function useStore() {
 
     return () => {
       isMounted = false
-      if (unsubscribe) {
-        console.log('[Firebase Listener] Cleaning up real-time listener')
-        unsubscribe()
-      }
     }
   }, [])
 
-  // Save to Firebase when state changes (but NOT to localStorage)
+  // Save to Firebase when state changes
   // Debounce to prevent rapid successive saves
   useEffect(() => {
     if (isUpdatingFromFirebase.current) {
@@ -110,17 +56,11 @@ export function useStore() {
       return
     }
 
-    // Skip saving during initialization (Firebase load phase)
-    if (isInitializingRef.current) {
-      console.log('[State Update] Skipping save during initialization')
-      return
-    }
-
     // User made a change - save to Firebase after a short delay (debounce)
     const timeoutId = setTimeout(() => {
-      console.log('[State Update] Saving to Firebase after debounce, timestamp:', state.lastUpdatedAt)
+      console.log('[State Update] Saving to Firebase, timestamp:', state.lastUpdatedAt)
       saveState(state)
-    }, 500) // Wait 500ms before saving to catch any rapid updates
+    }, 500)
 
     return () => clearTimeout(timeoutId)
   }, [state])

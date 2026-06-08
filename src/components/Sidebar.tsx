@@ -71,6 +71,9 @@ export function Sidebar({
               onClick={async () => {
                 setIsRefreshing(true)
                 try {
+                  // 先に現在のデータを Firebase に保存
+                  console.log('[Reload] Saving current state before refresh...')
+                  // onRefresh で保存処理が含まれているので、直接実行
                   await onRefresh()
                 } catch (err) {
                   console.error('Failed to refresh:', err)

@@ -137,6 +137,16 @@ export function App() {
         onLogout={() => setIsAuthenticated(false)}
         onRefresh={async () => {
           try {
+            // 最初に現在の state を Firebase に保存
+            console.log('[Reload] Saving current state before reload...')
+            // saveState を直接インポートして実行
+            const { saveState } = await import('./storage')
+            saveState(state)
+
+            // 少し待ってから Firebase から読み込む
+            await new Promise(resolve => setTimeout(resolve, 100))
+
+            // Firebase から最新データを取得
             await store.reloadFromFirebase()
           } catch (err) {
             console.error('Failed to refresh:', err)

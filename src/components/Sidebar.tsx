@@ -11,6 +11,7 @@ interface SidebarProps {
   onNewExam: () => void
   onEditExam: (exam: Exam) => void
   onLogout: () => void
+  onRefresh?: () => Promise<void>
 }
 
 export function Sidebar({
@@ -20,9 +21,11 @@ export function Sidebar({
   onNewExam,
   onEditExam,
   onLogout,
+  onRefresh,
 }: SidebarProps) {
   const { state } = store
   const [currentTime, setCurrentTime] = useState({ date: '', time: '' })
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   useEffect(() => {
     const updateTime = () => {
@@ -58,9 +61,55 @@ export function Sidebar({
           <div style={{ fontSize: 32, lineHeight: 1, marginRight: 2 }}>📚</div>
           <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.2 }}>学習タスク管理</div>
         </div>
-        <div className="time-display">
-          <div className="time-display__date">{currentTime.date}</div>
-          <div className="time-display__time">{currentTime.time}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+          <div className="time-display">
+            <div className="time-display__date">{currentTime.date}</div>
+            <div className="time-display__time">{currentTime.time}</div>
+          </div>
+          {onRefresh && (
+            <button
+              onClick={async () => {
+                setIsRefreshing(true)
+                try {
+                  await onRefresh()
+                } catch (err) {
+                  console.error('Failed to refresh:', err)
+                } finally {
+                  setIsRefreshing(false)
+                }
+              }}
+              disabled={isRefreshing}
+              title="Firebaseから最新データを取得"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '32px',
+                height: '32px',
+                borderRadius: '6px',
+                border: 'none',
+                background: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                cursor: isRefreshing ? 'not-allowed' : 'pointer',
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontSize: '16px',
+                opacity: isRefreshing ? 0.5 : 1,
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!isRefreshing) {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'
+                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.9)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)'
+              }}
+            >
+              {isRefreshing ? '⟳' : '🔄'}
+            </button>
+          )}
         </div>
       </div>
 

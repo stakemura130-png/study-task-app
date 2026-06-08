@@ -37,7 +37,6 @@ export function App() {
   const [openTaskId, setOpenTaskId] = useState<string | null>(null)
   // 'new' = 新規作成 / Exam = 編集 / null = 閉じる
   const [examModal, setExamModal] = useState<'new' | Exam | null>(null)
-  const [isRefreshing, setIsRefreshing] = useState(false)
   const [pullDistance, setPullDistance] = useState(0)
 
   // URL パラメータから userId を読み込み
@@ -72,14 +71,11 @@ export function App() {
 
     const handleTouchEnd = async () => {
       if (pullDistance > 80) {
-        setIsRefreshing(true)
         // Firebase から再読み込む
         try {
           await store.reloadFromFirebase()
         } catch (err) {
           console.error('Failed to refresh:', err)
-        } finally {
-          setIsRefreshing(false)
         }
       }
       setPullDistance(0)
@@ -139,6 +135,13 @@ export function App() {
         onNewExam={() => setExamModal('new')}
         onEditExam={(exam) => setExamModal(exam)}
         onLogout={() => setIsAuthenticated(false)}
+        onRefresh={async () => {
+          try {
+            await store.reloadFromFirebase()
+          } catch (err) {
+            console.error('Failed to refresh:', err)
+          }
+        }}
       />
 
       <main className="main">
@@ -157,49 +160,6 @@ export function App() {
                         ? 'ポモドーロタイマー'
                         : 'カレンダー'}
             </h1>
-            <button
-              onClick={async () => {
-                setIsRefreshing(true)
-                try {
-                  await store.reloadFromFirebase()
-                } catch (err) {
-                  console.error('Failed to refresh:', err)
-                } finally {
-                  setIsRefreshing(false)
-                }
-              }}
-              disabled={isRefreshing}
-              className="refresh-button"
-              title="Firebaseから最新データを取得"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '40px',
-                height: '40px',
-                borderRadius: '8px',
-                border: 'none',
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-                cursor: isRefreshing ? 'not-allowed' : 'pointer',
-                color: 'rgba(255, 255, 255, 0.7)',
-                fontSize: '18px',
-                opacity: isRefreshing ? 0.5 : 1,
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                if (!isRefreshing) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'
-                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.9)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
-                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)'
-              }}
-            >
-              {isRefreshing ? '⟳' : '更新'}
-            </button>
             <CountdownBar exams={state.exams} onEdit={(exam) => setExamModal(exam)} />
           </div>
           <Marquee config={state.marqueeConfig} />

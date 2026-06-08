@@ -65,13 +65,6 @@ export function useStore() {
     return () => clearTimeout(timeoutId)
   }, [state])
 
-  // Mark initialization complete after initial Firebase load
-  useEffect(() => {
-    if (firebaseLoadCompletedRef.current && !initialized) {
-      console.log('[Init] Firebase initial load complete - marking as initialized')
-      setInitialized(true)
-    }
-  }, [initialized])
 
   // --- 試験日（カウントダウン）操作 ---
   const addExam = useCallback((name: string, examDate: string, color: string) => {

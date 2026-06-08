@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AppState, Exam, Status, Subject, Task, ChecklistSubject, ChecklistColorThresholds } from './types'
 import { loadState, saveState, inferSubjectId, createEmptyState } from './storage'
 import { uid, todayStr } from './utils'
-import { loadFromFirebase } from './firebase'
+import { loadFromFirebase, subscribeToFirebase } from './firebase'
 
 export function useStore() {
   // Start with empty state to avoid rendering stale data while Firebase loads
@@ -15,6 +15,7 @@ export function useStore() {
   // All state changes must go through Firebase
   useEffect(() => {
     let isMounted = true
+    let unsubscribe: (() => void) | null = null
 
     const initializeFromFirebase = async () => {
       try {
@@ -36,6 +37,30 @@ export function useStore() {
         }
 
         firebaseLoadCompletedRef.current = true
+
+        // Set up real-time listener after initial load completes
+        console.log('[Firebase Listener] Setting up real-time listener...')
+        unsubscribe = subscribeToFirebase((firebaseData) => {
+          if (!isMounted) return
+
+          // Only update state if Firebase data is NEWER than current state
+          // lastUpdatedAt timestamp prevents infinite loops
+          const currentLastUpdatedAt = state.lastUpdatedAt ?? 0
+          const firebaseLastUpdatedAt = firebaseData.lastUpdatedAt ?? 0
+
+          if (firebaseLastUpdatedAt > currentLastUpdatedAt) {
+            console.log('[Firebase Listener] Firebase data is newer, updating state. Firebase timestamp:', firebaseLastUpdatedAt, 'Current timestamp:', currentLastUpdatedAt)
+            isUpdatingFromFirebase.current = true
+            setState(firebaseData)
+          } else if (firebaseLastUpdatedAt === currentLastUpdatedAt && firebaseLastUpdatedAt > 0) {
+            // Same timestamp - likely our own debounced save coming back
+            console.log('[Firebase Listener] Same timestamp detected - likely our own save, skipping update')
+            isUpdatingFromFirebase.current = true // Mark as Firebase update to prevent re-saving
+          } else {
+            console.log('[Firebase Listener] Firebase data is older, ignoring. Firebase timestamp:', firebaseLastUpdatedAt, 'Current timestamp:', currentLastUpdatedAt)
+          }
+        })
+
         // Wait for listener to receive first data (max 3 seconds)
         setTimeout(() => {
           if (isMounted && !initialized) {
@@ -60,6 +85,10 @@ export function useStore() {
 
     return () => {
       isMounted = false
+      if (unsubscribe) {
+        console.log('[Firebase Listener] Cleaning up real-time listener')
+        unsubscribe()
+      }
     }
   }, [])
 

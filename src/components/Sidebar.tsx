@@ -87,7 +87,6 @@ export function Sidebar({
                 width: '40px',
                 height: '40px',
                 borderRadius: '50%',
-                border: 'none',
                 background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3))',
                 backdropFilter: 'blur(10px)',
                 cursor: isRefreshing ? 'not-allowed' : 'pointer',

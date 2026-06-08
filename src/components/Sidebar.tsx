@@ -84,18 +84,19 @@ export function Sidebar({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '8px 16px',
-                borderRadius: '12px',
+                padding: '4px 10px',
+                borderRadius: '8px',
                 background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3))',
                 backdropFilter: 'blur(10px)',
                 cursor: isRefreshing ? 'not-allowed' : 'pointer',
                 color: isRefreshing ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.9)',
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: '600',
                 opacity: 1,
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
+                whiteSpace: 'nowrap',
               }}
               onMouseEnter={(e) => {
                 if (!isRefreshing) {

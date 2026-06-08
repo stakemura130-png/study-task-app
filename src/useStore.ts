@@ -22,6 +22,11 @@ export function useStore() {
     const initializeFromFirebase = async () => {
       try {
         console.log('[Firebase Init] Starting initial Firebase load...')
+
+        // Firebase を唯一のデータソースにするため、古い localStorage を削除
+        // This prevents stale data from being used when device is reopened
+        localStorage.removeItem('study-task-app:v3')
+
         const firebaseData = await loadFromFirebase()
 
         if (!isMounted) return
@@ -34,11 +39,10 @@ export function useStore() {
           setState(firebaseData)
           localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
         } else {
-          // Firebase が空の場合は localStorage から読み込み
-          console.log('[Firebase Init] Firebase is empty or invalid, falling back to localStorage')
-          const localState = loadState()
+          // Firebase が空の場合は空の state で開始（ユーザーが最初のデータを作成する）
+          console.log('[Firebase Init] Firebase is empty, starting with empty state')
           isUpdatingFromFirebase.current = true
-          setState(localState)
+          setState(createEmptyState())
         }
 
         firebaseLoadCompletedRef.current = true

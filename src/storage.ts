@@ -148,6 +148,7 @@ export function createEmptyState(): AppState {
       switchIntervalMinutes: 5,
     },
     pomodoroCustomization: DEFAULT_POMODORO_CUSTOMIZATION,
+    lastUpdatedAt: Date.now(), // Always include current timestamp
   }
 }
 

@@ -79,35 +79,44 @@ export function Sidebar({
                 }
               }}
               disabled={isRefreshing}
-              title="Firebaseから最新データを取得"
+              title="最新データを取得"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '32px',
-                height: '32px',
-                borderRadius: '6px',
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
                 border: 'none',
-                background: 'rgba(255, 255, 255, 0.1)',
+                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3))',
                 backdropFilter: 'blur(10px)',
                 cursor: isRefreshing ? 'not-allowed' : 'pointer',
-                color: 'rgba(255, 255, 255, 0.7)',
-                fontSize: '16px',
-                opacity: isRefreshing ? 0.5 : 1,
-                transition: 'all 0.2s ease',
+                color: isRefreshing ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.9)',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                opacity: 1,
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
               }}
               onMouseEnter={(e) => {
                 if (!isRefreshing) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'
-                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.9)'
+                  e.currentTarget.style.background = 'linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(139, 92, 246, 0.5))'
+                  e.currentTarget.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4)'
+                  e.currentTarget.style.transform = 'scale(1.1)'
                 }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
-                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)'
+                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3))'
+                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.2)'
+                e.currentTarget.style.transform = 'scale(1)'
               }}
             >
-              {isRefreshing ? '⟳' : '🔄'}
+              {isRefreshing ? (
+                <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>↻</span>
+              ) : (
+                '↻'
+              )}
             </button>
           )}
         </div>

@@ -5,7 +5,7 @@ import { uid, todayStr } from './utils'
 import { subscribeToFirebase, loadFromFirebase } from './firebase'
 
 export function useStore() {
-  // Start with empty state to avoid rendering stale localStorage data while Firebase loads
+  // Start with empty state to avoid rendering stale data while Firebase loads
   const [state, setState] = useState<AppState>(() => createEmptyState())
   const [initialized, setInitialized] = useState(false)
   const [firebaseReady, setFirebaseReady] = useState(false)
@@ -14,8 +14,8 @@ export function useStore() {
   const firebaseLoadCompletedRef = useRef(false)
   const listenerFirstDataRef = useRef(false)
 
-  // 起動時に Firebase から最新データを読み込む（必ず実行）
-  // Firebase を最優先のデータソースとして扱う
+  // Firebase is the ONLY source of truth for app data
+  // All state changes must go through Firebase
   useEffect(() => {
     let isMounted = true
 
@@ -26,33 +26,20 @@ export function useStore() {
 
         if (!isMounted) return
 
-        // Firebase データと localStorage を比較して、新しい方を使う
-        const localState = loadState()
-        const firebaseTimestamp = firebaseData?.lastUpdatedAt ?? 0
-        const localTimestamp = localState.lastUpdatedAt ?? 0
-
-        console.log('[Firebase Init] Comparing data - Firebase timestamp:', firebaseTimestamp, 'Local timestamp:', localTimestamp)
-
-        if (firebaseData && firebaseTimestamp >= localTimestamp) {
-          // Firebase のデータが新しい（または同じ）場合は Firebase を使用
-          console.log('[Firebase Init] Firebase data is newer or equal, using Firebase data')
+        if (firebaseData) {
+          // Firebase data is the ONLY source - no localStorage comparison
+          console.log('[Firebase Init] Firebase data loaded successfully, using Firebase as source of truth')
           isUpdatingFromFirebase.current = true
           setState(firebaseData)
-          localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
-        } else if (localState) {
-          // localStorage のデータが新しい場合は localStorage を使用
-          console.log('[Firebase Init] Local data is newer, using localStorage data')
-          isUpdatingFromFirebase.current = true
-          setState(localState)
         } else {
-          // 両方とも無い場合は空の state で開始
-          console.log('[Firebase Init] No data available, starting with empty state')
+          // No Firebase data - start with empty state
+          console.log('[Firebase Init] No data in Firebase, starting with empty state')
           isUpdatingFromFirebase.current = true
           setState(createEmptyState())
         }
 
         firebaseLoadCompletedRef.current = true
-        // listener が最初のデータを受け取るまで待つ（最大3秒）
+        // Wait for listener to receive first data (max 3 seconds)
         setTimeout(() => {
           if (isMounted && !initialized) {
             console.log('[Firebase Init] Initial load timeout - forcing initialization')
@@ -61,12 +48,11 @@ export function useStore() {
         }, 3000)
       } catch (error) {
         console.error('[Firebase Init] Failed to load from Firebase:', error)
-        // エラー時は localStorage から復帰
+        // If Firebase fails completely, still start with empty state
         if (isMounted) {
-          console.log('[Firebase Init] Error occurred, falling back to localStorage')
-          const localState = loadState()
+          console.log('[Firebase Init] Error occurred, starting with empty state')
           isUpdatingFromFirebase.current = true
-          setState(localState)
+          setState(createEmptyState())
           firebaseLoadCompletedRef.current = true
           setInitialized(true)
         }
@@ -80,17 +66,19 @@ export function useStore() {
     }
   }, [])
 
-  // 変更のたびに localStorage へ保存（Firebase からの更新は除く）
+  // Save to Firebase when state changes (but NOT to localStorage)
+  // Only save if this change originated from user action, not from Firebase update
   useEffect(() => {
     if (!isUpdatingFromFirebase.current) {
+      // User made a change - save ONLY to Firebase
       saveState(state)
     } else {
       isUpdatingFromFirebase.current = false
     }
   }, [state])
 
-  // Firebase リアルタイム同期（タイムスタンプベース）
-  // Listener から最初のデータを受け取るまで initialized は false に保つ
+  // Firebase real-time sync listener
+  // All state updates come from Firebase only
   useEffect(() => {
     let isMounted = true
     let listenerReadyTimeout: NodeJS.Timeout | null = null
@@ -105,37 +93,19 @@ export function useStore() {
         return
       }
 
-      const firebaseTimestamp = firebaseData.lastUpdatedAt ?? 0
       const isInitialLoad = !listenerFirstDataRef.current
 
       setState((prevState) => {
-        const localTimestamp = prevState.lastUpdatedAt ?? 0
+        console.log('[Firebase Sync] Received update from Firebase', { isInitialLoad })
 
-        console.log('[Firebase Sync] Comparing timestamps - Firebase:', firebaseTimestamp, 'Local:', localTimestamp, 'Initial:', isInitialLoad)
-
-        // On initial load, ALWAYS use Firebase data (it's the source of truth)
-        // This ensures we never show stale localStorage data after device reopens
-        if (isInitialLoad) {
-          console.log('[Firebase Sync] Initial listener data - ALWAYS using Firebase (source of truth)')
-          isUpdatingFromFirebase.current = true
-          localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
-          return firebaseData
-        }
-
-        // After initialization, only update if Firebase is newer
-        if (firebaseTimestamp > localTimestamp) {
-          console.log('[Firebase Sync] Firebase is newer - updating state')
-          isUpdatingFromFirebase.current = true
-          localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
-          return firebaseData
-        } else {
-          console.log('[Firebase Sync] Local data is current - keeping local state')
-        }
-
-        return prevState
+        // ALWAYS use Firebase data - it is the ONLY source of truth
+        // No timestamp comparison, no localStorage fallback
+        // Simply accept whatever Firebase sends
+        isUpdatingFromFirebase.current = true
+        return firebaseData
       })
 
-      // リスナーから最初のデータを受け取った時点でマーク
+      // Mark that we received first data from listener
       if (!listenerFirstDataRef.current) {
         listenerFirstDataRef.current = true
         setFirebaseReady(true)
@@ -146,7 +116,7 @@ export function useStore() {
           listenerReadyTimeout = null
         }
 
-        // 初期ロード完了していたら即座に initialized を true に
+        // If initial load is also complete, mark initialization done
         if (firebaseLoadCompletedRef.current) {
           console.log('[Firebase Sync] Both Firebase load and listener ready - initialization complete')
           setInitialized(true)
@@ -156,7 +126,6 @@ export function useStore() {
 
     // Safety timeout: If listener hasn't received valid data after 3 seconds,
     // mark it as ready anyway to prevent infinite loading
-    // This handles cases where Firebase data keeps failing validation
     listenerReadyTimeout = setTimeout(() => {
       if (isMounted && !listenerFirstDataRef.current) {
         console.warn('[Firebase Sync] Listener timeout - marking as ready with current state')
@@ -419,18 +388,11 @@ export function useStore() {
       const firebaseData = await loadFromFirebase()
       // loadFromFirebase already validates and repairs the data
       if (firebaseData) {
-        console.log('[Reload] Firebase data received, comparing timestamps')
+        console.log('[Reload] Firebase data received, updating state')
 
         setState((prevState) => {
-          const firebaseTimestamp = firebaseData.lastUpdatedAt ?? 0
-          const localTimestamp = prevState.lastUpdatedAt ?? 0
-
-          console.log('[Reload] Firebase timestamp:', firebaseTimestamp, 'Local:', localTimestamp)
-
-          // 手動更新なので Firebase のデータを ALWAYS 優先
-          console.log('[Reload] Manual refresh - always use Firebase data')
+          console.log('[Reload] Using Firebase data as source of truth')
           isUpdatingFromFirebase.current = true
-          localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
           return firebaseData
         })
       } else {

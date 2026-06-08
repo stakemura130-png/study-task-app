@@ -3,7 +3,10 @@ import { TASK_TYPE_META, CHECKLIST_SUBJECTS, DEFAULT_STATUS_META } from './types
 import { uid, todayStr } from './utils'
 import { saveToFirebase } from './firebase'
 
-const STORAGE_KEY = 'study-task-app:v3'
+// localStorage is NO LONGER used for app data sync
+// Only kept for UI preferences (theme, menu state, etc) and device identification
+// All app data (tasks, exams, subjects, etc) is managed ONLY by Firebase
+
 const LEGACY_KEYS = ['study-task-app:v2', 'study-task-app:v1']
 
 // Default configuration constants
@@ -315,141 +318,45 @@ function migrate(raw: string): AppState | null {
 }
 
 export function loadState(): AppState {
+  // loadState() is kept for backward compatibility but NO LONGER reads from localStorage
+  // App data MUST come from Firebase only
+  // This function is only called during initial setup before Firebase is ready
+
+  // Try to migrate old data if it exists, then seed new app
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw) as AppState
-      if (parsed.tasks && parsed.exams && parsed.subjects) {
-        // type フィールドがない tasks に type: null を追加（後方互換性）
-        const tasks = parsed.tasks.map((t: any) => ({
-          ...t,
-          type: 'type' in t ? t.type : null,
-        }))
-        // taskTypeMeta がない場合はデフォルト値を使う
-        const taskTypeMeta = parsed.taskTypeMeta ?? TASK_TYPE_META
-
-        // checklists がない場合は空にする。旧形式から新形式へ移行
-        let checklists = parsed.checklists ?? {}
-
-        // 旧形式のキーをチェック（単一の minpou キーがある場合）
-        const hasSingleMinpou = ('minpou' in checklists) && !('minpou1' in checklists)
-        const hasVeryOldFormat = ('minpou1' in checklists && 'minpou2' in checklists && 'minpou3' in checklists) || ('keihousou' in checklists) || ('keihokakuron' in checklists)
-
-        if (hasSingleMinpou) {
-          // 以前の統合形式（minpou）は民法Ⅰに統合
-          const oldMinpou = (checklists as any).minpou as any[]
-          checklists = {
-            minpou1: oldMinpou,
-            minpou2: [],
-            keihoi: checklists.keihoi ?? [],
-            kenshou: checklists.kenshou ?? [],
-            gyousei: checklists.gyousei ?? [],
-            shougou: checklists.shougou ?? [],
-            minjisoshou: checklists.minjisoshou ?? [],
-            keijisoshou: checklists.keijisoshou ?? [],
-            ippanchiski: checklists.ippanchiski ?? [],
-          }
-        } else if (hasVeryOldFormat) {
-          // 最も古い形式から新形式へ移行
-          const oldKeihoi = [...((checklists as any).keihousou ?? []), ...((checklists as any).keihokakuron ?? [])]
-          checklists = {
-            minpou1: (checklists.minpou1 ?? []).concat(checklists.minpou2 ?? []),
-            minpou2: [],
-            keihoi: oldKeihoi,
-            kenshou: checklists.kenshou ?? [],
-            gyousei: checklists.gyousei ?? [],
-            shougou: checklists.shougou ?? [],
-            minjisoshou: checklists.minjisoshou ?? [],
-            keijisoshou: checklists.keijisoshou ?? [],
-            ippanchiski: checklists.ippanchiski ?? [],
-          }
-        } else {
-          // 新形式：minpou1 と minpou2 を保持（分割されたままにする）
-          checklists = {
-            minpou1: checklists.minpou1 ?? [],
-            minpou2: checklists.minpou2 ?? [],
-            keihoi: checklists.keihoi ?? [],
-            kenshou: checklists.kenshou ?? [],
-            gyousei: checklists.gyousei ?? [],
-            shougou: checklists.shougou ?? [],
-            minjisoshou: checklists.minjisoshou ?? [],
-            keijisoshou: checklists.keijisoshou ?? [],
-            ippanchiski: checklists.ippanchiski ?? [],
-          }
-        }
-        // checklistColorThresholds がない場合はデフォルト値を使う
-        const checklistColorThresholds = parsed.checklistColorThresholds ?? {}
-        const initChecklistColorThresholds: Record<ChecklistSubject, ChecklistColorThresholds> = {} as Record<
-          ChecklistSubject,
-          ChecklistColorThresholds
-        >
-        CHECKLIST_SUBJECTS.forEach((subject) => {
-          initChecklistColorThresholds[subject.key] = checklistColorThresholds[subject.key] ?? { ...DEFAULT_CHECKLIST_COLOR_THRESHOLDS }
-        })
-
-        // menuConfig がない場合はデフォルト値を使う
-        // 既存の menuConfig がある場合は、新しいメニュー項目を追加（timer）
-        let menuConfig = parsed.menuConfig ?? DEFAULT_MENU_CONFIG
-        const existingKeys = new Set(menuConfig.map((m: any) => m.key))
-        if (!existingKeys.has('timer')) {
-          // timer メニューを既存の config に追加
-          menuConfig = [
-            ...menuConfig.map((m: any) => (m.key === 'calendar' ? { ...m, order: m.order + 1 } : m)),
-            { key: 'timer' as const, label: 'ポモドーロ', visible: true, order: 4 },
-          ]
-        }
-
-        // marqueeConfig がない、または patterns がない場合はデフォルト値を使う
-        const defaultMarqueeConfig = {
-          patterns: createMarqueePatterns(),
-          speed: 20,
-          switchIntervalMinutes: 5,
-        }
-        const marqueeConfig =
-          parsed.marqueeConfig && Array.isArray(parsed.marqueeConfig.patterns) && parsed.marqueeConfig.patterns.length > 0
-            ? parsed.marqueeConfig
-            : defaultMarqueeConfig
-
-        // pomodoroCustomization がない場合はデフォルト値を使う
-        const pomodoroCustomization = parsed.pomodoroCustomization ?? DEFAULT_POMODORO_CUSTOMIZATION
-
-        return { ...parsed, tasks, taskTypeMeta, statusMeta: parsed.statusMeta ?? DEFAULT_STATUS_META, checklists, checklistColorThresholds: initChecklistColorThresholds, theme: parsed.theme ?? 'light', menuConfig, marqueeConfig, pomodoroCustomization }
-      }
-    }
-    // 旧データがあれば移行
     for (const key of LEGACY_KEYS) {
       const legacy = localStorage.getItem(key)
       if (legacy) {
         const migrated = migrate(legacy)
         if (migrated) {
+          // Save migrated data to Firebase for first-time sync
           saveState(migrated)
           return migrated
         }
       }
     }
-    return seedState()
-  } catch {
-    return seedState()
+  } catch (error) {
+    console.warn('[Storage] Legacy migration failed:', error)
   }
+
+  // No legacy data - return seed state (will be overwritten by Firebase data immediately)
+  return seedState()
 }
 
 export function saveState(state: AppState): void {
+  // ONLY save to Firebase - localStorage is NOT used for app data anymore
   try {
-    // タイムスタンプを追加（デバイス間の最新データ判定に使用）
     const now = Date.now()
     const stateWithTimestamp = {
       ...state,
       lastUpdatedAt: now,
     }
 
-    // localStorage に保存（オフライン用）
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stateWithTimestamp))
-
-    // Firebase に保存（クラウド同期用）
+    // Firebase is the ONLY persistent storage for app data
     saveToFirebase(stateWithTimestamp).catch((error) => {
       console.error('Failed to save to Firebase:', error)
     })
-  } catch {
-    // 保存容量超過などは握りつぶす
+  } catch (error) {
+    console.error('[Storage] Failed to save state:', error)
   }
 }

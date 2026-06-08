@@ -2,17 +2,14 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AppState, Exam, Status, Subject, Task, ChecklistSubject, ChecklistColorThresholds } from './types'
 import { loadState, saveState, inferSubjectId, createEmptyState } from './storage'
 import { uid, todayStr } from './utils'
-import { subscribeToFirebase, loadFromFirebase } from './firebase'
+import { loadFromFirebase } from './firebase'
 
 export function useStore() {
   // Start with empty state to avoid rendering stale data while Firebase loads
   const [state, setState] = useState<AppState>(() => createEmptyState())
   const [initialized, setInitialized] = useState(false)
-  const [firebaseReady, setFirebaseReady] = useState(false)
   const isUpdatingFromFirebase = useRef(false)
-  const initialFirebaseLoadRef = useRef(false)
   const firebaseLoadCompletedRef = useRef(false)
-  const listenerFirstDataRef = useRef(false)
 
   // Firebase is the ONLY source of truth for app data
   // All state changes must go through Firebase
@@ -83,76 +80,13 @@ export function useStore() {
     return () => clearTimeout(timeoutId)
   }, [state])
 
-  // Firebase real-time sync listener
-  // All state updates come from Firebase only
+  // Mark initialization complete after initial Firebase load
   useEffect(() => {
-    let isMounted = true
-    let listenerReadyTimeout: NodeJS.Timeout | null = null
-
-    const unsubscribe = subscribeToFirebase((firebaseData) => {
-      if (!isMounted) return
-
-      // subscribeToFirebase already validates and repairs the data
-      // If we reach here, firebaseData is guaranteed to be a valid AppState
-      if (!firebaseData) {
-        console.warn('[Firebase Sync] Invalid Firebase data received (null/undefined)')
-        return
-      }
-
-      const isInitialLoad = !listenerFirstDataRef.current
-
-      setState((prevState) => {
-        console.log('[Firebase Sync] Received update from Firebase', { isInitialLoad })
-
-        // ALWAYS use Firebase data - it is the ONLY source of truth
-        // No timestamp comparison, no localStorage fallback
-        // Simply accept whatever Firebase sends
-        isUpdatingFromFirebase.current = true
-        return firebaseData
-      })
-
-      // Mark that we received first data from listener
-      if (!listenerFirstDataRef.current) {
-        listenerFirstDataRef.current = true
-        setFirebaseReady(true)
-
-        // Clear the timeout if it was set
-        if (listenerReadyTimeout) {
-          clearTimeout(listenerReadyTimeout)
-          listenerReadyTimeout = null
-        }
-
-        // If initial load is also complete, mark initialization done
-        if (firebaseLoadCompletedRef.current) {
-          console.log('[Firebase Sync] Both Firebase load and listener ready - initialization complete')
-          setInitialized(true)
-        }
-      }
-    })
-
-    // Safety timeout: If listener hasn't received valid data after 3 seconds,
-    // mark it as ready anyway to prevent infinite loading
-    listenerReadyTimeout = setTimeout(() => {
-      if (isMounted && !listenerFirstDataRef.current) {
-        console.warn('[Firebase Sync] Listener timeout - marking as ready with current state')
-        listenerFirstDataRef.current = true
-        setFirebaseReady(true)
-
-        if (firebaseLoadCompletedRef.current) {
-          console.log('[Firebase Sync] Timeout reached - initialization complete with fallback')
-          setInitialized(true)
-        }
-      }
-    }, 3000)
-
-    return () => {
-      isMounted = false
-      if (listenerReadyTimeout) {
-        clearTimeout(listenerReadyTimeout)
-      }
-      unsubscribe()
+    if (firebaseLoadCompletedRef.current && !initialized) {
+      console.log('[Init] Firebase initial load complete - marking as initialized')
+      setInitialized(true)
     }
-  }, [])
+  }, [initialized])
 
   // --- 試験日（カウントダウン）操作 ---
   const addExam = useCallback((name: string, examDate: string, color: string) => {

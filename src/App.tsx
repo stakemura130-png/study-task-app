@@ -157,6 +157,49 @@ export function App() {
                         ? 'ポモドーロタイマー'
                         : 'カレンダー'}
             </h1>
+            <button
+              onClick={async () => {
+                setIsRefreshing(true)
+                try {
+                  await store.reloadFromFirebase()
+                } catch (err) {
+                  console.error('Failed to refresh:', err)
+                } finally {
+                  setIsRefreshing(false)
+                }
+              }}
+              disabled={isRefreshing}
+              className="refresh-button"
+              title="Firebaseから最新データを取得"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '40px',
+                height: '40px',
+                borderRadius: '8px',
+                border: 'none',
+                background: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                cursor: isRefreshing ? 'not-allowed' : 'pointer',
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontSize: '18px',
+                opacity: isRefreshing ? 0.5 : 1,
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!isRefreshing) {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'
+                  e.currentTarget.style.color = 'rgba(255, 255, 255, 0.9)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                e.currentTarget.style.color = 'rgba(255, 255, 255, 0.7)'
+              }}
+            >
+              {isRefreshing ? '⟳' : '更新'}
+            </button>
             <CountdownBar exams={state.exams} onEdit={(exam) => setExamModal(exam)} />
           </div>
           <Marquee config={state.marqueeConfig} />

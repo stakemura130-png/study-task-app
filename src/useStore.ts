@@ -42,7 +42,13 @@ export function useStore() {
         }
 
         firebaseLoadCompletedRef.current = true
-        // setInitialized は listener の最初のデータ受け取りまで待つ
+        // listener が最初のデータを受け取るまで待つ（最大3秒）
+        setTimeout(() => {
+          if (isMounted && !initialized) {
+            console.log('[Firebase Init] Initial load timeout - forcing initialization')
+            setInitialized(true)
+          }
+        }, 3000)
       } catch (error) {
         console.error('[Firebase Init] Failed to load from Firebase:', error)
         // エラー時は localStorage から復帰
@@ -52,6 +58,7 @@ export function useStore() {
           isUpdatingFromFirebase.current = true
           setState(localState)
           firebaseLoadCompletedRef.current = true
+          setInitialized(true)
         }
       }
     }
@@ -127,8 +134,7 @@ export function useStore() {
           listenerReadyTimeout = null
         }
 
-        // 初期 Firebase ロード完了後に初期化完了とする
-        // 両条件が満たされたら initialized = true（Firebase ロード + listener 初回データ）
+        // 初期ロード完了していたら即座に initialized を true に
         if (firebaseLoadCompletedRef.current) {
           console.log('[Firebase Sync] Both Firebase load and listener ready - initialization complete')
           setInitialized(true)

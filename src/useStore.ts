@@ -9,6 +9,7 @@ export function useStore() {
   const [initialized, setInitialized] = useState(false)
   const [firebaseReady, setFirebaseReady] = useState(false)
   const isUpdatingFromFirebase = useRef(false)
+  const initialFirebaseLoadRef = useRef(false)
 
   // 起動時に Firebase から最新データを読み込む（必ず実行）
   useEffect(() => {
@@ -16,6 +17,7 @@ export function useStore() {
 
     const initializeFromFirebase = async () => {
       try {
+        console.log('[Firebase Init] Starting initial Firebase load...')
         const firebaseData = await loadFromFirebase()
         if (isMounted) {
           if (firebaseData &&
@@ -24,15 +26,30 @@ export function useStore() {
               firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
               firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
               firebaseData.checklists && typeof firebaseData.checklists === 'object') {
-            setState(firebaseData)
-            localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+            console.log('[Firebase Init] Firebase data valid, updating state')
+            // Firebase のデータが local より新しい場合のみ更新
+            const localTimestamp = state.lastUpdatedAt ?? 0
+            const firebaseTimestamp = firebaseData.lastUpdatedAt ?? 0
+
+            if (firebaseTimestamp > localTimestamp) {
+              console.log('[Firebase Init] Firebase is newer:', firebaseTimestamp, 'vs local:', localTimestamp)
+              isUpdatingFromFirebase.current = true
+              setState(firebaseData)
+              localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+            } else {
+              console.log('[Firebase Init] Local data is current or newer')
+            }
           }
+          initialFirebaseLoadRef.current = true
           // setInitialized は Firebase listener の準備完了まで待つ（下記の useEffect で実行）
         }
       } catch (error) {
-        console.error('Failed to load from Firebase:', error)
+        console.error('[Firebase Init] Failed to load from Firebase:', error)
         // エラー時のみ即座に initialized を true に（ローディング解除）
-        if (isMounted) setInitialized(true)
+        if (isMounted) {
+          initialFirebaseLoadRef.current = true
+          setInitialized(true)
+        }
       }
     }
 
@@ -67,26 +84,43 @@ export function useStore() {
           !firebaseData.subjects || !Array.isArray(firebaseData.subjects) ||
           !firebaseData.statusMeta || !Array.isArray(firebaseData.statusMeta) ||
           !firebaseData.checklists || typeof firebaseData.checklists !== 'object') {
+        console.warn('[Firebase Sync] Invalid Firebase data received')
         return
       }
 
       // タイムスタンプで比較：Firebase の方が新しい場合のみ更新
-      const localData = state
       const firebaseTimestamp = firebaseData.lastUpdatedAt ?? 0
-      const localTimestamp = localData.lastUpdatedAt ?? 0
 
-      // Firebase の方が新しい場合のみ更新
-      if (firebaseTimestamp > localTimestamp) {
-        isUpdatingFromFirebase.current = true
-        setState(firebaseData)
-        localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
-      }
+      setState((prevState) => {
+        const localTimestamp = prevState.lastUpdatedAt ?? 0
+
+        console.log('[Firebase Sync] Comparing timestamps - Firebase:', firebaseTimestamp, 'Local:', localTimestamp)
+
+        // Firebase の方が新しい場合は ALWAYS 更新（同じか古い場合は更新しない）
+        if (firebaseTimestamp > localTimestamp) {
+          console.log('[Firebase Sync] Firebase is newer - updating state')
+          isUpdatingFromFirebase.current = true
+          localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+          return firebaseData
+        } else if (firebaseTimestamp === localTimestamp && firstData) {
+          // 初回データ受け取り時は同じタイムスタンプでも OK（確認用）
+          console.log('[Firebase Sync] Initial data received (same timestamp)')
+        } else if (firebaseTimestamp < localTimestamp && firstData) {
+          // 初回データ受け取り時で Firebase が古い場合は local のまま
+          console.log('[Firebase Sync] Initial data received but local is newer - keeping local data')
+        }
+
+        return prevState
+      })
 
       // リスナーから最初のデータを受け取った時点で Firebase 準備完了
       if (firstData) {
         firstData = false
         setFirebaseReady(true)
-        setInitialized(true)  // ← ここで初期化完了（ローディング終了）
+        // 初期 Firebase ロード完了後に initialized を true に設定
+        if (initialFirebaseLoadRef.current) {
+          setInitialized(true)
+        }
       }
     })
 
@@ -332,6 +366,7 @@ export function useStore() {
 
   const reloadFromFirebase = useCallback(async () => {
     try {
+      console.log('[Reload] Forcing refresh from Firebase...')
       const firebaseData = await loadFromFirebase()
       if (firebaseData &&
           firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
@@ -339,14 +374,59 @@ export function useStore() {
           firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
           firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
           firebaseData.checklists && typeof firebaseData.checklists === 'object') {
-        isUpdatingFromFirebase.current = true
-        setState(firebaseData)
-        localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+        console.log('[Reload] Firebase data received, comparing timestamps')
+
+        setState((prevState) => {
+          const firebaseTimestamp = firebaseData.lastUpdatedAt ?? 0
+          const localTimestamp = prevState.lastUpdatedAt ?? 0
+
+          console.log('[Reload] Firebase timestamp:', firebaseTimestamp, 'Local:', localTimestamp)
+
+          // Firebase がより新しいデータを持っている場合は更新
+          if (firebaseTimestamp > localTimestamp) {
+            console.log('[Reload] Firebase is newer - updating to Firebase data')
+            isUpdatingFromFirebase.current = true
+            localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+            return firebaseData
+          } else if (firebaseTimestamp >= localTimestamp) {
+            // Firebase が同じか新しい場合、確実に同期を取る
+            console.log('[Reload] Syncing with Firebase data')
+            isUpdatingFromFirebase.current = true
+            localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+            return firebaseData
+          }
+
+          return prevState
+        })
       }
     } catch (error) {
-      console.error('Failed to reload from Firebase:', error)
+      console.error('[Reload] Failed to reload from Firebase:', error)
     }
   }, [])
+
+  // App が focus を取得したときに Firebase から最新データを強制的に再読み込み
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('[Focus] App regained focus, syncing with Firebase...')
+        reloadFromFirebase()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    // Window focus イベント（タブ切り替え）にも対応
+    const handleWindowFocus = () => {
+      console.log('[Focus] Window focus detected, syncing with Firebase...')
+      reloadFromFirebase()
+    }
+    window.addEventListener('focus', handleWindowFocus)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('focus', handleWindowFocus)
+    }
+  }, [reloadFromFirebase])
 
   return {
     state,

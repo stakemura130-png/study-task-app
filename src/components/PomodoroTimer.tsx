@@ -157,21 +157,24 @@ function playAlarmSound(soundType: AlarmSound, volume: number = 100) {
       }
 
       case 'alarm': {
-        // アラーム音: 連続的な高い音
-        const osc = audioContext.createOscillator()
-        const gain = audioContext.createGain()
+        // iPhoneのアラーム音のような上昇・下降する音
+        const frequencies = [800, 1000, 1200, 1000, 800]
+        const duration = 0.15
 
-        osc.frequency.setValueAtTime(1200, currentTime)
-        osc.frequency.setValueAtTime(1000, currentTime + 0.1)
+        frequencies.forEach((freq, index) => {
+          const osc = audioContext.createOscillator()
+          const gain = audioContext.createGain()
 
-        gain.gain.setValueAtTime(0.3 * volumeFactor, currentTime)
-        gain.gain.exponentialRampToValueAtTime(0.01 * volumeFactor, currentTime + 0.8)
+          osc.frequency.value = freq
+          gain.gain.setValueAtTime(0.25 * volumeFactor, currentTime + index * duration)
+          gain.gain.exponentialRampToValueAtTime(0.01 * volumeFactor, currentTime + index * duration + duration - 0.02)
 
-        osc.connect(gain)
-        gain.connect(audioContext.destination)
+          osc.connect(gain)
+          gain.connect(audioContext.destination)
 
-        osc.start(currentTime)
-        osc.stop(currentTime + 0.8)
+          osc.start(currentTime + index * duration)
+          osc.stop(currentTime + index * duration + duration)
+        })
         break
       }
     }

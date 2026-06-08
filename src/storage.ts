@@ -353,8 +353,9 @@ export function saveState(state: AppState): void {
     }
 
     // Firebase is the ONLY persistent storage for app data
+    console.log('[Storage] Saving to Firebase with timestamp:', now)
     saveToFirebase(stateWithTimestamp).catch((error) => {
-      console.error('Failed to save to Firebase:', error)
+      console.error('[Storage] Failed to save to Firebase:', error)
     })
   } catch (error) {
     console.error('[Storage] Failed to save state:', error)

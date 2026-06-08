@@ -84,15 +84,14 @@ export function Sidebar({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
+                padding: '8px 16px',
+                borderRadius: '12px',
                 background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3))',
                 backdropFilter: 'blur(10px)',
                 cursor: isRefreshing ? 'not-allowed' : 'pointer',
                 color: isRefreshing ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.9)',
-                fontSize: '18px',
-                fontWeight: 'bold',
+                fontSize: '14px',
+                fontWeight: '600',
                 opacity: 1,
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
@@ -102,7 +101,7 @@ export function Sidebar({
                 if (!isRefreshing) {
                   e.currentTarget.style.background = 'linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(139, 92, 246, 0.5))'
                   e.currentTarget.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.4)'
-                  e.currentTarget.style.transform = 'scale(1.1)'
+                  e.currentTarget.style.transform = 'scale(1.05)'
                 }
               }}
               onMouseLeave={(e) => {
@@ -111,11 +110,7 @@ export function Sidebar({
                 e.currentTarget.style.transform = 'scale(1)'
               }}
             >
-              {isRefreshing ? (
-                <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>↻</span>
-              ) : (
-                '↻'
-              )}
+              {isRefreshing ? '更新中...' : 'Reload'}
             </button>
           )}
         </div>

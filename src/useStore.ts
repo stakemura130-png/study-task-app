@@ -43,6 +43,12 @@ export function useStore() {
         unsubscribe = subscribeToFirebase((firebaseData) => {
           if (!isMounted) return
 
+          // Mark initialization complete as soon as we receive ANY data from listener
+          if (!initialized) {
+            console.log('[Firebase Listener] First data received from listener - marking initialized')
+            setInitialized(true)
+          }
+
           // Only update state if Firebase data is NEWER than current state
           // lastUpdatedAt timestamp prevents infinite loops
           const currentLastUpdatedAt = state.lastUpdatedAt ?? 0

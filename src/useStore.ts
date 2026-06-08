@@ -13,6 +13,7 @@ export function useStore() {
 
   // Track the latest state timestamp to avoid closure issues
   const latestStateTimestampRef = useRef<number>(0)
+  const isInitializingRef = useRef<boolean>(true)
 
   // Firebase is the ONLY source of truth for app data
   // All state changes must go through Firebase
@@ -41,6 +42,9 @@ export function useStore() {
           latestStateTimestampRef.current = emptyState.lastUpdatedAt ?? 0
           setState(emptyState)
         }
+
+        // Mark initialization as complete so future state changes will save
+        isInitializingRef.current = false
 
         firebaseLoadCompletedRef.current = true
 
@@ -103,6 +107,12 @@ export function useStore() {
   useEffect(() => {
     if (isUpdatingFromFirebase.current) {
       isUpdatingFromFirebase.current = false
+      return
+    }
+
+    // Skip saving during initialization (Firebase load phase)
+    if (isInitializingRef.current) {
+      console.log('[State Update] Skipping save during initialization')
       return
     }
 

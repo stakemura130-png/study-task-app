@@ -27,19 +27,15 @@ export function useStore() {
         if (!isMounted) return
 
         // Firebase にデータが存在する場合、それを最優先で使用
-        if (firebaseData &&
-            firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
-            firebaseData.exams && Array.isArray(firebaseData.exams) &&
-            firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
-            firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
-            firebaseData.checklists && typeof firebaseData.checklists === 'object') {
+        // loadFromFirebase already validates and repairs the data, so we just check if it's null
+        if (firebaseData) {
           console.log('[Firebase Init] Firebase has valid data, using it as primary source')
           isUpdatingFromFirebase.current = true
           setState(firebaseData)
           localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
         } else {
           // Firebase が空の場合は localStorage から読み込み
-          console.log('[Firebase Init] Firebase is empty, falling back to localStorage')
+          console.log('[Firebase Init] Firebase is empty or invalid, falling back to localStorage')
           const localState = loadState()
           isUpdatingFromFirebase.current = true
           setState(localState)
@@ -84,14 +80,10 @@ export function useStore() {
     const unsubscribe = subscribeToFirebase((firebaseData) => {
       if (!isMounted) return
 
-      // Firebase のデータを検証
-      if (!firebaseData ||
-          !firebaseData.tasks || !Array.isArray(firebaseData.tasks) ||
-          !firebaseData.exams || !Array.isArray(firebaseData.exams) ||
-          !firebaseData.subjects || !Array.isArray(firebaseData.subjects) ||
-          !firebaseData.statusMeta || !Array.isArray(firebaseData.statusMeta) ||
-          !firebaseData.checklists || typeof firebaseData.checklists !== 'object') {
-        console.warn('[Firebase Sync] Invalid Firebase data received')
+      // subscribeToFirebase already validates and repairs the data
+      // If we reach here, firebaseData is guaranteed to be a valid AppState
+      if (!firebaseData) {
+        console.warn('[Firebase Sync] Invalid Firebase data received (null/undefined)')
         return
       }
 
@@ -377,12 +369,8 @@ export function useStore() {
     try {
       console.log('[Reload] Forcing refresh from Firebase...')
       const firebaseData = await loadFromFirebase()
-      if (firebaseData &&
-          firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
-          firebaseData.exams && Array.isArray(firebaseData.exams) &&
-          firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
-          firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
-          firebaseData.checklists && typeof firebaseData.checklists === 'object') {
+      // loadFromFirebase already validates and repairs the data
+      if (firebaseData) {
         console.log('[Reload] Firebase data received, comparing timestamps')
 
         setState((prevState) => {
@@ -407,6 +395,8 @@ export function useStore() {
 
           return prevState
         })
+      } else {
+        console.log('[Reload] Firebase data is invalid or empty')
       }
     } catch (error) {
       console.error('[Reload] Failed to reload from Firebase:', error)

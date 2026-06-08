@@ -67,18 +67,20 @@ export function useStore() {
   }, [])
 
   // Save to Firebase when state changes (but NOT to localStorage)
-  // Only save if this change originated from user action, not from Firebase update
+  // Debounce to prevent rapid successive saves
   useEffect(() => {
-    console.log('[State Update] isUpdatingFromFirebase:', isUpdatingFromFirebase.current, 'lastUpdatedAt:', state.lastUpdatedAt)
-
-    if (!isUpdatingFromFirebase.current) {
-      // User made a change - save ONLY to Firebase
-      console.log('[State Update] User action detected - saving to Firebase')
-      saveState(state)
-    } else {
-      console.log('[State Update] Firebase update detected - NOT saving again')
+    if (isUpdatingFromFirebase.current) {
       isUpdatingFromFirebase.current = false
+      return
     }
+
+    // User made a change - save to Firebase after a short delay (debounce)
+    const timeoutId = setTimeout(() => {
+      console.log('[State Update] Saving to Firebase after debounce, timestamp:', state.lastUpdatedAt)
+      saveState(state)
+    }, 500) // Wait 500ms before saving to catch any rapid updates
+
+    return () => clearTimeout(timeoutId)
   }, [state])
 
   // Firebase real-time sync listener

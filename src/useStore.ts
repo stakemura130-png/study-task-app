@@ -415,21 +415,11 @@ export function useStore() {
 
           console.log('[Reload] Firebase timestamp:', firebaseTimestamp, 'Local:', localTimestamp)
 
-          // Firebase がより新しいデータを持っている場合は更新
-          if (firebaseTimestamp > localTimestamp) {
-            console.log('[Reload] Firebase is newer - updating to Firebase data')
-            isUpdatingFromFirebase.current = true
-            localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
-            return firebaseData
-          } else if (firebaseTimestamp >= localTimestamp) {
-            // Firebase が同じか新しい場合、確実に同期を取る
-            console.log('[Reload] Syncing with Firebase data')
-            isUpdatingFromFirebase.current = true
-            localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
-            return firebaseData
-          }
-
-          return prevState
+          // 手動更新なので Firebase のデータを ALWAYS 優先
+          console.log('[Reload] Manual refresh - always use Firebase data')
+          isUpdatingFromFirebase.current = true
+          localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+          return firebaseData
         })
       } else {
         console.log('[Reload] Firebase data is invalid or empty')

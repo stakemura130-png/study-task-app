@@ -107,6 +107,47 @@ export function inferSubjectId(title: string, subjects: Subject[]): string | nul
   return null
 }
 
+/** 最小限の空の初期状態を返す（Firebase ロード前に使用） */
+export function createEmptyState(): AppState {
+  return {
+    tasks: [],
+    exams: [],
+    subjects: [],
+    taskTypeMeta: TASK_TYPE_META,
+    statusMeta: DEFAULT_STATUS_META,
+    checklists: {
+      minpou1: [],
+      minpou2: [],
+      keihoi: [],
+      kenshou: [],
+      gyousei: [],
+      shougou: [],
+      minjisoshou: [],
+      keijisoshou: [],
+      ippanchiski: [],
+    },
+    checklistColorThresholds: (() => {
+      const thresholds: Record<ChecklistSubject, ChecklistColorThresholds> = {} as Record<
+        ChecklistSubject,
+        ChecklistColorThresholds
+      >
+      CHECKLIST_SUBJECTS.forEach((subject) => {
+        thresholds[subject.key] = { ...DEFAULT_CHECKLIST_COLOR_THRESHOLDS }
+      })
+      return thresholds
+    })(),
+    theme: 'light',
+    studyLog: [],
+    menuConfig: DEFAULT_MENU_CONFIG,
+    marqueeConfig: {
+      patterns: createMarqueePatterns(),
+      speed: 20,
+      switchIntervalMinutes: 5,
+    },
+    pomodoroCustomization: DEFAULT_POMODORO_CUSTOMIZATION,
+  }
+}
+
 /** 初回起動時のサンプルデータ：共通タスク＋複数の試験日＋科目 */
 function seedState(): AppState {
   const year = new Date().getFullYear()

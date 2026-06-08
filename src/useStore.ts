@@ -1,17 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AppState, Exam, Status, Subject, Task, ChecklistSubject, ChecklistColorThresholds } from './types'
-import { loadState, saveState, inferSubjectId } from './storage'
+import { loadState, saveState, inferSubjectId, createEmptyState } from './storage'
 import { uid, todayStr } from './utils'
 import { subscribeToFirebase, loadFromFirebase } from './firebase'
 
 export function useStore() {
-  const [state, setState] = useState<AppState>(() => loadState())
+  // Start with empty state to avoid rendering stale localStorage data while Firebase loads
+  const [state, setState] = useState<AppState>(() => createEmptyState())
   const [initialized, setInitialized] = useState(false)
   const [firebaseReady, setFirebaseReady] = useState(false)
   const isUpdatingFromFirebase = useRef(false)
   const initialFirebaseLoadRef = useRef(false)
+  const firebaseLoadCompletedRef = useRef(false)
+  const listenerFirstDataRef = useRef(false)
 
   // 起動時に Firebase から最新データを読み込む（必ず実行）
+  // Firebase を最優先のデータソースとして扱う
   useEffect(() => {
     let isMounted = true
 
@@ -19,36 +23,39 @@ export function useStore() {
       try {
         console.log('[Firebase Init] Starting initial Firebase load...')
         const firebaseData = await loadFromFirebase()
-        if (isMounted) {
-          if (firebaseData &&
-              firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
-              firebaseData.exams && Array.isArray(firebaseData.exams) &&
-              firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
-              firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
-              firebaseData.checklists && typeof firebaseData.checklists === 'object') {
-            console.log('[Firebase Init] Firebase data valid, updating state')
-            // Firebase のデータが local より新しい場合のみ更新
-            const localTimestamp = state.lastUpdatedAt ?? 0
-            const firebaseTimestamp = firebaseData.lastUpdatedAt ?? 0
 
-            if (firebaseTimestamp > localTimestamp) {
-              console.log('[Firebase Init] Firebase is newer:', firebaseTimestamp, 'vs local:', localTimestamp)
-              isUpdatingFromFirebase.current = true
-              setState(firebaseData)
-              localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
-            } else {
-              console.log('[Firebase Init] Local data is current or newer')
-            }
-          }
-          initialFirebaseLoadRef.current = true
-          // setInitialized は Firebase listener の準備完了まで待つ（下記の useEffect で実行）
+        if (!isMounted) return
+
+        // Firebase にデータが存在する場合、それを最優先で使用
+        if (firebaseData &&
+            firebaseData.tasks && Array.isArray(firebaseData.tasks) &&
+            firebaseData.exams && Array.isArray(firebaseData.exams) &&
+            firebaseData.subjects && Array.isArray(firebaseData.subjects) &&
+            firebaseData.statusMeta && Array.isArray(firebaseData.statusMeta) &&
+            firebaseData.checklists && typeof firebaseData.checklists === 'object') {
+          console.log('[Firebase Init] Firebase has valid data, using it as primary source')
+          isUpdatingFromFirebase.current = true
+          setState(firebaseData)
+          localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+        } else {
+          // Firebase が空の場合は localStorage から読み込み
+          console.log('[Firebase Init] Firebase is empty, falling back to localStorage')
+          const localState = loadState()
+          isUpdatingFromFirebase.current = true
+          setState(localState)
         }
+
+        firebaseLoadCompletedRef.current = true
+        // setInitialized は listener の最初のデータ受け取りまで待つ
       } catch (error) {
         console.error('[Firebase Init] Failed to load from Firebase:', error)
-        // エラー時のみ即座に initialized を true に（ローディング解除）
+        // エラー時は localStorage から復帰
         if (isMounted) {
-          initialFirebaseLoadRef.current = true
-          setInitialized(true)
+          console.log('[Firebase Init] Error occurred, falling back to localStorage')
+          const localState = loadState()
+          isUpdatingFromFirebase.current = true
+          setState(localState)
+          firebaseLoadCompletedRef.current = true
         }
       }
     }
@@ -70,9 +77,9 @@ export function useStore() {
   }, [state])
 
   // Firebase リアルタイム同期（タイムスタンプベース）
+  // Listener から最初のデータを受け取るまで initialized は false に保つ
   useEffect(() => {
     let isMounted = true
-    let firstData = true
 
     const unsubscribe = subscribeToFirebase((firebaseData) => {
       if (!isMounted) return
@@ -102,10 +109,10 @@ export function useStore() {
           isUpdatingFromFirebase.current = true
           localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
           return firebaseData
-        } else if (firebaseTimestamp === localTimestamp && firstData) {
-          // 初回データ受け取り時は同じタイムスタンプでも OK（確認用）
+        } else if (firebaseTimestamp === localTimestamp && !listenerFirstDataRef.current) {
+          // 初回データ受け取り時は同じタイムスタンプでも同期（確認用）
           console.log('[Firebase Sync] Initial data received (same timestamp)')
-        } else if (firebaseTimestamp < localTimestamp && firstData) {
+        } else if (firebaseTimestamp < localTimestamp && !listenerFirstDataRef.current) {
           // 初回データ受け取り時で Firebase が古い場合は local のまま
           console.log('[Firebase Sync] Initial data received but local is newer - keeping local data')
         }
@@ -113,12 +120,14 @@ export function useStore() {
         return prevState
       })
 
-      // リスナーから最初のデータを受け取った時点で Firebase 準備完了
-      if (firstData) {
-        firstData = false
+      // リスナーから最初のデータを受け取った時点でマーク
+      if (!listenerFirstDataRef.current) {
+        listenerFirstDataRef.current = true
         setFirebaseReady(true)
-        // 初期 Firebase ロード完了後に initialized を true に設定
-        if (initialFirebaseLoadRef.current) {
+        // 初期 Firebase ロード完了後に初期化完了とする
+        // 両条件が満たされたら initialized = true（Firebase ロード + listener 初回データ）
+        if (firebaseLoadCompletedRef.current) {
+          console.log('[Firebase Sync] Both Firebase load and listener ready - initialization complete')
           setInitialized(true)
         }
       }
@@ -430,7 +439,7 @@ export function useStore() {
 
   return {
     state,
-    initialized: firebaseReady,
+    initialized,
     addExam,
     updateExam,
     deleteExam,

@@ -96,7 +96,7 @@ export function useStore() {
 
         console.log('[Firebase Sync] Comparing timestamps - Firebase:', firebaseTimestamp, 'Local:', localTimestamp)
 
-        // Firebase の方が新しい場合は ALWAYS 更新（同じか古い場合は更新しない）
+        // Firebase の方が新しい場合は ALWAYS 更新
         if (firebaseTimestamp > localTimestamp) {
           console.log('[Firebase Sync] Firebase is newer - updating state')
           isUpdatingFromFirebase.current = true
@@ -104,7 +104,10 @@ export function useStore() {
           return firebaseData
         } else if (firebaseTimestamp === localTimestamp && !listenerFirstDataRef.current) {
           // 初回データ受け取り時は同じタイムスタンプでも同期（確認用）
-          console.log('[Firebase Sync] Initial data received (same timestamp)')
+          console.log('[Firebase Sync] Initial data received (same timestamp) - updating state')
+          isUpdatingFromFirebase.current = true
+          localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+          return firebaseData
         } else if (firebaseTimestamp < localTimestamp && !listenerFirstDataRef.current) {
           // 初回データ受け取り時で Firebase が古い場合は local のまま
           console.log('[Firebase Sync] Initial data received but local is newer - keeping local data')

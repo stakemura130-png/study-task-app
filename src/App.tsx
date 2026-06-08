@@ -137,13 +137,13 @@ export function App() {
         onLogout={() => setIsAuthenticated(false)}
         onRefresh={async () => {
           try {
-            // 1. Save current state IMMEDIATELY to Firebase (including pomodoroCustomization)
-            console.log('[Reload] Saving current state immediately to Firebase...')
-            const { saveStateImmediately } = await import('./storage')
-            await saveStateImmediately(state)
-            console.log('[Reload] State saved successfully, now reloading from Firebase...')
+            // 1. Save current state to localStorage immediately (as backup)
+            console.log('[Reload] Saving current state to localStorage...')
+            localStorage.setItem('study-task-app:v3', JSON.stringify(state))
+            console.log('[Reload] State saved to localStorage')
 
             // 2. Reload latest data from Firebase
+            console.log('[Reload] Reloading from Firebase...')
             await store.reloadFromFirebase()
             console.log('[Reload] Successfully reloaded from Firebase')
           } catch (err) {

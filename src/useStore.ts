@@ -10,6 +10,18 @@ export function useStore() {
   const [initialized, setInitialized] = useState(false)
   const isUpdatingFromFirebase = useRef(false)
 
+  // Wrapper to automatically update lastUpdatedAt on every state change
+  const updateStateWithTimestamp = (updater: any) => {
+    setState((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater
+      // Always update timestamp (unless already set by updater)
+      if (!next.lastUpdatedAt || next.lastUpdatedAt === prev.lastUpdatedAt) {
+        return { ...next, lastUpdatedAt: Date.now() }
+      }
+      return next
+    })
+  }
+
   // Load data from Firebase on startup
   useEffect(() => {
     let isMounted = true
@@ -28,14 +40,14 @@ export function useStore() {
         } else {
           console.log('[Firebase Init] No data in Firebase, starting with empty state')
           isUpdatingFromFirebase.current = true
-          setState(createEmptyState())
+          updateStateWithTimestamp(createEmptyState())
         }
 
         setInitialized(true)
       } catch (error) {
         console.error('[Firebase Init] Failed to load from Firebase:', error)
         if (isMounted) {
-          setState(createEmptyState())
+          updateStateWithTimestamp(createEmptyState())
           setInitialized(true)
         }
       }
@@ -69,12 +81,12 @@ export function useStore() {
   // --- 試験日（カウントダウン）操作 ---
   const addExam = useCallback((name: string, examDate: string, color: string) => {
     const exam: Exam = { id: uid(), name, examDate, color }
-    setState((s) => ({ ...s, exams: [...s.exams, exam] }))
+    updateStateWithTimestamp((s) => ({ ...s, exams: [...s.exams, exam] }))
   }, [])
 
   const updateExam = useCallback(
     (id: string, patch: Partial<Pick<Exam, 'name' | 'examDate' | 'color' | 'badgeImage'>>) => {
-      setState((s) => ({
+      updateStateWithTimestamp((s) => ({
         ...s,
         exams: s.exams.map((e) => (e.id === id ? { ...e, ...patch } : e)),
       }))
@@ -84,18 +96,18 @@ export function useStore() {
 
   const deleteExam = useCallback((id: string) => {
     // タスクは共通なので削除しない。試験日のみ削除。
-    setState((s) => ({ ...s, exams: s.exams.filter((e) => e.id !== id) }))
+    updateStateWithTimestamp((s) => ({ ...s, exams: s.exams.filter((e) => e.id !== id) }))
   }, [])
 
   // --- 科目（カラー）操作 ---
   const addSubject = useCallback((name: string, color: string) => {
     const subject: Subject = { id: uid(), name, color }
-    setState((s) => ({ ...s, subjects: [...s.subjects, subject] }))
+    updateStateWithTimestamp((s) => ({ ...s, subjects: [...s.subjects, subject] }))
   }, [])
 
   const updateSubject = useCallback(
     (id: string, patch: Partial<Pick<Subject, 'name' | 'color'>>) => {
-      setState((s) => ({
+      updateStateWithTimestamp((s) => ({
         ...s,
         subjects: s.subjects.map((sub) => (sub.id === id ? { ...sub, ...patch } : sub)),
       }))
@@ -105,7 +117,7 @@ export function useStore() {
 
   const deleteSubject = useCallback((id: string) => {
     // 削除した科目を参照するタスクは「未設定」に戻す
-    setState((s) => ({
+    updateStateWithTimestamp((s) => ({
       ...s,
       subjects: s.subjects.filter((sub) => sub.id !== id),
       tasks: s.tasks.map((t) => (t.subjectId === id ? { ...t, subjectId: null } : t)),
@@ -114,7 +126,7 @@ export function useStore() {
 
   // --- タスク（カード）操作：全試験で共通 ---
   const addTask = useCallback((title: string, status: Status) => {
-    setState((s) => {
+    updateStateWithTimestamp((s) => {
       const orderInCol = s.tasks.filter((t) => t.status === status).length
       const task: Task = {
         id: uid(),
@@ -133,20 +145,21 @@ export function useStore() {
   }, [])
 
   const updateTask = useCallback((taskId: string, patch: Partial<Task>) => {
-    setState((s) => ({
+    updateStateWithTimestamp((s) => ({
       ...s,
       tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, ...patch } : t)),
+      lastUpdatedAt: Date.now(),
     }))
   }, [])
 
   const deleteTask = useCallback((taskId: string) => {
-    setState((s) => ({ ...s, tasks: s.tasks.filter((t) => t.id !== taskId) }))
+    updateStateWithTimestamp((s) => ({ ...s, tasks: s.tasks.filter((t) => t.id !== taskId) }))
   }, [])
 
   /** カードを別カラム（status）へ移動。targetId が指定されればその直前に挿入 */
   const moveTask = useCallback(
     (taskId: string, toStatus: Status, targetId?: string) => {
-      setState((s) => {
+      updateStateWithTimestamp((s) => {
         const moving = s.tasks.find((t) => t.id === taskId)
         if (!moving) return s
         const isComplete = toStatus === 'done'
@@ -177,7 +190,7 @@ export function useStore() {
   const logStudy = useCallback((taskId: string, minutes: number) => {
     if (minutes <= 0) return
     const date = todayStr()
-    setState((s) => ({
+    updateStateWithTimestamp((s) => ({
       ...s,
       tasks: s.tasks.map((t) =>
         t.id === taskId ? { ...t, studyMinutes: t.studyMinutes + minutes } : t,
@@ -188,7 +201,7 @@ export function useStore() {
 
   const updateTaskTypeMeta = useCallback(
     (index: number, patch: Partial<{ label: string; icon: string }>) => {
-      setState((s) => ({
+      updateStateWithTimestamp((s) => ({
         ...s,
         taskTypeMeta: s.taskTypeMeta.map((item, i) =>
           i === index ? { ...item, ...patch } : item,
@@ -199,7 +212,7 @@ export function useStore() {
   )
 
   const toggleChecklistItem = useCallback((subject: string, id: string) => {
-    setState((s) => ({
+    updateStateWithTimestamp((s) => ({
       ...s,
       checklists: {
         ...s.checklists,
@@ -212,7 +225,7 @@ export function useStore() {
 
   const updateChecklistItem = useCallback(
     (subject: string, id: string, patch: Partial<{ memo: string; checked: boolean; notes: string; isNextStart: boolean }>) => {
-      setState((s) => ({
+      updateStateWithTimestamp((s) => ({
         ...s,
         checklists: {
           ...s.checklists,
@@ -227,7 +240,7 @@ export function useStore() {
 
   const replaceChecklistData = useCallback(
     (subject: string, items: any[]) => {
-      setState((s) => ({
+      updateStateWithTimestamp((s) => ({
         ...s,
         checklists: {
           ...s.checklists,
@@ -240,7 +253,7 @@ export function useStore() {
 
   const updateChecklistColorThresholds = useCallback(
     (subject: ChecklistSubject, patch: Partial<ChecklistColorThresholds>) => {
-      setState((s) => ({
+      updateStateWithTimestamp((s) => ({
         ...s,
         checklistColorThresholds: {
           ...s.checklistColorThresholds,
@@ -252,7 +265,7 @@ export function useStore() {
   )
 
   const updateTheme = useCallback((theme: 'light' | 'dark') => {
-    setState((s) => ({
+    updateStateWithTimestamp((s) => ({
       ...s,
       theme,
     }))
@@ -260,7 +273,7 @@ export function useStore() {
 
   const updateMenuConfig = useCallback(
     (menuConfig: { key: string; label: string; visible: boolean; order: number }[]) => {
-      setState((s) => ({
+      updateStateWithTimestamp((s) => ({
         ...s,
         menuConfig: menuConfig as any,
       }))
@@ -270,7 +283,7 @@ export function useStore() {
 
   const updateMarqueeConfig = useCallback(
     (marqueeConfig: Partial<{ patterns: any[]; speed: number; switchIntervalMinutes: number }>) => {
-      setState((s) => ({
+      updateStateWithTimestamp((s) => ({
         ...s,
         marqueeConfig: { ...s.marqueeConfig, ...marqueeConfig },
       }))
@@ -280,7 +293,7 @@ export function useStore() {
 
   const updatePomodoroCustomization = useCallback(
     (customization: Partial<any>) => {
-      setState((s) => ({
+      updateStateWithTimestamp((s) => ({
         ...s,
         pomodoroCustomization: { ...s.pomodoroCustomization, ...customization },
       }))
@@ -290,7 +303,7 @@ export function useStore() {
 
   const updateStatusMeta = useCallback(
     (index: number, patch: Partial<{ label: string; hint: string }>) => {
-      setState((s) => ({
+      updateStateWithTimestamp((s) => ({
         ...s,
         statusMeta: s.statusMeta.map((item, i) =>
           i === index ? { ...item, ...patch } : item,

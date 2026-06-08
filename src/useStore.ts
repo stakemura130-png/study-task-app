@@ -95,29 +95,31 @@ export function useStore() {
         return
       }
 
-      // タイムスタンプで比較：Firebase の方が新しい場合のみ更新
       const firebaseTimestamp = firebaseData.lastUpdatedAt ?? 0
+      const isInitialLoad = !listenerFirstDataRef.current
 
       setState((prevState) => {
         const localTimestamp = prevState.lastUpdatedAt ?? 0
 
-        console.log('[Firebase Sync] Comparing timestamps - Firebase:', firebaseTimestamp, 'Local:', localTimestamp)
+        console.log('[Firebase Sync] Comparing timestamps - Firebase:', firebaseTimestamp, 'Local:', localTimestamp, 'Initial:', isInitialLoad)
 
-        // Firebase の方が新しい場合は ALWAYS 更新
+        // On initial load, ALWAYS use Firebase data (it's the source of truth)
+        // This ensures we never show stale localStorage data after device reopens
+        if (isInitialLoad) {
+          console.log('[Firebase Sync] Initial listener data - ALWAYS using Firebase (source of truth)')
+          isUpdatingFromFirebase.current = true
+          localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
+          return firebaseData
+        }
+
+        // After initialization, only update if Firebase is newer
         if (firebaseTimestamp > localTimestamp) {
           console.log('[Firebase Sync] Firebase is newer - updating state')
           isUpdatingFromFirebase.current = true
           localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
           return firebaseData
-        } else if (firebaseTimestamp === localTimestamp && !listenerFirstDataRef.current) {
-          // 初回データ受け取り時は同じタイムスタンプでも同期（確認用）
-          console.log('[Firebase Sync] Initial data received (same timestamp) - updating state')
-          isUpdatingFromFirebase.current = true
-          localStorage.setItem('study-task-app:v3', JSON.stringify(firebaseData))
-          return firebaseData
-        } else if (firebaseTimestamp < localTimestamp && !listenerFirstDataRef.current) {
-          // 初回データ受け取り時で Firebase が古い場合は local のまま
-          console.log('[Firebase Sync] Initial data received but local is newer - keeping local data')
+        } else {
+          console.log('[Firebase Sync] Local data is current - keeping local state')
         }
 
         return prevState

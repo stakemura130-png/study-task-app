@@ -137,17 +137,15 @@ export function App() {
         onLogout={() => setIsAuthenticated(false)}
         onRefresh={async () => {
           try {
-            // 最初に現在の state を Firebase に保存
-            console.log('[Reload] Saving current state before reload...')
-            // saveState を直接インポートして実行
-            const { saveState } = await import('./storage')
-            saveState(state)
+            // 1. Save current state IMMEDIATELY to Firebase (including pomodoroCustomization)
+            console.log('[Reload] Saving current state immediately to Firebase...')
+            const { saveStateImmediately } = await import('./storage')
+            await saveStateImmediately(state)
+            console.log('[Reload] State saved successfully, now reloading from Firebase...')
 
-            // 少し待ってから Firebase から読み込む
-            await new Promise(resolve => setTimeout(resolve, 100))
-
-            // Firebase から最新データを取得
+            // 2. Reload latest data from Firebase
             await store.reloadFromFirebase()
+            console.log('[Reload] Successfully reloaded from Firebase')
           } catch (err) {
             console.error('Failed to refresh:', err)
           }

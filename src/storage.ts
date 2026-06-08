@@ -346,6 +346,7 @@ export function loadState(): AppState {
 
 export function saveState(state: AppState): void {
   // ONLY save to Firebase - localStorage is NOT used for app data anymore
+  // This is called from useStore's debounce effect, so actual save is async
   try {
     const now = Date.now()
     const stateWithTimestamp = {
@@ -360,5 +361,27 @@ export function saveState(state: AppState): void {
     })
   } catch (error) {
     console.error('[Storage] Failed to save state:', error)
+  }
+}
+
+/**
+ * Save state IMMEDIATELY to Firebase without debounce
+ * Used for critical operations like Reload to ensure data is persisted before refetching
+ * Includes pomodoroCustomization and all other AppState fields
+ */
+export async function saveStateImmediately(state: AppState): Promise<void> {
+  try {
+    const now = Date.now()
+    const stateWithTimestamp = {
+      ...state,
+      lastUpdatedAt: now,
+    }
+
+    console.log('[Storage] Saving state IMMEDIATELY to Firebase with timestamp:', now)
+    await saveToFirebase(stateWithTimestamp)
+    console.log('[Storage] State saved successfully')
+  } catch (error) {
+    console.error('[Storage] Failed to save state immediately:', error)
+    throw error
   }
 }

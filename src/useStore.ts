@@ -69,10 +69,14 @@ export function useStore() {
   // Save to Firebase when state changes (but NOT to localStorage)
   // Only save if this change originated from user action, not from Firebase update
   useEffect(() => {
+    console.log('[State Update] isUpdatingFromFirebase:', isUpdatingFromFirebase.current, 'lastUpdatedAt:', state.lastUpdatedAt)
+
     if (!isUpdatingFromFirebase.current) {
       // User made a change - save ONLY to Firebase
+      console.log('[State Update] User action detected - saving to Firebase')
       saveState(state)
     } else {
+      console.log('[State Update] Firebase update detected - NOT saving again')
       isUpdatingFromFirebase.current = false
     }
   }, [state])

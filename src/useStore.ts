@@ -36,7 +36,8 @@ export function useStore() {
         if (firebaseData) {
           console.log('[Firebase Init] Data loaded successfully')
           isUpdatingFromFirebase.current = true
-          setState(firebaseData)
+          // Force fresh timestamp to prevent stale data issues
+          setState({ ...firebaseData, lastUpdatedAt: Date.now() })
         } else {
           console.log('[Firebase Init] No data in Firebase, starting with empty state')
           isUpdatingFromFirebase.current = true

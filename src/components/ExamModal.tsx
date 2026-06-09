@@ -14,6 +14,7 @@ export function ExamModal({ store, exam, onClose }: ExamModalProps) {
   const [name, setName] = useState(exam?.name ?? '')
   const [examDate, setExamDate] = useState(exam?.examDate ?? '')
   const [color, setColor] = useState(exam?.color ?? EXAM_COLORS[0])
+  const [showColorPicker, setShowColorPicker] = useState(false)
 
   const isEdit = exam !== null
 
@@ -41,14 +42,52 @@ export function ExamModal({ store, exam, onClose }: ExamModalProps) {
         <div className="modal__body">
           <div className="field">
             <label>試験名</label>
-            <input
-              autoFocus
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="例）司法試験 / 行政書士試験 / 予備試験"
-              onKeyDown={(e) => e.key === 'Enter' && save()}
-            />
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <button
+                type="button"
+                onClick={() => setShowColorPicker(!showColorPicker)}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 4,
+                  border: '2px solid #ccc',
+                  background: color,
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+                title="クリックして色を変更"
+              />
+              <input
+                autoFocus
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="例）司法試験 / 行政書士試験 / 予備試験"
+                onKeyDown={(e) => e.key === 'Enter' && save()}
+                style={{ flex: 1 }}
+              />
+            </div>
           </div>
+
+          {showColorPicker && (
+            <div className="field">
+              <label>色を選択</label>
+              <div className="color-row">
+                {EXAM_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    className={`color-swatch${color === c ? ' active' : ''}`}
+                    style={{ background: c }}
+                    onClick={() => {
+                      setColor(c)
+                      setShowColorPicker(false)
+                    }}
+                    aria-label={c}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="field">
             <label>試験日（カウントダウンに使用）</label>

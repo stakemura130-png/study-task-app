@@ -9,6 +9,7 @@ export function useStore() {
   const [state, setState] = useState<AppState>(() => createEmptyState())
   const [initialized, setInitialized] = useState(false)
   const isUpdatingFromFirebase = useRef(false)
+  const isInitializingRef = useRef(true)
 
   // Wrapper to automatically update lastUpdatedAt on every state change
   const updateStateWithTimestamp = (updater: ((prev: AppState) => AppState) | AppState) => {
@@ -44,6 +45,8 @@ export function useStore() {
           updateStateWithTimestamp(() => createEmptyState())
         }
 
+        // Mark initialization complete - allow debounce saves
+        isInitializingRef.current = false
         setInitialized(true)
       } catch (error) {
         console.error('[Firebase Init] Failed to load from Firebase:', error)
@@ -66,6 +69,11 @@ export function useStore() {
   useEffect(() => {
     if (isUpdatingFromFirebase.current) {
       isUpdatingFromFirebase.current = false
+      return
+    }
+
+    // Skip saving during initialization
+    if (isInitializingRef.current) {
       return
     }
 

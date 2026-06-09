@@ -40,14 +40,14 @@ export function useStore() {
         } else {
           console.log('[Firebase Init] No data in Firebase, starting with empty state')
           isUpdatingFromFirebase.current = true
-          updateStateWithTimestamp(createEmptyState())
+          updateStateWithTimestamp(() => createEmptyState())
         }
 
         setInitialized(true)
       } catch (error) {
         console.error('[Firebase Init] Failed to load from Firebase:', error)
         if (isMounted) {
-          updateStateWithTimestamp(createEmptyState())
+          updateStateWithTimestamp(() => createEmptyState())
           setInitialized(true)
         }
       }

@@ -1145,6 +1145,7 @@ function MarqueePatternRow({
 function ExamRow({ exam, store }: { exam: Exam; store: Store }) {
   const [name, setName] = useState(exam.name)
   const [examDate, setExamDate] = useState(exam.examDate)
+  const [showColorPicker, setShowColorPicker] = useState(false)
 
   const commitName = () => {
     const n = name.trim()
@@ -1169,13 +1170,19 @@ function ExamRow({ exam, store }: { exam: Exam; store: Store }) {
       }}
     >
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <div
+        <button
+          type="button"
+          onClick={() => setShowColorPicker(!showColorPicker)}
           style={{
             width: 24,
             height: 24,
             borderRadius: 4,
             background: exam.color,
+            border: 'none',
+            cursor: 'pointer',
+            flexShrink: 0,
           }}
+          title="クリックして色を変更"
         />
         <input
           type="text"
@@ -1220,6 +1227,27 @@ function ExamRow({ exam, store }: { exam: Exam; store: Store }) {
           }}
         />
       </div>
+
+      {showColorPicker && (
+        <div style={{ paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+          <label style={{ display: 'block', marginBottom: 8, fontSize: 12, fontWeight: 600 }}>色を選択</label>
+          <div className="color-row">
+            {EXAM_COLORS.map((c) => (
+              <button
+                key={c}
+                type="button"
+                className={`color-swatch${exam.color === c ? ' active' : ''}`}
+                style={{ background: c }}
+                onClick={() => {
+                  store.updateExam(exam.id, { color: c })
+                  setShowColorPicker(false)
+                }}
+                aria-label={c}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

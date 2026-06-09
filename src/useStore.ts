@@ -71,8 +71,10 @@ export function useStore() {
 
     // User made a change - save to Firebase after a short delay (debounce)
     const timeoutId = setTimeout(() => {
-      console.log('[State Update] Saving to Firebase, timestamp:', state.lastUpdatedAt)
-      saveState(state)
+      // Always use fresh timestamp when saving (not stale state.lastUpdatedAt)
+      const now = Date.now()
+      console.log('[State Update] Saving to Firebase with fresh timestamp:', now)
+      saveState({ ...state, lastUpdatedAt: now })
     }, 500)
 
     return () => clearTimeout(timeoutId)

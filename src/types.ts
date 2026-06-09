@@ -142,6 +142,8 @@ export interface PomodoroCustomization {
   backgroundImage: string | null
   /** 背景画像の透明度（0-100） */
   backgroundOpacity: number
+  /** 背景画像の位置（top, center, bottom） */
+  backgroundPosition: string
   /** サブトルなパルスアニメーション */
   enablePulseAnimation: boolean
   /** 音量（0-100） */

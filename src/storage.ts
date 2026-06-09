@@ -32,6 +32,7 @@ const DEFAULT_POMODORO_CUSTOMIZATION = {
   breakColor: '#10b981',
   backgroundImage: null,
   backgroundOpacity: 100,
+  backgroundPosition: 'center',
   enablePulseAnimation: true,
   soundVolume: 100,
 }

@@ -1478,6 +1478,36 @@ function PomodoroSettings({ store }: { store: Store }) {
             />
           </div>
         )}
+
+        {customization.backgroundImage && (
+          <div style={{ marginTop: 8 }}>
+            <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 12 }}>背景位置</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {['top', 'center', 'bottom'].map((position) => (
+                <button
+                  key={position}
+                  onClick={() => {
+                    store.updatePomodoroCustomization({ backgroundPosition: position })
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    border: customization.backgroundPosition === position ? '2px solid var(--accent)' : '1px solid var(--border)',
+                    background: customization.backgroundPosition === position ? 'var(--accent)' : 'var(--surface)',
+                    color: 'var(--text)',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {position === 'top' ? '↑ 上' : position === 'center' ? '● 中央' : '↓ 下'}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Additional Settings */}

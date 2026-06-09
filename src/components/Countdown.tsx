@@ -102,7 +102,8 @@ function CountdownChip({ exam }: { exam: Exam }) {
     return undefined
   }
 
-  const bgColor = getBgColor(exam.name)
+  // Use exam's custom color if available, otherwise use default color by name
+  const bgColor = exam.color || getBgColor(exam.name)
 
   // カスタムバッジイラストを優先、なければデフォルトバッジを使用
   const badgeSrc = exam.badgeImage || getBadgeSrc(exam.name)

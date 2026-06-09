@@ -24,8 +24,7 @@ export function Marquee({ config }: MarqueeProps) {
   const currentPattern = config.patterns[currentPatternIndex]
   const messages = currentPattern.messages
     .split(',')
-    .map((m) => m.trim())
-    .filter((m) => m)
+    .filter((m) => m.trim())
 
   const marqueeText = messages.join('  •  ') + '  •  ' + messages.join('  •  ') + '  •  ' + messages.join('  •  ')
 

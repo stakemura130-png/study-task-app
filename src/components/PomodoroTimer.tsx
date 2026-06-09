@@ -386,6 +386,9 @@ export function PomodoroTimer({ store }: { store: Store }) {
           style={{
             borderColor: state.isBreak ? customization.breakColor : customization.learningColor,
             backgroundImage: customization.backgroundImage ? `url(${customization.backgroundImage})` : undefined,
+            backgroundPosition: customization.backgroundPosition || 'center',
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -511,6 +514,82 @@ export function PomodoroTimer({ store }: { store: Store }) {
               </button>
             </div>
           </div>
+
+          {/* 背景画像設定 */}
+          <div className="pomodoro-setting-group">
+            <label className="pomodoro-label">背景画像</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  const reader = new FileReader()
+                  reader.onload = (event) => {
+                    store.updatePomodoroCustomization({
+                      backgroundImage: event.target?.result as string,
+                    })
+                  }
+                  reader.readAsDataURL(file)
+                }
+              }}
+              className="pomodoro-input-modern"
+              style={{ padding: '8px' }}
+            />
+          </div>
+
+          {/* 背景透明度 */}
+          {customization.backgroundImage && (
+            <>
+              <div className="pomodoro-setting-group">
+                <label className="pomodoro-label">背景透明度: {customization.backgroundOpacity}%</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={customization.backgroundOpacity}
+                  onChange={(e) => {
+                    store.updatePomodoroCustomization({
+                      backgroundOpacity: parseInt(e.target.value),
+                    })
+                  }}
+                  className="pomodoro-input-modern"
+                  style={{ padding: '0' }}
+                />
+              </div>
+
+              {/* 背景位置選択 */}
+              <div className="pomodoro-setting-group">
+                <label className="pomodoro-label">背景位置</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {['top', 'center', 'bottom'].map((position) => (
+                    <button
+                      key={position}
+                      onClick={() => {
+                        store.updatePomodoroCustomization({
+                          backgroundPosition: position,
+                        })
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        border: customization.backgroundPosition === position ? '2px solid #6366f1' : '1px solid rgba(255, 255, 255, 0.2)',
+                        background: customization.backgroundPosition === position ? 'rgba(99, 102, 241, 0.2)' : 'rgba(59, 130, 246, 0.1)',
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      {position === 'top' ? '↑ 上' : position === 'center' ? '● 中央' : '↓ 下'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

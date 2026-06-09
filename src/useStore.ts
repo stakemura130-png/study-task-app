@@ -11,9 +11,9 @@ export function useStore() {
   const isUpdatingFromFirebase = useRef(false)
 
   // Wrapper to automatically update lastUpdatedAt on every state change
-  const updateStateWithTimestamp = (updater: any) => {
+  const updateStateWithTimestamp = (updater: (prev: AppState) => AppState | AppState) => {
     setState((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater
+      const next = typeof updater === 'function' ? (updater as (prev: AppState) => AppState)(prev) : updater
       // Always update timestamp (unless already set by updater)
       if (!next.lastUpdatedAt || next.lastUpdatedAt === prev.lastUpdatedAt) {
         return { ...next, lastUpdatedAt: Date.now() }

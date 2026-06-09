@@ -389,8 +389,6 @@ export function PomodoroTimer({ store }: { store: Store }) {
             backgroundPosition: customization.backgroundPosition || 'center',
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
           }}
         >
           {customization.backgroundImage && (

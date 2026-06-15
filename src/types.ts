@@ -117,6 +117,31 @@ export interface MarqueeConfig {
 
 export type AlarmSound = 'bell' | 'beep' | 'chime' | 'notification' | 'alarm'
 
+/** 目標・到達度ページ用のデータ型 */
+export interface StudyLogEntry {
+  id: string
+  date: string
+  subjectId: string
+  problems: number
+  correct?: number
+  memo?: string
+}
+
+export interface MonthGoal {
+  text: string
+  target: number
+}
+
+export interface WeekGoal {
+  focus: string[]
+  note: string
+}
+
+export interface Quota {
+  weekday: number
+  weekend: number
+}
+
 export interface PomodoroConfig {
   /** セット数 */
   sets: number
@@ -174,6 +199,14 @@ export interface AppState {
   marqueeConfig: MarqueeConfig
   /** ポモドーロタイマーのカスタマイズ設定 */
   pomodoroCustomization: PomodoroCustomization
+  /** 目標・到達度ページの学習ログ */
+  logs: StudyLogEntry[]
+  /** 月目標（YYYY-MM を key） */
+  monthGoals: Record<string, MonthGoal>
+  /** 週の目標配分 */
+  weekGoals: WeekGoal
+  /** 日次ノルマ（平日・休日） */
+  quota: Quota
   /** 最後の更新時刻（デバイス間の同期判定に使用） */
   lastUpdatedAt?: number
 }

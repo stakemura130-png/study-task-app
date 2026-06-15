@@ -4,7 +4,7 @@ import { useStore } from './useStore'
 import { Sidebar } from './components/Sidebar'
 import { Board } from './components/Board'
 import { CountdownBar } from './components/Countdown'
-import { Stats } from './components/Stats'
+import { GoalsPage } from './components/GoalsPage'
 import { SubjectSettings } from './components/SubjectSettings'
 import { Checklist } from './components/Checklist'
 import { Calendar } from './components/Calendar'
@@ -159,7 +159,7 @@ export function App() {
               {view === 'board'
                 ? '学習ボード'
                 : view === 'stats'
-                  ? '統計'
+                  ? '目標・到達度'
                   : view === 'settings'
                     ? '各種設定'
                     : view === 'checklist'
@@ -174,7 +174,7 @@ export function App() {
         </div>
 
         {view === 'stats' ? (
-          <Stats tasks={state.tasks} studyLog={state.studyLog} />
+          <GoalsPage store={store} />
         ) : view === 'settings' ? (
           <SubjectSettings subjects={state.subjects} taskTypeMeta={state.taskTypeMeta} tasks={state.tasks} exams={state.exams} store={store} />
         ) : view === 'checklist' ? (

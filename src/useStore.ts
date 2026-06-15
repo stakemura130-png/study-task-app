@@ -210,6 +210,29 @@ export function useStore() {
     }))
   }, [])
 
+  // --- 目標・到達度ページ（logs） ---
+  const addLog = useCallback((date: string, subjectId: string, problems: number, correct?: number, memo?: string) => {
+    const id = uid()
+    updateStateWithTimestamp((s) => ({
+      ...s,
+      logs: [...s.logs, { id, date, subjectId, problems, correct, memo }],
+    }))
+  }, [])
+
+  const updateLog = useCallback((id: string, patch: Partial<{ date: string; subjectId: string; problems: number; correct?: number; memo?: string }>) => {
+    updateStateWithTimestamp((s) => ({
+      ...s,
+      logs: s.logs.map((log) => (log.id === id ? { ...log, ...patch } : log)),
+    }))
+  }, [])
+
+  const deleteLog = useCallback((id: string) => {
+    updateStateWithTimestamp((s) => ({
+      ...s,
+      logs: s.logs.filter((log) => log.id !== id),
+    }))
+  }, [])
+
   const updateTaskTypeMeta = useCallback(
     (index: number, patch: Partial<{ label: string; icon: string }>) => {
       updateStateWithTimestamp((s) => ({
@@ -360,6 +383,9 @@ export function useStore() {
     deleteTask,
     moveTask,
     logStudy,
+    addLog,
+    updateLog,
+    deleteLog,
     updateTaskTypeMeta,
     updateStatusMeta,
     toggleChecklistItem,

@@ -20,7 +20,7 @@ const DEFAULT_CHECKLIST_COLOR_THRESHOLDS: ChecklistColorThresholds = {
 
 const DEFAULT_MENU_CONFIG = [
   { key: 'board' as const, label: '学習ボード', visible: true, order: 0 },
-  { key: 'stats' as const, label: '統計', visible: true, order: 1 },
+  { key: 'stats' as const, label: '目標・到達度', visible: true, order: 1 },
   { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
   { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
   { key: 'timer' as const, label: 'ポモドーロ', visible: true, order: 4 },
@@ -149,6 +149,10 @@ export function createEmptyState(): AppState {
       switchIntervalMinutes: 5,
     },
     pomodoroCustomization: DEFAULT_POMODORO_CUSTOMIZATION,
+    logs: [],
+    monthGoals: {},
+    weekGoals: { focus: [], note: '' },
+    quota: { weekday: 50, weekend: 100 },
     lastUpdatedAt: Date.now(), // Always include current timestamp
   }
 }

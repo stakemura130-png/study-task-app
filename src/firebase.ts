@@ -61,8 +61,8 @@ const DEFAULT_POMODORO_CUSTOMIZATION = {
 }
 
 const DEFAULT_MENU_CONFIG = [
-  { key: 'board' as const, label: '学習ボード', visible: true, order: 0 },
-  { key: 'stats' as const, label: '統計', visible: true, order: 1 },
+  { key: 'board' as const, label: 'メインボード', visible: true, order: 0 },
+  { key: 'stats' as const, label: '目標設定', visible: true, order: 1 },
   { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
   { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
   { key: 'timer' as const, label: 'ポモドーロ', visible: true, order: 4 },

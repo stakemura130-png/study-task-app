@@ -189,20 +189,26 @@ export function App() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                 <div style={{ padding: '15px', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                   <h3 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>📅 今週の目標</h3>
-                  {state.weekGoals?.focus && state.weekGoals.focus.length > 0 ? (
-                    <>
-                      <div style={{ marginBottom: '8px' }}>
-                        {state.weekGoals.focus.map((f, i) => (
-                          <span key={i} style={{ display: 'inline-block', background: 'var(--primary-color)', color: 'white', padding: '4px 8px', borderRadius: '6px', marginRight: '6px', marginBottom: '4px', fontSize: '12px' }}>
-                            {f}
-                          </span>
+                  {(() => {
+                    const currentMonth = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0')
+                    const monthGoals = state.goals.filter((g) => g.month === currentMonth)
+                    return monthGoals.length > 0 ? (
+                      <div style={{ display: 'grid', gap: '8px' }}>
+                        {monthGoals.map((goal) => (
+                          <div key={goal.id} style={{ fontSize: '12px', padding: '8px', background: 'var(--surface)', borderRadius: '6px' }}>
+                            <div style={{ fontWeight: '600', marginBottom: '2px' }}>
+                              {state.subjects.find((s) => s.id === goal.subjectId)?.name}
+                            </div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                              {goal.field} → {goal.targetPage}p
+                            </div>
+                          </div>
                         ))}
                       </div>
-                      {state.weekGoals.note && <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-secondary)' }}>📝 {state.weekGoals.note}</p>}
-                    </>
-                  ) : (
-                    <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>目標を設定してください</p>
-                  )}
+                    ) : (
+                      <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>目標を設定してください</p>
+                    )
+                  })()}
                 </div>
 
                 <div style={{ padding: '15px', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>

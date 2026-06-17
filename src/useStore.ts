@@ -233,6 +233,21 @@ export function useStore() {
     }))
   }, [])
 
+  const addGoal = useCallback((month: string, subjectId: string, material: string, field: string, targetPage: number) => {
+    const id = uid()
+    updateStateWithTimestamp((s) => ({
+      ...s,
+      goals: [...s.goals, { id, month, subjectId, material, field, targetPage }],
+    }))
+  }, [])
+
+  const deleteGoal = useCallback((id: string) => {
+    updateStateWithTimestamp((s) => ({
+      ...s,
+      goals: s.goals.filter((goal) => goal.id !== id),
+    }))
+  }, [])
+
   const updateTaskTypeMeta = useCallback(
     (index: number, patch: Partial<{ label: string; icon: string }>) => {
       updateStateWithTimestamp((s) => ({
@@ -386,6 +401,8 @@ export function useStore() {
     addLog,
     updateLog,
     deleteLog,
+    addGoal,
+    deleteGoal,
     updateTaskTypeMeta,
     updateStatusMeta,
     toggleChecklistItem,

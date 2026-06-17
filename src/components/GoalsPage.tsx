@@ -9,6 +9,10 @@ interface GoalsPageProps {
 export function GoalsPage({ store }: GoalsPageProps) {
   const { state } = store
   const [activeTab, setActiveTab] = useState<'achievement' | 'goals' | 'logs' | 'settings'>('achievement')
+  const [selectedSubject, setSelectedSubject] = useState<string>('')
+  const [selectedMaterial, setSelectedMaterial] = useState<string>('')
+  const [fieldInput, setFieldInput] = useState<string>('')
+  const [targetPageInput, setTargetPageInput] = useState<string>('')
 
   // --- タブ1: 到達度 ---
   const achievementData = useMemo(() => {
@@ -282,12 +286,16 @@ export function GoalsPage({ store }: GoalsPageProps) {
       {activeTab === 'goals' && (
         <div>
           <h2 style={{ marginTop: 0 }}>🎯 目標設定</h2>
-          <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px' }}>
+          <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px', marginBottom: '24px' }}>
             <h3>新しい目標を追加</h3>
             <div style={{ display: 'grid', gap: '16px', marginBottom: '24px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>科目</label>
-                <select style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}>
+                <select
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+                >
                   <option value="">選択してください</option>
                   {state.subjects.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -298,7 +306,11 @@ export function GoalsPage({ store }: GoalsPageProps) {
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>教材</label>
-                <select style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}>
+                <select
+                  value={selectedMaterial}
+                  onChange={(e) => setSelectedMaterial(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+                >
                   <option value="">選択してください</option>
                   {state.taskTypeMeta.map((t) => (
                     <option key={t.key} value={t.key}>
@@ -309,16 +321,87 @@ export function GoalsPage({ store }: GoalsPageProps) {
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>分野</label>
-                <input type="text" placeholder="例：民法債権、行政法..." style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }} />
+                <input
+                  type="text"
+                  value={fieldInput}
+                  onChange={(e) => setFieldInput(e.target.value)}
+                  placeholder="例：民法債権、行政法..."
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
+                />
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>目標到達ページ</label>
-                <input type="number" placeholder="例：100" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }} />
+                <input
+                  type="number"
+                  value={targetPageInput}
+                  onChange={(e) => setTargetPageInput(e.target.value)}
+                  placeholder="例：100"
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
+                />
               </div>
             </div>
-            <button style={{ width: '100%', padding: '10px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '4px', fontWeight: '600', cursor: 'pointer' }}>
+            <button
+              onClick={() => {
+                if (selectedSubject && selectedMaterial && fieldInput && targetPageInput) {
+                  const month = todayStr().slice(0, 7)
+                  store.addGoal(month, selectedSubject, selectedMaterial, fieldInput, parseInt(targetPageInput))
+                  setSelectedSubject('')
+                  setSelectedMaterial('')
+                  setFieldInput('')
+                  setTargetPageInput('')
+                  alert('目標を追加しました！')
+                }
+              }}
+              style={{ width: '100%', padding: '10px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '4px', fontWeight: '600', cursor: 'pointer' }}
+            >
               目標を追加
             </button>
+          </div>
+
+          {/* 選択した教材のチェックリスト項目を表示 */}
+          {selectedSubject && selectedMaterial && (
+            <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px' }}>
+              <h3>学習チェックリスト（{state.subjects.find((s) => s.id === selectedSubject)?.name}）</h3>
+              <div style={{ display: 'grid', gap: '8px' }}>
+                {state.checklists[state.subjects.find((s) => s.id === selectedSubject)?.id as any]?.map((item) => (
+                  <div key={item.id} style={{ padding: '8px', background: 'var(--surface)', borderRadius: '4px', fontSize: '13px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ fontWeight: '600' }}>Q{item.questionNumber}</span>
+                      <span style={{ color: 'var(--text-soft)' }}>{item.theme}</span>
+                    </div>
+                  </div>
+                )) || <p style={{ color: 'var(--text-soft)' }}>チェックリスト項目がありません</p>}
+              </div>
+            </div>
+          )}
+
+          {/* 追加された目標の一覧 */}
+          <div style={{ marginTop: '24px', padding: '16px', background: 'var(--panel)', borderRadius: '8px' }}>
+            <h3>登録済みの目標</h3>
+            {state.goals.filter((g) => g.month === todayStr().slice(0, 7)).length === 0 ? (
+              <p style={{ color: 'var(--text-soft)' }}>今月の目標が登録されていません。</p>
+            ) : (
+              <div style={{ display: 'grid', gap: '8px' }}>
+                {state.goals
+                  .filter((g) => g.month === todayStr().slice(0, 7))
+                  .map((goal) => (
+                    <div key={goal.id} style={{ padding: '12px', background: 'var(--surface)', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontSize: '13px' }}>
+                        <div style={{ fontWeight: '600' }}>
+                          {state.subjects.find((s) => s.id === goal.subjectId)?.name} / {state.taskTypeMeta.find((t) => t.key === goal.material)?.label} / {goal.field}
+                        </div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-soft)', marginTop: '4px' }}>目標：{goal.targetPage}ページ</div>
+                      </div>
+                      <button
+                        onClick={() => store.deleteGoal(goal.id)}
+                        style={{ padding: '4px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '11px' }}
+                      >
+                        削除
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
       )}

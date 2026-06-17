@@ -142,6 +142,15 @@ export interface Quota {
   weekend: number
 }
 
+export interface Goal {
+  id: string
+  month: string
+  subjectId: string
+  material: string
+  field: string
+  targetPage: number
+}
+
 export interface PomodoroConfig {
   /** セット数 */
   sets: number
@@ -207,6 +216,8 @@ export interface AppState {
   weekGoals: WeekGoal
   /** 日次ノルマ（平日・休日） */
   quota: Quota
+  /** 目標設定（科目・教材・分野・目標ページ） */
+  goals: Goal[]
   /** 最後の更新時刻（デバイス間の同期判定に使用） */
   lastUpdatedAt?: number
 }

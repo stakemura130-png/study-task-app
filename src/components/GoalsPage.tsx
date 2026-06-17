@@ -97,7 +97,7 @@ export function GoalsPage({ store }: GoalsPageProps) {
   }
 
   return (
-    <div className="goals-page" style={{ padding: '16px', maxWidth: '1200px', margin: '0 auto' }}>
+    <div className="goals-page" style={{ padding: '16px', maxWidth: '1200px', margin: '0 auto', overflow: 'auto', maxHeight: 'calc(100vh - 200px)' }}>
       {/* タブ */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
         <button
@@ -278,8 +278,52 @@ export function GoalsPage({ store }: GoalsPageProps) {
         </div>
       )}
 
-      {/* タブ2, 3, 4 は後で実装 */}
-      {activeTab === 'goals' && <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-soft)' }}>目標設定 - 準備中</div>}
+      {/* タブ2: 目標設定 */}
+      {activeTab === 'goals' && (
+        <div>
+          <h2 style={{ marginTop: 0 }}>🎯 目標設定</h2>
+          <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px' }}>
+            <h3>新しい目標を追加</h3>
+            <div style={{ display: 'grid', gap: '16px', marginBottom: '24px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>科目</label>
+                <select style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}>
+                  <option value="">選択してください</option>
+                  {state.subjects.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>教材</label>
+                <select style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}>
+                  <option value="">選択してください</option>
+                  {state.taskTypeMeta.map((t) => (
+                    <option key={t.key} value={t.key}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>分野</label>
+                <input type="text" placeholder="例：民法債権、行政法..." style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>目標到達ページ</label>
+                <input type="number" placeholder="例：100" style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }} />
+              </div>
+            </div>
+            <button style={{ width: '100%', padding: '10px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '4px', fontWeight: '600', cursor: 'pointer' }}>
+              目標を追加
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* タブ3, 4 は後で実装 */}
       {activeTab === 'logs' && <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-soft)' }}>学習ログ - 準備中</div>}
       {activeTab === 'settings' && <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-soft)' }}>科目・設定 - 準備中</div>}
     </div>

@@ -255,6 +255,7 @@ export function validateAndRepairAppState(data: any): AppState | null {
     weekGoals: data.weekGoals || { focus: [], note: '' },
     quota: data.quota || { weekday: 50, weekend: 100 },
     goals: Array.isArray(data.goals) ? data.goals : [],
+    subjectFields: typeof data.subjectFields === 'object' ? data.subjectFields : {},
     lastUpdatedAt,
   }
 

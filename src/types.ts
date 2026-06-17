@@ -191,6 +191,8 @@ export interface AppState {
   exams: Exam[]
   /** 科目とカラー（カードの色分け） */
   subjects: Subject[]
+  /** 科目ごとの分野（目標設定用） */
+  subjectFields: Record<string, string[]>
   /** タスク種類の表示名とアイコン（編集可能） */
   taskTypeMeta: { key: TaskType; label: string; icon: string }[]
   /** ステータス（学習ボードの項目）の表示名と説明（編集可能） */

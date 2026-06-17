@@ -154,6 +154,7 @@ export function createEmptyState(): AppState {
     weekGoals: { focus: [], note: '' },
     quota: { weekday: 50, weekend: 100 },
     goals: [],
+    subjectFields: {},
     lastUpdatedAt: Date.now(), // Always include current timestamp
   }
 }
@@ -236,7 +237,7 @@ function seedState(): AppState {
   // ポモドーロカスタマイズ設定（デフォルト）
   const pomodoroCustomization = DEFAULT_POMODORO_CUSTOMIZATION
 
-  return { tasks, exams, subjects, taskTypeMeta: TASK_TYPE_META, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog: [], menuConfig, marqueeConfig, pomodoroCustomization, logs: [], monthGoals: {}, weekGoals: { focus: [], note: '' }, quota: { weekday: 50, weekend: 100 }, goals: [] }
+  return { tasks, exams, subjects, taskTypeMeta: TASK_TYPE_META, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog: [], menuConfig, marqueeConfig, pomodoroCustomization, logs: [], monthGoals: {}, weekGoals: { focus: [], note: '' }, quota: { weekday: 50, weekend: 100 }, goals: [], subjectFields: {} }
 }
 
 /** 旧バージョンからの移行（試験ごとタスク構造／科目なし構造の両方に対応） */
@@ -318,7 +319,7 @@ function migrate(raw: string): AppState | null {
     // ポモドーロカスタマイズ設定（デフォルト）
     const pomodoroCustomization = DEFAULT_POMODORO_CUSTOMIZATION
 
-    return { tasks, exams, subjects, taskTypeMeta, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog, menuConfig, marqueeConfig, pomodoroCustomization, logs: [], monthGoals: {}, weekGoals: { focus: [], note: '' }, quota: { weekday: 50, weekend: 100 }, goals: [] }
+    return { tasks, exams, subjects, taskTypeMeta, statusMeta: DEFAULT_STATUS_META, checklists, checklistColorThresholds, theme: 'light', studyLog, menuConfig, marqueeConfig, pomodoroCustomization, logs: [], monthGoals: {}, weekGoals: { focus: [], note: '' }, quota: { weekday: 50, weekend: 100 }, goals: [], subjectFields: {} }
   } catch {
     return null
   }

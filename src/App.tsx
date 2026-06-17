@@ -188,22 +188,32 @@ export function App() {
             <div style={{ padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                 <div style={{ padding: '15px', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <h3 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>📅 今週の目標</h3>
+                  <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>📅 今週の目標</h3>
                   {(() => {
                     const currentMonth = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0')
                     const monthGoals = state.goals.filter((g) => g.month === currentMonth)
                     return monthGoals.length > 0 ? (
-                      <div style={{ display: 'grid', gap: '8px' }}>
-                        {monthGoals.map((goal) => (
-                          <div key={goal.id} style={{ fontSize: '12px', padding: '8px', background: 'var(--surface)', borderRadius: '6px' }}>
-                            <div style={{ fontWeight: '600', marginBottom: '2px' }}>
-                              {state.subjects.find((s) => s.id === goal.subjectId)?.name}
+                      <div style={{ display: 'grid', gap: '10px' }}>
+                        {monthGoals.map((goal) => {
+                          const subject = state.subjects.find((s) => s.id === goal.subjectId)
+                          return (
+                            <div key={goal.id} style={{
+                              padding: '12px',
+                              background: subject?.color || '#999',
+                              color: 'white',
+                              borderRadius: '8px',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            }}>
+                              <div style={{ fontWeight: '600', marginBottom: '4px', fontSize: '13px' }}>
+                                {subject?.name}
+                              </div>
+                              <div style={{ fontSize: '11px', opacity: 0.9, lineHeight: '1.4' }}>
+                                <div>{goal.field}</div>
+                                <div>→ {goal.targetPage}ページ</div>
+                              </div>
                             </div>
-                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                              {goal.field} → {goal.targetPage}p
-                            </div>
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
                     ) : (
                       <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>目標を設定してください</p>

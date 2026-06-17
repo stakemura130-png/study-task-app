@@ -366,13 +366,22 @@ export function GoalsPage({ store }: GoalsPageProps) {
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>分野</label>
-                  <input
-                    type="text"
+                  <select
                     value={fieldInput}
                     onChange={(e) => setFieldInput(e.target.value)}
-                    placeholder="例：民法債権、行政法..."
-                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
-                  />
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+                  >
+                    <option value="">選択してください</option>
+                    {selectedSubject && state.subjectFields[selectedSubject] ? (
+                      state.subjectFields[selectedSubject].map((field) => (
+                        <option key={field} value={field}>
+                          {field}
+                        </option>
+                      ))
+                    ) : (
+                      <option disabled>科目を先に選択してください</option>
+                    )}
+                  </select>
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>目標到達ページ</label>

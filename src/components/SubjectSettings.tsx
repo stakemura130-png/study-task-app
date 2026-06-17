@@ -20,6 +20,7 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, exams, store }:
   const [expandedSections, setExpandedSections] = useState({
     addSubject: true,
     subjectList: true,
+    subjectFields: false,
     checklistColors: false,
     taskTypes: false,
     status: false,
@@ -31,6 +32,8 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, exams, store }:
     exams: false,
     pomodoroSettings: false,
   })
+  const [fieldInputs, setFieldInputs] = useState<Record<string, string>>({})
+  const [newFieldInput, setNewFieldInput] = useState<Record<string, string>>({})
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }))
@@ -257,6 +260,84 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, exams, store }:
                 ))}
               </div>
             )}
+          </>
+        )}
+      </div>
+
+      <div className="panel">
+        <h3
+          style={{
+            cursor: 'pointer',
+            userSelect: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+          onClick={() => toggleSection('subjectFields')}
+        >
+          {expandedSections.subjectFields ? '▼' : '▶'} 分野設定
+        </h3>
+        {expandedSections.subjectFields && (
+          <>
+            <p style={{ color: 'var(--text-soft)', marginTop: -8 }}>
+              科目ごとに学習の分野を設定できます。目標設定で使用できます。
+            </p>
+            <div style={{ display: 'grid', gap: 16 }}>
+              {subjects.map((subject) => (
+                <div key={subject.id} style={{ padding: '12px', background: 'var(--surface)', borderRadius: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <div
+                      style={{
+                        width: '16px',
+                        height: '16px',
+                        background: subject.color,
+                        borderRadius: '4px',
+                      }}
+                    />
+                    <span style={{ fontWeight: '600', flex: 1 }}>{subject.name}</span>
+                  </div>
+                  <div style={{ display: 'grid', gap: '6px', marginBottom: '12px' }}>
+                    {store.state.subjectFields[subject.id]?.map((field) => (
+                      <div key={field} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', background: 'var(--panel)', borderRadius: '4px', fontSize: '13px' }}>
+                        <span>{field}</span>
+                        <button
+                          onClick={() => store.removeSubjectField(subject.id, field)}
+                          style={{ padding: '2px 6px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '11px' }}
+                        >
+                          削除
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <input
+                      type="text"
+                      value={newFieldInput[subject.id] || ''}
+                      onChange={(e) => setNewFieldInput({ ...newFieldInput, [subject.id]: e.target.value })}
+                      placeholder="分野を入力"
+                      style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', fontSize: '13px', boxSizing: 'border-box' }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && newFieldInput[subject.id]?.trim()) {
+                          store.addSubjectField(subject.id, newFieldInput[subject.id].trim())
+                          setNewFieldInput({ ...newFieldInput, [subject.id]: '' })
+                        }
+                      }}
+                    />
+                    <button
+                      onClick={() => {
+                        if (newFieldInput[subject.id]?.trim()) {
+                          store.addSubjectField(subject.id, newFieldInput[subject.id].trim())
+                          setNewFieldInput({ ...newFieldInput, [subject.id]: '' })
+                        }
+                      }}
+                      style={{ padding: '6px 12px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}
+                    >
+                      追加
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </>
         )}
       </div>

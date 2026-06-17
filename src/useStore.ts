@@ -406,6 +406,26 @@ export function useStore() {
     }))
   }, [])
 
+  const addSubjectField = useCallback((subjectId: string, field: string) => {
+    updateStateWithTimestamp((s) => ({
+      ...s,
+      subjectFields: {
+        ...s.subjectFields,
+        [subjectId]: [...(s.subjectFields[subjectId] || []), field],
+      },
+    }))
+  }, [])
+
+  const removeSubjectField = useCallback((subjectId: string, field: string) => {
+    updateStateWithTimestamp((s) => ({
+      ...s,
+      subjectFields: {
+        ...s.subjectFields,
+        [subjectId]: (s.subjectFields[subjectId] || []).filter((f) => f !== field),
+      },
+    }))
+  }, [])
+
 
   return {
     state,
@@ -440,6 +460,8 @@ export function useStore() {
     loadDataFromJSON,
     deleteAllData,
     updateMonthGoals,
+    addSubjectField,
+    removeSubjectField,
   }
 }
 

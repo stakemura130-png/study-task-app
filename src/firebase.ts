@@ -18,13 +18,69 @@ const app = initializeApp(firebaseConfig)
 // Get database reference
 export const db = getDatabase(app)
 
-// ユーザー ID（ブラウザストレージから取得または生成）
+// ユーザー ID（IndexedDB で永続化、localStorage はバックアップのみ）
+let cachedUserId: string | null = null
+
 export const getUserId = () => {
+  if (cachedUserId) return cachedUserId
+
+  // Try localStorage first
   let userId = localStorage.getItem('app:userId')
-  if (!userId) {
-    userId = 'user_' + Math.random().toString(36).substr(2, 9)
-    localStorage.setItem('app:userId', userId)
+  if (userId) {
+    cachedUserId = userId
+    return userId
   }
+
+  // Try IndexedDB as fallback (survives localStorage clear)
+  if (typeof window !== 'undefined' && window.indexedDB) {
+    const dbRequest = window.indexedDB.open('StudyAppDB', 1)
+
+    dbRequest.onsuccess = (event: any) => {
+      try {
+        const db = event.target.result
+        const transaction = db.transaction(['config'], 'readonly')
+        const store = transaction.objectStore('config')
+        const request = store.get('userId')
+
+        request.onsuccess = () => {
+          if (request.result?.userId) {
+            cachedUserId = request.result.userId
+            localStorage.setItem('app:userId', cachedUserId)
+          }
+        }
+      } catch (e) {
+        console.log('[UserId] IndexedDB read failed, generating new ID')
+      }
+    }
+
+    dbRequest.onupgradeneeded = (event: any) => {
+      const db = event.target.result
+      if (!db.objectStoreNames.contains('config')) {
+        db.createObjectStore('config')
+      }
+    }
+  }
+
+  // Generate new ID if none found
+  userId = 'user_' + Math.random().toString(36).substr(2, 9)
+  cachedUserId = userId
+  localStorage.setItem('app:userId', userId)
+
+  // Save to IndexedDB for persistence
+  if (typeof window !== 'undefined' && window.indexedDB) {
+    const dbRequest = window.indexedDB.open('StudyAppDB', 1)
+    dbRequest.onsuccess = (event: any) => {
+      try {
+        const db = event.target.result
+        const transaction = db.transaction(['config'], 'readwrite')
+        const store = transaction.objectStore('config')
+        store.put({ userId }, 'userId')
+      } catch (e) {
+        console.log('[UserId] IndexedDB write failed')
+      }
+    }
+  }
+
   return userId
 }
 

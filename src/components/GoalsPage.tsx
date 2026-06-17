@@ -362,16 +362,9 @@ export function GoalsPage({ store }: GoalsPageProps) {
           {selectedSubject && selectedMaterial && (
             <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px' }}>
               <h3>学習チェックリスト（{state.subjects.find((s) => s.id === selectedSubject)?.name}）</h3>
-              <div style={{ display: 'grid', gap: '8px' }}>
-                {state.checklists[state.subjects.find((s) => s.id === selectedSubject)?.id as any]?.map((item) => (
-                  <div key={item.id} style={{ padding: '8px', background: 'var(--surface)', borderRadius: '4px', fontSize: '13px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontWeight: '600' }}>Q{item.questionNumber}</span>
-                      <span style={{ color: 'var(--text-soft)' }}>{item.theme}</span>
-                    </div>
-                  </div>
-                )) || <p style={{ color: 'var(--text-soft)' }}>チェックリスト項目がありません</p>}
-              </div>
+              <p style={{ fontSize: '13px', color: 'var(--text-soft)' }}>
+                {state.subjects.find((s) => s.id === selectedSubject)?.name} の「{state.taskTypeMeta.find((t) => t.key === selectedMaterial)?.label}」チェックリストがリンクされます。
+              </p>
             </div>
           )}
 

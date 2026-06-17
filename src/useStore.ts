@@ -383,6 +383,22 @@ export function useStore() {
     }
   }, [])
 
+  const loadDataFromJSON = useCallback((jsonData: any) => {
+    try {
+      if (jsonData && typeof jsonData === 'object') {
+        updateStateWithTimestamp(jsonData)
+        console.log('[Data] Successfully loaded from JSON')
+      }
+    } catch (error) {
+      console.error('[Data] Failed to load from JSON:', error)
+    }
+  }, [])
+
+  const deleteAllData = useCallback(() => {
+    updateStateWithTimestamp(() => createEmptyState())
+    console.log('[Data] All data deleted')
+  }, [])
+
 
   return {
     state,
@@ -414,6 +430,8 @@ export function useStore() {
     updateMarqueeConfig,
     updatePomodoroCustomization,
     reloadFromFirebase,
+    loadDataFromJSON,
+    deleteAllData,
   }
 }
 

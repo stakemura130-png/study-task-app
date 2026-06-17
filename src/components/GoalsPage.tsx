@@ -538,8 +538,130 @@ export function GoalsPage({ store }: GoalsPageProps) {
         </div>
       )}
 
-      {/* タブ4 は後で実装 */}
-      {activeTab === 'settings' && <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-soft)' }}>科目・設定 - 準備中</div>}
+      {/* タブ4: 科目・設定 */}
+      {activeTab === 'settings' && (
+        <div>
+          <h2 style={{ marginTop: 0 }}>⚙️ 科目・設定</h2>
+
+          {/* 科目管理 */}
+          <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px', marginBottom: '24px' }}>
+            <h3>科目管理</h3>
+            <div style={{ display: 'grid', gap: '12px', marginBottom: '16px' }}>
+              {state.subjects.map((subject) => (
+                <div key={subject.id} style={{ padding: '12px', background: 'var(--surface)', borderRadius: '4px', display: 'grid', gridTemplateColumns: '1fr 100px 60px', gap: '8px', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: '600', fontSize: '13px' }}>{subject.name}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-soft)', marginTop: '4px' }}>
+                      目標問題数：
+                      <input
+                        type="number"
+                        defaultValue={parseInt(subject.color.match(/\d+/)?.[0] || '100')}
+                        onBlur={(e) => {
+                          const goal = parseInt(e.currentTarget.value) || 100
+                          // 目標問題数を color フィールドに保存（暫定）
+                          store.updateSubject(subject.id, { color: `#${goal.toString(16).padStart(6, '0')}` })
+                        }}
+                        style={{ width: '60px', padding: '4px', borderRadius: '3px', border: '1px solid var(--border)', background: 'var(--panel)', color: 'var(--text)', fontSize: '12px', marginLeft: '4px' }}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ width: '100px', height: '24px', background: subject.color, borderRadius: '4px' }} />
+                  <button
+                    onClick={() => store.deleteSubject(subject.id)}
+                    style={{ padding: '4px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '11px' }}
+                  >
+                    削除
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 試験日管理 */}
+          <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px', marginBottom: '24px' }}>
+            <h3>試験日管理</h3>
+            <div style={{ display: 'grid', gap: '12px', marginBottom: '16px' }}>
+              {state.exams.map((exam) => (
+                <div key={exam.id} style={{ padding: '12px', background: 'var(--surface)', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ width: '20px', height: '20px', background: exam.color, borderRadius: '4px' }} />
+                      {exam.name}
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-soft)', marginTop: '4px' }}>日付：{exam.examDate}</div>
+                  </div>
+                  <button
+                    onClick={() => store.deleteExam(exam.id)}
+                    style={{ padding: '4px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '11px' }}
+                  >
+                    削除
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* データ操作 */}
+          <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px' }}>
+            <h3>データ操作</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px' }}>
+              <button
+                onClick={() => {
+                  const json = JSON.stringify(state, null, 2)
+                  const blob = new Blob([json], { type: 'application/json' })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement('a')
+                  a.href = url
+                  a.download = `study-app-backup-${todayStr()}.json`
+                  a.click()
+                  URL.revokeObjectURL(url)
+                }}
+                style={{ padding: '10px', background: '#10b981', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}
+              >
+                💾 JSON書き出し
+              </button>
+              <button
+                onClick={() => {
+                  const input = document.createElement('input')
+                  input.type = 'file'
+                  input.accept = '.json'
+                  input.onchange = (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0]
+                    if (file) {
+                      const reader = new FileReader()
+                      reader.onload = (event) => {
+                        try {
+                          const data = JSON.parse(event.target?.result as string)
+                          store.loadDataFromJSON(data)
+                          alert('データを読み込みました！')
+                        } catch {
+                          alert('ファイルが壊れています')
+                        }
+                      }
+                      reader.readAsText(file)
+                    }
+                  }
+                  input.click()
+                }}
+                style={{ padding: '10px', background: '#0ea5e9', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}
+              >
+                📥 JSON読み込み
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm('すべてのデータを削除しますか？この操作は取り消せません。')) {
+                    store.deleteAllData()
+                    alert('すべてのデータを削除しました。')
+                  }
+                }}
+                style={{ padding: '10px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: '600', fontSize: '13px' }}
+              >
+                🗑️ 全削除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

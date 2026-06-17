@@ -193,21 +193,23 @@ export function App() {
                     const currentMonth = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0')
                     const monthGoals = state.goals.filter((g) => g.month === currentMonth)
                     return monthGoals.length > 0 ? (
-                      <div style={{ display: 'grid', gap: '10px' }}>
+                      <div style={{ display: 'grid', gap: '8px' }}>
                         {monthGoals.map((goal) => {
                           const subject = state.subjects.find((s) => s.id === goal.subjectId)
                           return (
                             <div key={goal.id} style={{
-                              padding: '12px',
-                              background: subject?.color || '#999',
-                              color: 'white',
-                              borderRadius: '8px',
-                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                              background: 'var(--surface)',
+                              borderRadius: '10px',
+                              padding: '11px 12px',
+                              boxShadow: 'var(--shadow)',
+                              border: '1px solid var(--border)',
+                              borderLeft: `4px solid ${subject?.color || '#999'}`,
+                              transition: 'box-shadow 0.12s, transform 0.05s',
                             }}>
                               <div style={{ fontWeight: '600', marginBottom: '4px', fontSize: '13px' }}>
                                 {subject?.name}
                               </div>
-                              <div style={{ fontSize: '11px', opacity: 0.9, lineHeight: '1.4' }}>
+                              <div style={{ fontSize: '12px', lineHeight: '1.4', color: 'var(--text-soft)' }}>
                                 <div>{goal.field}</div>
                                 <div>→ {goal.targetPage}ページ</div>
                               </div>

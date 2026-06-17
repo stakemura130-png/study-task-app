@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { Store } from '../useStore'
-import { todayStr, daysBetween } from '../utils'
+import { todayStr, daysBetween, uid } from '../utils'
 
 interface GoalsPageProps {
   store: Store
@@ -13,6 +13,13 @@ export function GoalsPage({ store }: GoalsPageProps) {
   const [selectedMaterial, setSelectedMaterial] = useState<string>('')
   const [fieldInput, setFieldInput] = useState<string>('')
   const [targetPageInput, setTargetPageInput] = useState<string>('')
+
+  // Tab 3: 学習ログの入力フォーム
+  const [logDate, setLogDate] = useState<string>(todayStr())
+  const [logSubject, setLogSubject] = useState<string>('')
+  const [logProblems, setLogProblems] = useState<string>('')
+  const [logCorrect, setLogCorrect] = useState<string>('')
+  const [logMemo, setLogMemo] = useState<string>('')
 
   // --- タブ1: 到達度 ---
   const achievementData = useMemo(() => {
@@ -399,8 +406,139 @@ export function GoalsPage({ store }: GoalsPageProps) {
         </div>
       )}
 
-      {/* タブ3, 4 は後で実装 */}
-      {activeTab === 'logs' && <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-soft)' }}>学習ログ - 準備中</div>}
+      {/* タブ3: 学習ログ */}
+      {activeTab === 'logs' && (
+        <div>
+          <h2 style={{ marginTop: 0 }}>📝 学習ログ</h2>
+
+          {/* ログ入力フォーム */}
+          <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px', marginBottom: '24px' }}>
+            <h3>学習ログを追加</h3>
+            <div style={{ display: 'grid', gap: '16px', marginBottom: '24px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>日付</label>
+                <input
+                  type="date"
+                  value={logDate}
+                  onChange={(e) => setLogDate(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>科目</label>
+                <select
+                  value={logSubject}
+                  onChange={(e) => setLogSubject(e.target.value)}
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+                >
+                  <option value="">選択してください</option>
+                  {state.subjects.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>問題数</label>
+                <input
+                  type="number"
+                  value={logProblems}
+                  onChange={(e) => setLogProblems(e.target.value)}
+                  placeholder="例：50"
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>正答数（任意）</label>
+                <input
+                  type="number"
+                  value={logCorrect}
+                  onChange={(e) => setLogCorrect(e.target.value)}
+                  placeholder="例：45"
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>メモ（任意）</label>
+                <input
+                  type="text"
+                  value={logMemo}
+                  onChange={(e) => setLogMemo(e.target.value)}
+                  placeholder="例：民法の問題で引っかかった"
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                if (logDate && logSubject && logProblems) {
+                  store.addLog(logDate, logSubject, parseInt(logProblems), logCorrect ? parseInt(logCorrect) : undefined, logMemo || undefined)
+                  setLogDate(todayStr())
+                  setLogSubject('')
+                  setLogProblems('')
+                  setLogCorrect('')
+                  setLogMemo('')
+                  alert('学習ログを追加しました！')
+                }
+              }}
+              style={{ width: '100%', padding: '10px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '4px', fontWeight: '600', cursor: 'pointer' }}
+            >
+              ログを追加
+            </button>
+          </div>
+
+          {/* ログ一覧（日付降順） */}
+          <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px' }}>
+            <h3>学習ログ一覧</h3>
+            {state.logs.length === 0 ? (
+              <p style={{ color: 'var(--text-soft)' }}>学習ログがありません。</p>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                      <th style={{ padding: '8px', textAlign: 'left', fontWeight: '600' }}>日付</th>
+                      <th style={{ padding: '8px', textAlign: 'left', fontWeight: '600' }}>科目</th>
+                      <th style={{ padding: '8px', textAlign: 'right', fontWeight: '600' }}>問題数</th>
+                      <th style={{ padding: '8px', textAlign: 'right', fontWeight: '600' }}>正答数</th>
+                      <th style={{ padding: '8px', textAlign: 'right', fontWeight: '600' }}>正答率</th>
+                      <th style={{ padding: '8px', textAlign: 'left', fontWeight: '600' }}>メモ</th>
+                      <th style={{ padding: '8px', textAlign: 'center', fontWeight: '600' }}>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...state.logs]
+                      .sort((a, b) => b.date.localeCompare(a.date))
+                      .map((log) => (
+                        <tr key={log.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                          <td style={{ padding: '8px' }}>{log.date}</td>
+                          <td style={{ padding: '8px' }}>{state.subjects.find((s) => s.id === log.subjectId)?.name || '-'}</td>
+                          <td style={{ padding: '8px', textAlign: 'right', fontFamily: 'monospace' }}>{log.problems}</td>
+                          <td style={{ padding: '8px', textAlign: 'right', fontFamily: 'monospace' }}>{log.correct || '-'}</td>
+                          <td style={{ padding: '8px', textAlign: 'right', fontFamily: 'monospace', color: log.correct ? '#10b981' : 'var(--text-soft)' }}>
+                            {log.correct ? `${Math.round((log.correct / log.problems) * 100)}%` : '-'}
+                          </td>
+                          <td style={{ padding: '8px', fontSize: '12px', color: 'var(--text-soft)' }}>{log.memo || '-'}</td>
+                          <td style={{ padding: '8px', textAlign: 'center' }}>
+                            <button
+                              onClick={() => store.deleteLog(log.id)}
+                              style={{ padding: '4px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '11px' }}
+                            >
+                              削除
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* タブ4 は後で実装 */}
       {activeTab === 'settings' && <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-soft)' }}>科目・設定 - 準備中</div>}
     </div>
   )

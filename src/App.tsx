@@ -184,13 +184,68 @@ export function App() {
         ) : view === 'calendar' ? (
           <Calendar />
         ) : (
-          <Board
-            tasks={state.tasks}
-            subjects={state.subjects}
-            taskTypeMeta={state.taskTypeMeta}
-            store={store}
-            onOpenTask={(t) => setOpenTaskId(t.id)}
-          />
+          <>
+            <div style={{ padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                <div style={{ padding: '15px', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <h3 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>📅 今週の目標</h3>
+                  {state.weekGoals.focus.length > 0 ? (
+                    <>
+                      <div style={{ marginBottom: '8px' }}>
+                        {state.weekGoals.focus.map((f, i) => (
+                          <span key={i} style={{ display: 'inline-block', background: 'var(--primary-color)', color: 'white', padding: '4px 8px', borderRadius: '6px', marginRight: '6px', marginBottom: '4px', fontSize: '12px' }}>
+                            {f}
+                          </span>
+                        ))}
+                      </div>
+                      {state.weekGoals.note && <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-secondary)' }}>📝 {state.weekGoals.note}</p>}
+                    </>
+                  ) : (
+                    <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>目標を設定してください</p>
+                  )}
+                </div>
+
+                <div style={{ padding: '15px', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <h3 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>🎯 今月の目標</h3>
+                  {(() => {
+                    const now = new Date()
+                    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+                    const monthGoal = state.monthGoals[monthKey]
+                    return monthGoal ? (
+                      <div>
+                        <p style={{ margin: '0 0 8px 0', fontSize: '13px' }}>{monthGoal.text}</p>
+                        <p style={{ margin: '0', fontSize: '12px', color: 'var(--text-secondary)' }}>目標: {monthGoal.target} 問</p>
+                      </div>
+                    ) : (
+                      <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>目標を設定してください</p>
+                    )
+                  })()}
+                </div>
+              </div>
+
+              <div style={{ padding: '15px', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                <h3 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>📊 日次ノルマ</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: 'var(--text-secondary)' }}>平日</p>
+                    <p style={{ margin: '0', fontSize: '18px', fontWeight: '600', color: 'var(--primary-color)' }}>{state.quota.weekday} 問</p>
+                  </div>
+                  <div>
+                    <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: 'var(--text-secondary)' }}>休日</p>
+                    <p style={{ margin: '0', fontSize: '18px', fontWeight: '600', color: '#10b981' }}>{state.quota.weekend} 問</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Board
+              tasks={state.tasks}
+              subjects={state.subjects}
+              taskTypeMeta={state.taskTypeMeta}
+              store={store}
+              onOpenTask={(t) => setOpenTaskId(t.id)}
+            />
+          </>
         )}
       </main>
 

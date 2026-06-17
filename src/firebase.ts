@@ -45,7 +45,7 @@ export const getUserId = () => {
         request.onsuccess = () => {
           if (request.result?.userId) {
             cachedUserId = request.result.userId
-            localStorage.setItem('app:userId', cachedUserId)
+            if (cachedUserId) localStorage.setItem('app:userId', cachedUserId)
           }
         }
       } catch (e) {

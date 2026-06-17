@@ -399,6 +399,13 @@ export function useStore() {
     console.log('[Data] All data deleted')
   }, [])
 
+  const updateMonthGoals = useCallback((monthGoals: Record<string, any>) => {
+    updateStateWithTimestamp((s) => ({
+      ...s,
+      monthGoals,
+    }))
+  }, [])
+
 
   return {
     state,
@@ -432,6 +439,7 @@ export function useStore() {
     reloadFromFirebase,
     loadDataFromJSON,
     deleteAllData,
+    updateMonthGoals,
   }
 }
 

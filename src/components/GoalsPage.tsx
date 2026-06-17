@@ -13,6 +13,9 @@ export function GoalsPage({ store }: GoalsPageProps) {
   const [selectedMaterial, setSelectedMaterial] = useState<string>('')
   const [fieldInput, setFieldInput] = useState<string>('')
   const [targetPageInput, setTargetPageInput] = useState<string>('')
+  const [goalsSubTab, setGoalsSubTab] = useState<'weekly' | 'monthly'>('weekly')
+  const [monthlyGoalText, setMonthlyGoalText] = useState<string>('')
+  const [monthlyGoalTarget, setMonthlyGoalTarget] = useState<string>('')
 
   // Tab 3: 学習ログの入力フォーム
   const [logDate, setLogDate] = useState<string>(todayStr())
@@ -293,116 +296,212 @@ export function GoalsPage({ store }: GoalsPageProps) {
       {activeTab === 'goals' && (
         <div>
           <h2 style={{ marginTop: 0 }}>🎯 目標設定</h2>
-          <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px', marginBottom: '24px' }}>
-            <h3>新しい目標を追加</h3>
-            <div style={{ display: 'grid', gap: '16px', marginBottom: '24px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>科目</label>
-                <select
-                  value={selectedSubject}
-                  onChange={(e) => setSelectedSubject(e.target.value)}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
-                >
-                  <option value="">選択してください</option>
-                  {state.subjects.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>教材</label>
-                <select
-                  value={selectedMaterial}
-                  onChange={(e) => setSelectedMaterial(e.target.value)}
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
-                >
-                  <option value="">選択してください</option>
-                  {state.taskTypeMeta.map((t) => (
-                    <option key={t.key} value={t.key}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>分野</label>
-                <input
-                  type="text"
-                  value={fieldInput}
-                  onChange={(e) => setFieldInput(e.target.value)}
-                  placeholder="例：民法債権、行政法..."
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>目標到達ページ</label>
-                <input
-                  type="number"
-                  value={targetPageInput}
-                  onChange={(e) => setTargetPageInput(e.target.value)}
-                  placeholder="例：100"
-                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
-                />
-              </div>
-            </div>
+
+          {/* 目標設定のサブタブ */}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', borderBottom: '2px solid var(--border)' }}>
             <button
-              onClick={() => {
-                if (selectedSubject && selectedMaterial && fieldInput && targetPageInput) {
-                  const month = todayStr().slice(0, 7)
-                  store.addGoal(month, selectedSubject, selectedMaterial, fieldInput, parseInt(targetPageInput))
-                  setSelectedSubject('')
-                  setSelectedMaterial('')
-                  setFieldInput('')
-                  setTargetPageInput('')
-                  alert('目標を追加しました！')
-                }
+              onClick={() => setGoalsSubTab('weekly')}
+              style={{
+                padding: '12px 20px',
+                background: goalsSubTab === 'weekly' ? 'var(--accent)' : 'transparent',
+                color: goalsSubTab === 'weekly' ? 'white' : 'var(--text)',
+                border: 'none',
+                borderRadius: '4px 4px 0 0',
+                cursor: 'pointer',
+                fontWeight: goalsSubTab === 'weekly' ? '600' : '400',
               }}
-              style={{ width: '100%', padding: '10px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '4px', fontWeight: '600', cursor: 'pointer' }}
             >
-              目標を追加
+              📅 今週の目標
+            </button>
+            <button
+              onClick={() => setGoalsSubTab('monthly')}
+              style={{
+                padding: '12px 20px',
+                background: goalsSubTab === 'monthly' ? 'var(--accent)' : 'transparent',
+                color: goalsSubTab === 'monthly' ? 'white' : 'var(--text)',
+                border: 'none',
+                borderRadius: '4px 4px 0 0',
+                cursor: 'pointer',
+                fontWeight: goalsSubTab === 'monthly' ? '600' : '400',
+              }}
+            >
+              📊 今月の目標
             </button>
           </div>
 
-          {/* 選択した教材のチェックリスト項目を表示 */}
-          {selectedSubject && selectedMaterial && (
-            <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px' }}>
-              <h3>学習チェックリスト（{state.subjects.find((s) => s.id === selectedSubject)?.name}）</h3>
-              <p style={{ fontSize: '13px', color: 'var(--text-soft)' }}>
-                {state.subjects.find((s) => s.id === selectedSubject)?.name} の「{state.taskTypeMeta.find((t) => t.key === selectedMaterial)?.label}」チェックリストがリンクされます。
-              </p>
+          {/* 今週の目標 */}
+          {goalsSubTab === 'weekly' && (
+            <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px', marginBottom: '24px' }}>
+              <h3>今週の目標を追加</h3>
+              <div style={{ display: 'grid', gap: '16px', marginBottom: '24px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>科目</label>
+                  <select
+                    value={selectedSubject}
+                    onChange={(e) => setSelectedSubject(e.target.value)}
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+                  >
+                    <option value="">選択してください</option>
+                    {state.subjects.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>教材</label>
+                  <select
+                    value={selectedMaterial}
+                    onChange={(e) => setSelectedMaterial(e.target.value)}
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+                  >
+                    <option value="">選択してください</option>
+                    {state.taskTypeMeta.map((t) => (
+                      <option key={t.key} value={t.key}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>分野</label>
+                  <input
+                    type="text"
+                    value={fieldInput}
+                    onChange={(e) => setFieldInput(e.target.value)}
+                    placeholder="例：民法債権、行政法..."
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>目標到達ページ</label>
+                  <input
+                    type="number"
+                    value={targetPageInput}
+                    onChange={(e) => setTargetPageInput(e.target.value)}
+                    placeholder="例：100"
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
+                  />
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  if (selectedSubject && selectedMaterial && fieldInput && targetPageInput) {
+                    const month = todayStr().slice(0, 7)
+                    store.addGoal(month, selectedSubject, selectedMaterial, fieldInput, parseInt(targetPageInput))
+                    setSelectedSubject('')
+                    setSelectedMaterial('')
+                    setFieldInput('')
+                    setTargetPageInput('')
+                    alert('目標を追加しました！')
+                  }
+                }}
+                style={{ width: '100%', padding: '10px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '4px', fontWeight: '600', cursor: 'pointer' }}
+              >
+                目標を追加
+              </button>
+
+              {/* 選択した教材のチェックリスト項目を表示 */}
+              {selectedSubject && selectedMaterial && (
+                <div style={{ padding: '16px', background: 'var(--surface)', borderRadius: '8px', marginTop: '16px' }}>
+                  <h3 style={{ margin: '0 0 8px 0' }}>学習チェックリスト</h3>
+                  <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-soft)' }}>
+                    {state.subjects.find((s) => s.id === selectedSubject)?.name} の「{state.taskTypeMeta.find((t) => t.key === selectedMaterial)?.label}」チェックリストがリンクされます。
+                  </p>
+                </div>
+              )}
+
+              {/* 追加された目標の一覧 */}
+              <div style={{ marginTop: '24px', padding: '16px', background: 'var(--surface)', borderRadius: '8px' }}>
+                <h3 style={{ margin: '0 0 12px 0' }}>登録済みの目標</h3>
+                {state.goals.filter((g) => g.month === todayStr().slice(0, 7)).length === 0 ? (
+                  <p style={{ margin: '0', color: 'var(--text-soft)' }}>今月の目標が登録されていません。</p>
+                ) : (
+                  <div style={{ display: 'grid', gap: '8px' }}>
+                    {state.goals
+                      .filter((g) => g.month === todayStr().slice(0, 7))
+                      .map((goal) => (
+                        <div key={goal.id} style={{ padding: '12px', background: 'var(--panel)', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ fontSize: '13px' }}>
+                            <div style={{ fontWeight: '600' }}>
+                              {state.subjects.find((s) => s.id === goal.subjectId)?.name} / {state.taskTypeMeta.find((t) => t.key === goal.material)?.label} / {goal.field}
+                            </div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-soft)', marginTop: '4px' }}>目標：{goal.targetPage}ページ</div>
+                          </div>
+                          <button
+                            onClick={() => store.deleteGoal(goal.id)}
+                            style={{ padding: '4px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '11px' }}
+                          >
+                            削除
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
-          {/* 追加された目標の一覧 */}
-          <div style={{ marginTop: '24px', padding: '16px', background: 'var(--panel)', borderRadius: '8px' }}>
-            <h3>登録済みの目標</h3>
-            {state.goals.filter((g) => g.month === todayStr().slice(0, 7)).length === 0 ? (
-              <p style={{ color: 'var(--text-soft)' }}>今月の目標が登録されていません。</p>
-            ) : (
-              <div style={{ display: 'grid', gap: '8px' }}>
-                {state.goals
-                  .filter((g) => g.month === todayStr().slice(0, 7))
-                  .map((goal) => (
-                    <div key={goal.id} style={{ padding: '12px', background: 'var(--surface)', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ fontSize: '13px' }}>
-                        <div style={{ fontWeight: '600' }}>
-                          {state.subjects.find((s) => s.id === goal.subjectId)?.name} / {state.taskTypeMeta.find((t) => t.key === goal.material)?.label} / {goal.field}
-                        </div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-soft)', marginTop: '4px' }}>目標：{goal.targetPage}ページ</div>
-                      </div>
-                      <button
-                        onClick={() => store.deleteGoal(goal.id)}
-                        style={{ padding: '4px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '11px' }}
-                      >
-                        削除
-                      </button>
-                    </div>
-                  ))}
+          {/* 今月の目標 */}
+          {goalsSubTab === 'monthly' && (
+            <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px', marginBottom: '24px' }}>
+              <h3>今月の目標を設定</h3>
+              <div style={{ display: 'grid', gap: '16px', marginBottom: '24px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>目標</label>
+                  <textarea
+                    value={monthlyGoalText}
+                    onChange={(e) => setMonthlyGoalText(e.target.value)}
+                    placeholder="例：民法と行政法を深く理解する、問題集を2周する..."
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box', minHeight: '80px', fontFamily: 'inherit' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>目標問題数</label>
+                  <input
+                    type="number"
+                    value={monthlyGoalTarget}
+                    onChange={(e) => setMonthlyGoalTarget(e.target.value)}
+                    placeholder="例：500"
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
+                  />
+                </div>
               </div>
-            )}
-          </div>
+              <button
+                onClick={() => {
+                  if (monthlyGoalText && monthlyGoalTarget) {
+                    const month = todayStr().slice(0, 7)
+                    const newMonthGoals = { ...state.monthGoals, [month]: { text: monthlyGoalText, target: parseInt(monthlyGoalTarget) } }
+                    store.updateMonthGoals(newMonthGoals)
+                    setMonthlyGoalText('')
+                    setMonthlyGoalTarget('')
+                    alert('今月の目標を設定しました！')
+                  }
+                }}
+                style={{ width: '100%', padding: '10px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '4px', fontWeight: '600', cursor: 'pointer' }}
+              >
+                目標を設定
+              </button>
+
+              {/* 設定済みの今月の目標 */}
+              <div style={{ marginTop: '24px', padding: '16px', background: 'var(--surface)', borderRadius: '8px' }}>
+                <h3 style={{ margin: '0 0 12px 0' }}>設定済みの目標</h3>
+                {(() => {
+                  const month = todayStr().slice(0, 7)
+                  const monthGoal = state.monthGoals[month]
+                  return monthGoal ? (
+                    <div style={{ padding: '12px', background: 'var(--panel)', borderRadius: '4px' }}>
+                      <p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>{monthGoal.text}</p>
+                      <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-soft)' }}>目標問題数：{monthGoal.target} 問</p>
+                    </div>
+                  ) : (
+                    <p style={{ margin: '0', color: 'var(--text-soft)' }}>今月の目標がまだ設定されていません。</p>
+                  )
+                })()}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -189,7 +189,7 @@ export function App() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                 <div style={{ padding: '15px', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
                   <h3 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>📅 今週の目標</h3>
-                  {state.weekGoals.focus.length > 0 ? (
+                  {state.weekGoals?.focus && state.weekGoals.focus.length > 0 ? (
                     <>
                       <div style={{ marginBottom: '8px' }}>
                         {state.weekGoals.focus.map((f, i) => (

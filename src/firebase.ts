@@ -194,6 +194,10 @@ export function validateAndRepairAppState(data: any): AppState | null {
     menuConfig,
     marqueeConfig,
     pomodoroCustomization,
+    logs: Array.isArray(data.logs) ? data.logs : [],
+    monthGoals: typeof data.monthGoals === 'object' ? data.monthGoals : {},
+    weekGoals: data.weekGoals || { focus: [], note: '' },
+    quota: data.quota || { weekday: 50, weekend: 100 },
     lastUpdatedAt,
   }
 

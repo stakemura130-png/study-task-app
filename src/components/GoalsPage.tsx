@@ -228,7 +228,6 @@ export function GoalsPage({ store }: GoalsPageProps) {
                     background: heatColor(item.problems),
                     borderRadius: '3px',
                     cursor: 'pointer',
-                    title: `${item.date}: ${item.problems}問`,
                   }}
                   title={`${item.date}: ${item.problems}問`}
                 />

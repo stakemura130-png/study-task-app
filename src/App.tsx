@@ -187,15 +187,11 @@ export function App() {
           <>
             <div style={{ padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                <div style={{ padding: '15px', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>📅 今週の目標</h3>
+                <div style={{ padding: '0', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+                  <h3 style={{ margin: '12px 12px 0 12px', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>📅 今週の目標</h3>
                   {(() => {
                     const currentMonth = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0')
                     const monthGoals = state.goals.filter((g) => g.month === currentMonth)
-
-                    if (monthGoals.length === 0) {
-                      return <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>目標を設定してください</p>
-                    }
 
                     // 科目ごとにグループ化
                     const groupedBySubject: Record<string, typeof monthGoals> = {}
@@ -214,42 +210,56 @@ export function App() {
                     }
 
                     return (
-                      <div style={{ display: 'grid', gap: '12px' }}>
-                        {Object.entries(groupedBySubject).map(([subjectId, goals]) => {
-                          const subject = state.subjects.find((s) => s.id === subjectId)
+                      <div style={{ display: 'grid', gap: '0', padding: '12px' }}>
+                        {state.subjects.map((subject) => {
+                          const goals = groupedBySubject[subject.id] || []
                           const totalTarget = goals.reduce((sum, g) => sum + g.targetPage, 0)
-                          const achieved = getAchieved(subjectId)
+                          const achieved = getAchieved(subject.id)
                           const percentage = totalTarget === 0 ? 0 : Math.round((achieved / totalTarget) * 100)
 
                           return (
-                            <div key={subjectId} style={{ background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)', overflow: 'hidden' }}>
-                              {/* 科目ヘッダー */}
-                              <div style={{ background: subject?.color || '#999', color: 'white', padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div style={{ fontWeight: '600', fontSize: '13px' }}>{subject?.name}</div>
-                                <div style={{ fontSize: '12px' }}>{achieved} / {totalTarget}ページ ({percentage}%)</div>
+                            <div key={subject.id} style={{ marginBottom: '8px', background: '#1a1a1a', border: `2px solid ${subject.color}`, borderRadius: '6px', overflow: 'hidden' }}>
+                              {/* 科目ヘッダー - 電光掲示板風 */}
+                              <div style={{
+                                background: subject.color,
+                                color: '#000',
+                                padding: '6px 8px',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                fontWeight: '700',
+                                fontSize: '12px',
+                                letterSpacing: '0.5px',
+                              }}>
+                                <div>{subject.name}</div>
+                                <div style={{ fontSize: '11px' }}>
+                                  {achieved} / {totalTarget} ({percentage}%)
+                                </div>
                               </div>
 
                               {/* 目標一覧 */}
-                              <div style={{ padding: '8px' }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+                              {goals.length === 0 ? (
+                                <div style={{ padding: '6px 8px', color: 'var(--text-soft)', fontSize: '11px', textAlign: 'center' }}>
+                                  目標が設定されていません
+                                </div>
+                              ) : (
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px', background: '#1a1a1a' }}>
                                   <thead>
-                                    <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                                      <th style={{ textAlign: 'left', padding: '4px 6px', fontWeight: '600', color: 'var(--text-secondary)', fontSize: '10px' }}>分野</th>
-                                      <th style={{ textAlign: 'right', padding: '4px 6px', fontWeight: '600', color: 'var(--text-secondary)', fontSize: '10px' }}>目標</th>
-                                      <th style={{ textAlign: 'right', padding: '4px 6px', fontWeight: '600', color: 'var(--text-secondary)', fontSize: '10px' }}>残り</th>
+                                    <tr style={{ background: 'rgba(255,255,255,0.05)', borderBottom: `1px solid ${subject.color}40` }}>
+                                      <th style={{ textAlign: 'left', padding: '4px 6px', fontWeight: '700', color: 'var(--text-secondary)', fontSize: '10px' }}>分野</th>
+                                      <th style={{ textAlign: 'center', padding: '4px 6px', fontWeight: '700', color: 'var(--text-secondary)', fontSize: '10px' }}>目標</th>
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {goals.map((goal) => (
-                                      <tr key={goal.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                                        <td style={{ padding: '6px 6px', color: 'var(--text)' }}>{goal.field}</td>
-                                        <td style={{ textAlign: 'right', padding: '6px 6px', color: 'var(--text-secondary)' }}>{goal.targetPage}p</td>
-                                        <td style={{ textAlign: 'right', padding: '6px 6px', color: 'var(--text-secondary)' }}>-</td>
+                                    {goals.map((goal, idx) => (
+                                      <tr key={goal.id} style={{ borderBottom: `1px solid ${subject.color}20`, background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                                        <td style={{ padding: '4px 6px', color: 'var(--text)', fontSize: '10px' }}>{goal.field}</td>
+                                        <td style={{ textAlign: 'center', padding: '4px 6px', color: subject.color, fontWeight: '600', fontSize: '11px' }}>{goal.targetPage}p</td>
                                       </tr>
                                     ))}
                                   </tbody>
                                 </table>
-                              </div>
+                              )}
                             </div>
                           )
                         })}

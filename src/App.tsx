@@ -246,12 +246,12 @@ export function App() {
                                       -
                                     </div>
                                   ) : (
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px', background: '#1a1a1a' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', background: '#1a1a1a' }}>
                                       <tbody>
                                         {goals.map((goal, idx) => (
                                           <tr key={goal.id} style={{ borderBottom: `1px solid ${subject.color}20`, background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
-                                            <td style={{ padding: '3px 6px', color: 'white', fontSize: '9px' }}>{goal.field}</td>
-                                            <td style={{ textAlign: 'right', padding: '3px 6px', color: 'white', fontWeight: '600', fontSize: '9px' }}>{goal.targetPage}p</td>
+                                            <td style={{ padding: '5px 8px', color: 'white', fontSize: '12px' }}>{goal.field}</td>
+                                            <td style={{ textAlign: 'right', padding: '5px 8px', color: 'white', fontWeight: '600', fontSize: '12px' }}>{goal.targetPage}p</td>
                                           </tr>
                                         ))}
                                       </tbody>

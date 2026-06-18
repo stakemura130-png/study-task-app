@@ -13,6 +13,7 @@ export function GoalsPage({ store }: GoalsPageProps) {
   const [selectedMaterial, setSelectedMaterial] = useState<string>('')
   const [fieldInput, setFieldInput] = useState<string>('')
   const [targetPageInput, setTargetPageInput] = useState<string>('')
+  const [durationDays, setDurationDays] = useState<string>('7')
   const [goalsSubTab, setGoalsSubTab] = useState<'weekly' | 'monthly'>('weekly')
   const [monthlyGoalText, setMonthlyGoalText] = useState<string>('')
   const [monthlyGoalTarget, setMonthlyGoalTarget] = useState<string>('')
@@ -335,6 +336,18 @@ export function GoalsPage({ store }: GoalsPageProps) {
               <h3>今週の目標を追加</h3>
               <div style={{ display: 'grid', gap: '16px', marginBottom: '24px' }}>
                 <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>期間</label>
+                  <select
+                    value={durationDays}
+                    onChange={(e) => setDurationDays(e.target.value)}
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+                  >
+                    <option value="7">1週間</option>
+                    <option value="14">2週間</option>
+                    <option value="30">1ヶ月</option>
+                  </select>
+                </div>
+                <div>
                   <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>科目</label>
                   <select
                     value={selectedSubject}
@@ -398,7 +411,9 @@ export function GoalsPage({ store }: GoalsPageProps) {
                 onClick={() => {
                   if (selectedSubject && selectedMaterial && fieldInput && targetPageInput) {
                     const month = todayStr().slice(0, 7)
-                    store.addGoal(month, selectedSubject, selectedMaterial, fieldInput, parseInt(targetPageInput))
+                    const startDate = todayStr()
+                    const endDate = new Date(new Date(startDate).getTime() + parseInt(durationDays) * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                    store.addGoal(month, selectedSubject, selectedMaterial, fieldInput, parseInt(targetPageInput), startDate, endDate)
                     setSelectedSubject('')
                     setSelectedMaterial('')
                     setFieldInput('')

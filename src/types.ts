@@ -149,6 +149,8 @@ export interface Goal {
   material: string
   field: string
   targetPage: number
+  startDate: string
+  endDate: string
 }
 
 export interface PomodoroConfig {

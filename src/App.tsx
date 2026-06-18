@@ -192,35 +192,68 @@ export function App() {
                   {(() => {
                     const currentMonth = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0')
                     const monthGoals = state.goals.filter((g) => g.month === currentMonth)
-                    return monthGoals.length > 0 ? (
-                      <div style={{ display: 'grid', gap: '8px' }}>
-                        {monthGoals.map((goal) => {
-                          const subject = state.subjects.find((s) => s.id === goal.subjectId)
+
+                    if (monthGoals.length === 0) {
+                      return <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>目標を設定してください</p>
+                    }
+
+                    // 科目ごとにグループ化
+                    const groupedBySubject: Record<string, typeof monthGoals> = {}
+                    monthGoals.forEach((goal) => {
+                      if (!groupedBySubject[goal.subjectId]) {
+                        groupedBySubject[goal.subjectId] = []
+                      }
+                      groupedBySubject[goal.subjectId].push(goal)
+                    })
+
+                    // 科目別に達成状況を計算
+                    const getAchieved = (subjectId: string) => {
+                      return state.logs
+                        .filter((log) => log.subjectId === subjectId && log.date.startsWith(currentMonth))
+                        .reduce((sum, log) => sum + log.problems, 0)
+                    }
+
+                    return (
+                      <div style={{ display: 'grid', gap: '12px' }}>
+                        {Object.entries(groupedBySubject).map(([subjectId, goals]) => {
+                          const subject = state.subjects.find((s) => s.id === subjectId)
+                          const totalTarget = goals.reduce((sum, g) => sum + g.targetPage, 0)
+                          const achieved = getAchieved(subjectId)
+                          const percentage = totalTarget === 0 ? 0 : Math.round((achieved / totalTarget) * 100)
+
                           return (
-                            <div key={goal.id} style={{
-                              background: 'var(--surface)',
-                              borderRadius: '10px',
-                              padding: '8px 12px',
-                              boxShadow: 'var(--shadow)',
-                              border: '1px solid var(--border)',
-                              borderLeft: `4px solid ${subject?.color || '#999'}`,
-                              transition: 'box-shadow 0.12s, transform 0.05s',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px',
-                              fontSize: '13px',
-                            }}>
-                              <span style={{ fontWeight: '600' }}>{subject?.name}</span>
-                              <span style={{ color: 'var(--text-soft)' }}>•</span>
-                              <span style={{ color: 'var(--text-soft)' }}>{goal.field}</span>
-                              <span style={{ color: 'var(--text-soft)' }}>•</span>
-                              <span style={{ color: 'var(--text-soft)' }}>{goal.targetPage}ページ</span>
+                            <div key={subjectId} style={{ background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+                              {/* 科目ヘッダー */}
+                              <div style={{ background: subject?.color || '#999', color: 'white', padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ fontWeight: '600', fontSize: '13px' }}>{subject?.name}</div>
+                                <div style={{ fontSize: '12px' }}>{achieved} / {totalTarget}ページ ({percentage}%)</div>
+                              </div>
+
+                              {/* 目標一覧 */}
+                              <div style={{ padding: '8px' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+                                  <thead>
+                                    <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                                      <th style={{ textAlign: 'left', padding: '4px 6px', fontWeight: '600', color: 'var(--text-secondary)', fontSize: '10px' }}>分野</th>
+                                      <th style={{ textAlign: 'right', padding: '4px 6px', fontWeight: '600', color: 'var(--text-secondary)', fontSize: '10px' }}>目標</th>
+                                      <th style={{ textAlign: 'right', padding: '4px 6px', fontWeight: '600', color: 'var(--text-secondary)', fontSize: '10px' }}>残り</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {goals.map((goal) => (
+                                      <tr key={goal.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                                        <td style={{ padding: '6px 6px', color: 'var(--text)' }}>{goal.field}</td>
+                                        <td style={{ textAlign: 'right', padding: '6px 6px', color: 'var(--text-secondary)' }}>{goal.targetPage}p</td>
+                                        <td style={{ textAlign: 'right', padding: '6px 6px', color: 'var(--text-secondary)' }}>-</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
                             </div>
                           )
                         })}
                       </div>
-                    ) : (
-                      <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>目標を設定してください</p>
                     )
                   })()}
                 </div>

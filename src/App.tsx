@@ -250,8 +250,8 @@ export function App() {
                                       <tbody>
                                         {goals.map((goal, idx) => (
                                           <tr key={goal.id} style={{ borderBottom: `1px solid ${subject.color}20`, background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
-                                            <td style={{ padding: '3px 6px', color: 'var(--text)', fontSize: '9px' }}>{goal.field}</td>
-                                            <td style={{ textAlign: 'right', padding: '3px 6px', color: subject.color, fontWeight: '600', fontSize: '9px' }}>{goal.targetPage}p</td>
+                                            <td style={{ padding: '3px 6px', color: 'white', fontSize: '9px' }}>{goal.field}</td>
+                                            <td style={{ textAlign: 'right', padding: '3px 6px', color: 'white', fontWeight: '600', fontSize: '9px' }}>{goal.targetPage}p</td>
                                           </tr>
                                         ))}
                                       </tbody>
@@ -261,6 +261,39 @@ export function App() {
                               )
                             })}
                           </div>
+                        </div>
+
+                        {/* 今月の目標 */}
+                        <div style={{ marginBottom: '16px' }}>
+                          <h4 style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)' }}>🎯 今月の目標</h4>
+                          {(() => {
+                            const now = new Date()
+                            const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+                            const monthGoal = state.monthGoals[monthKey]
+
+                            return monthGoal ? (
+                              <div style={{ background: '#1a1a1a', border: '2px solid #3b82f6', borderRadius: '6px', overflow: 'hidden' }}>
+                                <div style={{
+                                  background: '#3b82f6',
+                                  color: '#000',
+                                  padding: '6px 8px',
+                                  fontWeight: '700',
+                                  fontSize: '11px',
+                                  letterSpacing: '0.5px',
+                                }}>
+                                  {monthKey}
+                                </div>
+                                <div style={{ padding: '6px 8px', fontSize: '11px', color: 'white' }}>
+                                  <div style={{ marginBottom: '4px' }}>{monthGoal.text}</div>
+                                  <div style={{ fontSize: '10px', color: '#ffa500' }}>目標: {monthGoal.target} 問</div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div style={{ background: '#1a1a1a', border: '2px solid #666', borderRadius: '6px', padding: '8px', textAlign: 'center', color: 'var(--text-soft)', fontSize: '11px' }}>
+                                目標を設定してください
+                              </div>
+                            )
+                          })()}
                         </div>
                       </div>
                     )
@@ -285,19 +318,6 @@ export function App() {
                 </div>
               </div>
 
-              <div style={{ padding: '15px', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                <h3 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>📊 日次ノルマ</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                  <div>
-                    <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: 'var(--text-secondary)' }}>平日</p>
-                    <p style={{ margin: '0', fontSize: '18px', fontWeight: '600', color: 'var(--primary-color)' }}>{state.quota.weekday} 問</p>
-                  </div>
-                  <div>
-                    <p style={{ margin: '0 0 4px 0', fontSize: '12px', color: 'var(--text-secondary)' }}>休日</p>
-                    <p style={{ margin: '0', fontSize: '18px', fontWeight: '600', color: '#10b981' }}>{state.quota.weekend} 問</p>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <Board

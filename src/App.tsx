@@ -210,59 +210,58 @@ export function App() {
                     }
 
                     return (
-                      <div style={{ display: 'grid', gap: '0', padding: '12px' }}>
-                        {state.subjects.map((subject) => {
-                          const goals = groupedBySubject[subject.id] || []
-                          const totalTarget = goals.reduce((sum, g) => sum + g.targetPage, 0)
-                          const achieved = getAchieved(subject.id)
-                          const percentage = totalTarget === 0 ? 0 : Math.round((achieved / totalTarget) * 100)
+                      <div style={{ padding: '12px' }}>
+                        {/* 今週の目標 - 2列グリッド */}
+                        <div style={{ marginBottom: '16px' }}>
+                          <h4 style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)' }}>📅 今週の目標</h4>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                            {state.subjects.map((subject) => {
+                              const goals = groupedBySubject[subject.id] || []
+                              const totalTarget = goals.reduce((sum, g) => sum + g.targetPage, 0)
+                              const achieved = getAchieved(subject.id)
 
-                          return (
-                            <div key={subject.id} style={{ marginBottom: '8px', background: '#1a1a1a', border: `2px solid ${subject.color}`, borderRadius: '6px', overflow: 'hidden' }}>
-                              {/* 科目ヘッダー - 電光掲示板風 */}
-                              <div style={{
-                                background: subject.color,
-                                color: '#000',
-                                padding: '6px 8px',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                fontWeight: '700',
-                                fontSize: '12px',
-                                letterSpacing: '0.5px',
-                              }}>
-                                <div>{subject.name}</div>
-                                <div style={{ fontSize: '11px' }}>
-                                  {achieved} / {totalTarget} ({percentage}%)
-                                </div>
-                              </div>
+                              return (
+                                <div key={subject.id} style={{ background: '#1a1a1a', border: `2px solid ${subject.color}`, borderRadius: '6px', overflow: 'hidden' }}>
+                                  {/* 科目ヘッダー - 電光掲示板風 */}
+                                  <div style={{
+                                    background: subject.color,
+                                    color: '#000',
+                                    padding: '6px 8px',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    fontWeight: '700',
+                                    fontSize: '11px',
+                                    letterSpacing: '0.5px',
+                                  }}>
+                                    <div>{subject.name}</div>
+                                    <div style={{ fontSize: '10px' }}>
+                                      {achieved}/{totalTarget}
+                                    </div>
+                                  </div>
 
-                              {/* 目標一覧 */}
-                              {goals.length === 0 ? (
-                                <div style={{ padding: '6px 8px', color: 'var(--text-soft)', fontSize: '11px', textAlign: 'center' }}>
-                                  目標が設定されていません
+                                  {/* 目標一覧 */}
+                                  {goals.length === 0 ? (
+                                    <div style={{ padding: '4px 6px', color: 'var(--text-soft)', fontSize: '10px', textAlign: 'center' }}>
+                                      -
+                                    </div>
+                                  ) : (
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px', background: '#1a1a1a' }}>
+                                      <tbody>
+                                        {goals.map((goal, idx) => (
+                                          <tr key={goal.id} style={{ borderBottom: `1px solid ${subject.color}20`, background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                                            <td style={{ padding: '3px 6px', color: 'var(--text)', fontSize: '9px' }}>{goal.field}</td>
+                                            <td style={{ textAlign: 'right', padding: '3px 6px', color: subject.color, fontWeight: '600', fontSize: '9px' }}>{goal.targetPage}p</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  )}
                                 </div>
-                              ) : (
-                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px', background: '#1a1a1a' }}>
-                                  <thead>
-                                    <tr style={{ background: 'rgba(255,255,255,0.05)', borderBottom: `1px solid ${subject.color}40` }}>
-                                      <th style={{ textAlign: 'left', padding: '4px 6px', fontWeight: '700', color: 'var(--text-secondary)', fontSize: '10px' }}>分野</th>
-                                      <th style={{ textAlign: 'center', padding: '4px 6px', fontWeight: '700', color: 'var(--text-secondary)', fontSize: '10px' }}>目標</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {goals.map((goal, idx) => (
-                                      <tr key={goal.id} style={{ borderBottom: `1px solid ${subject.color}20`, background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
-                                        <td style={{ padding: '4px 6px', color: 'var(--text)', fontSize: '10px' }}>{goal.field}</td>
-                                        <td style={{ textAlign: 'center', padding: '4px 6px', color: subject.color, fontWeight: '600', fontSize: '11px' }}>{goal.targetPage}p</td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              )}
-                            </div>
-                          )
-                        })}
+                              )
+                            })}
+                          </div>
+                        </div>
                       </div>
                     )
                   })()}

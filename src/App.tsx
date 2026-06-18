@@ -200,19 +200,21 @@ export function App() {
                             <div key={goal.id} style={{
                               background: 'var(--surface)',
                               borderRadius: '10px',
-                              padding: '11px 12px',
+                              padding: '8px 12px',
                               boxShadow: 'var(--shadow)',
                               border: '1px solid var(--border)',
                               borderLeft: `4px solid ${subject?.color || '#999'}`,
                               transition: 'box-shadow 0.12s, transform 0.05s',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              fontSize: '13px',
                             }}>
-                              <div style={{ fontWeight: '600', marginBottom: '4px', fontSize: '13px' }}>
-                                {subject?.name}
-                              </div>
-                              <div style={{ fontSize: '12px', lineHeight: '1.4', color: 'var(--text-soft)' }}>
-                                <div>{goal.field}</div>
-                                <div>→ {goal.targetPage}ページ</div>
-                              </div>
+                              <span style={{ fontWeight: '600' }}>{subject?.name}</span>
+                              <span style={{ color: 'var(--text-soft)' }}>•</span>
+                              <span style={{ color: 'var(--text-soft)' }}>{goal.field}</span>
+                              <span style={{ color: 'var(--text-soft)' }}>•</span>
+                              <span style={{ color: 'var(--text-soft)' }}>{goal.targetPage}ページ</span>
                             </div>
                           )
                         })}

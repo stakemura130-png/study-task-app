@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Exam, Task } from './types'
 import { useStore } from './useStore'
+import { todayStr } from './utils'
 import { Sidebar } from './components/Sidebar'
 import { Board } from './components/Board'
 import { CountdownBar } from './components/Countdown'
@@ -246,14 +247,28 @@ export function App() {
                                       -
                                     </div>
                                   ) : (
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', background: '#1a1a1a' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', background: '#1a1a1a' }}>
                                       <tbody>
-                                        {goals.map((goal, idx) => (
-                                          <tr key={goal.id} style={{ borderBottom: `1px solid ${subject.color}20`, background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
-                                            <td style={{ padding: '5px 8px', color: 'white', fontSize: '12px' }}>{goal.field}</td>
-                                            <td style={{ textAlign: 'right', padding: '5px 8px', color: 'white', fontWeight: '600', fontSize: '12px' }}>{goal.targetPage}p</td>
-                                          </tr>
-                                        ))}
+                                        {goals.map((goal, idx) => {
+                                          const getRemainingDays = () => {
+                                            const end = new Date(goal.endDate)
+                                            const today = new Date(todayStr())
+                                            const days = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+                                            return Math.max(0, days)
+                                          }
+                                          const remaining = getRemainingDays()
+                                          return (
+                                            <tr key={goal.id} style={{ borderBottom: `1px solid ${subject.color}20`, background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
+                                              <td style={{ padding: '6px 8px', color: 'white', fontSize: '14px', fontWeight: '500' }}>
+                                                {goal.field}
+                                                <span style={{ marginLeft: '6px', color: '#ffa500', fontSize: '12px', fontWeight: '400' }}>
+                                                  {remaining}日
+                                                </span>
+                                              </td>
+                                              <td style={{ textAlign: 'right', padding: '6px 8px', color: 'white', fontWeight: '600', fontSize: '14px' }}>{goal.targetPage}p</td>
+                                            </tr>
+                                          )
+                                        })}
                                       </tbody>
                                     </table>
                                   )}

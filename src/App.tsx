@@ -286,14 +286,14 @@ export function App() {
                                       .filter((goal) => {
                                         const end = new Date(goal.endDate)
                                         const today = new Date(todayStr())
-                                        return end.getTime() >= today.getTime()
+                                        return end.getTime() > today.getTime()
                                       })
                                       .sort((a, b) => {
                                         const aEnd = new Date(a.endDate)
                                         const bEnd = new Date(b.endDate)
                                         return aEnd.getTime() - bEnd.getTime()
                                       })
-                                    const nextGoal = upcomingGoals[1]
+                                    const nextGoal = upcomingGoals[0]
                                     const alertGoals = goals.filter((goal) => {
                                       const end = new Date(goal.endDate)
                                       const today = new Date(todayStr())

@@ -282,6 +282,18 @@ export function App() {
 
                                   {/* ゴールアラート用マルキー */}
                                   {(() => {
+                                    const upcomingGoals = goals
+                                      .filter((goal) => {
+                                        const end = new Date(goal.endDate)
+                                        const today = new Date(todayStr())
+                                        return end.getTime() >= today.getTime()
+                                      })
+                                      .sort((a, b) => {
+                                        const aEnd = new Date(a.endDate)
+                                        const bEnd = new Date(b.endDate)
+                                        return aEnd.getTime() - bEnd.getTime()
+                                      })
+                                    const nextGoal = upcomingGoals[1]
                                     const alertGoals = goals.filter((goal) => {
                                       const end = new Date(goal.endDate)
                                       const today = new Date(todayStr())
@@ -289,7 +301,9 @@ export function App() {
                                       return days <= 7 && days >= 0
                                     })
                                     const alertMessage = state.goalAlertMessages[subject.id]
-                                    const shouldShowMessage = alertGoals.length > 0 && alertMessage
+                                    const shouldShowNextGoal = nextGoal != null
+                                    const shouldShowAlertMessage = alertGoals.length > 0 && alertMessage && !shouldShowNextGoal
+
                                     return (
                                       <div style={{
                                         marginTop: '8px',
@@ -302,7 +316,19 @@ export function App() {
                                         display: 'flex',
                                         alignItems: 'center',
                                       }}>
-                                        {shouldShowMessage ? (
+                                        {shouldShowNextGoal ? (
+                                          <div style={{
+                                            display: 'inline-block',
+                                            whiteSpace: 'nowrap',
+                                            animation: 'marquee 20s linear infinite',
+                                            color: subject.color,
+                                            fontSize: '11px',
+                                            fontWeight: '700',
+                                            letterSpacing: '1px',
+                                          }}>
+                                            {'NEXT ' + nextGoal.field + ' ' + nextGoal.targetPage + 'ページまで '.repeat(3)}
+                                          </div>
+                                        ) : shouldShowAlertMessage ? (
                                           <div style={{
                                             display: 'inline-block',
                                             whiteSpace: 'nowrap',

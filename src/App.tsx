@@ -289,19 +289,20 @@ export function App() {
                                       return days <= 3 && days >= 0
                                     })
                                     const alertMessage = state.goalAlertMessages[subject.id]
-                                    if (alertGoals.length > 0 && alertMessage) {
-                                      return (
-                                        <div style={{
-                                          marginTop: '8px',
-                                          padding: '6px 10px',
-                                          background: '#1a1a1a',
-                                          border: `2px solid ${subject.color}`,
-                                          borderRadius: '4px',
-                                          overflow: 'hidden',
-                                          height: '28px',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                        }}>
+                                    const shouldShowMessage = alertGoals.length > 0 && alertMessage
+                                    return (
+                                      <div style={{
+                                        marginTop: '8px',
+                                        padding: '6px 10px',
+                                        background: '#1a1a1a',
+                                        border: `2px solid ${subject.color}`,
+                                        borderRadius: '4px',
+                                        overflow: 'hidden',
+                                        height: '28px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                      }}>
+                                        {shouldShowMessage ? (
                                           <div style={{
                                             display: 'inline-block',
                                             whiteSpace: 'nowrap',
@@ -313,10 +314,17 @@ export function App() {
                                           }}>
                                             {'💡 ' + alertMessage + ' 💡 '.repeat(3)}
                                           </div>
-                                        </div>
-                                      )
-                                    }
-                                    return null
+                                        ) : (
+                                          <div style={{
+                                            color: subject.color,
+                                            fontSize: '12px',
+                                            opacity: 0.4,
+                                          }}>
+                                            —
+                                          </div>
+                                        )}
+                                      </div>
+                                    )
                                   })()}
                                 </div>
                               )

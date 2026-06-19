@@ -190,12 +190,16 @@ export function App() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0', marginBottom: '0' }}>
                 <div style={{ padding: '0', background: 'var(--card-bg)', borderRadius: '0', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
                   {(() => {
-                    const currentMonth = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0')
-                    const monthGoals = state.goals.filter((g) => g.month === currentMonth)
+                    // 期日が有効なゴールのみを対象（月でフィルターしない）
+                    const validGoals = state.goals.filter((goal) => {
+                      const end = new Date(goal.endDate)
+                      const today = new Date(todayStr())
+                      return end.getTime() > today.getTime()
+                    })
 
                     // 科目ごとにグループ化
-                    const groupedBySubject: Record<string, typeof monthGoals> = {}
-                    monthGoals.forEach((goal) => {
+                    const groupedBySubject: Record<string, typeof validGoals> = {}
+                    validGoals.forEach((goal) => {
                       if (!groupedBySubject[goal.subjectId]) {
                         groupedBySubject[goal.subjectId] = []
                       }
@@ -204,6 +208,7 @@ export function App() {
 
                     // 科目別に達成状況を計算
                     const getAchieved = (subjectId: string) => {
+                      const currentMonth = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0')
                       return state.logs
                         .filter((log) => log.subjectId === subjectId && log.date.startsWith(currentMonth))
                         .reduce((sum, log) => sum + log.problems, 0)

@@ -223,7 +223,7 @@ export function App() {
                             {state.subjects.map((subject) => {
                               const allGoals = groupedBySubject[subject.id] || []
 
-                              // マルキーに表示される次のゴールを取得
+                              // 期日が有効なゴール
                               const upcomingGoals = allGoals
                                 .filter((goal) => {
                                   const end = new Date(goal.endDate)
@@ -235,10 +235,20 @@ export function App() {
                                   const bEnd = new Date(b.endDate)
                                   return aEnd.getTime() - bEnd.getTime()
                                 })
-                              const currentDisplayedGoal = upcomingGoals.length >= 2 ? upcomingGoals[0] : null
 
-                              // 目標一覧：1つだけなら表示、2つ以上ならマルキーに表示されるゴール以外を表示
-                              const goals = upcomingGoals.length === 1 ? upcomingGoals : upcomingGoals.filter((goal) => goal.id !== currentDisplayedGoal?.id)
+                              // 期日3日以下のゴール
+                              const alertGoals = upcomingGoals.filter((goal) => {
+                                const end = new Date(goal.endDate)
+                                const today = new Date(todayStr())
+                                const days = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+                                return days <= 3 && days >= 0
+                              })
+
+                              // マルキーに表示するゴール（期日3日以下のもの）
+                              const currentDisplayedGoal = alertGoals.length > 0 ? alertGoals[0] : null
+
+                              // 目標一覧：currentDisplayedGoal を除外
+                              const goals = upcomingGoals.filter((goal) => goal.id !== currentDisplayedGoal?.id)
                               const totalTarget = upcomingGoals.reduce((sum, g) => sum + g.targetPage, 0)
                               const achieved = getAchieved(subject.id)
 
@@ -379,33 +389,15 @@ export function App() {
 
                                   {/* ゴールアラート用マルキー */}
                                   {(() => {
-                                    const goalsForMarquee = goals
-                                      .filter((goal) => {
-                                        const end = new Date(goal.endDate)
-                                        const today = new Date(todayStr())
-                                        return end.getTime() > today.getTime()
-                                      })
-                                      .sort((a, b) => {
-                                        const aEnd = new Date(a.endDate)
-                                        const bEnd = new Date(b.endDate)
-                                        return aEnd.getTime() - bEnd.getTime()
-                                      })
+                                    // currentDisplayedGoal がない場合はマルキー不要
+                                    if (!currentDisplayedGoal) return null
 
-                                    // 目標が1つだけの場合はマルキー不要
-                                    if (goalsForMarquee.length <= 1) return null
-
-                                    const nextGoal = goalsForMarquee[0]
                                     const alertMessage = state.goalAlertMessages[subject.id]
-                                    const remainingDays = (() => {
-                                      const end = new Date(nextGoal.endDate)
-                                      const today = new Date(todayStr())
-                                      const days = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-                                      return Math.max(0, days)
-                                    })()
-                                    const shouldShowNextGoal = remainingDays > 7
-                                    const shouldShowAlertMessage = remainingDays <= 7 && alertMessage
+                                    const nextGoal = goals.length > 0 ? goals[0] : null
+                                    const shouldShowNextGoal = nextGoal != null
+                                    const shouldShowAlertMessage = !shouldShowNextGoal && alertMessage
 
-                                    if (shouldShowNextGoal) {
+                                    if (shouldShowNextGoal && nextGoal) {
                                       const getRemainingDays = () => {
                                         const end = new Date(nextGoal.endDate)
                                         const today = new Date(todayStr())

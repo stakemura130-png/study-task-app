@@ -210,7 +210,7 @@ export function App() {
                     }
 
                     return (
-                      <div style={{ padding: '12px' }}>
+                      <div style={{ padding: '0' }}>
                         {/* 今週の目標 - 2列グリッド */}
                         <div style={{ marginBottom: '16px' }}>
                           <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>📅 今週の目標</h4>

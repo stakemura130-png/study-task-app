@@ -232,9 +232,9 @@ export function App() {
                                 })
                               const currentDisplayedGoal = upcomingGoals[0]
 
-                              // 目標一覧には、マルキーに表示されているゴール以外を表示
-                              const goals = allGoals.filter((goal) => goal.id !== currentDisplayedGoal?.id)
-                              const totalTarget = goals.reduce((sum, g) => sum + g.targetPage, 0)
+                              // 目標一覧には、期限切れでなく、且つマルキーに表示されているゴール以外を表示
+                              const goals = upcomingGoals.filter((goal) => goal.id !== currentDisplayedGoal?.id)
+                              const totalTarget = upcomingGoals.reduce((sum, g) => sum + g.targetPage, 0)
                               const achieved = getAchieved(subject.id)
 
                               return (

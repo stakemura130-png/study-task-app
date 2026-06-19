@@ -282,6 +282,18 @@ export function App() {
 
                                   {/* ゴールアラート用マルキー */}
                                   {(() => {
+                                    const upcomingGoals = goals
+                                      .filter((goal) => {
+                                        const end = new Date(goal.endDate)
+                                        const today = new Date(todayStr())
+                                        return end.getTime() >= today.getTime()
+                                      })
+                                      .sort((a, b) => {
+                                        const aEnd = new Date(a.endDate)
+                                        const bEnd = new Date(b.endDate)
+                                        return aEnd.getTime() - bEnd.getTime()
+                                      })
+                                    const nextGoal = upcomingGoals[1]
                                     const alertGoals = goals.filter((goal) => {
                                       const end = new Date(goal.endDate)
                                       const today = new Date(todayStr())
@@ -289,7 +301,62 @@ export function App() {
                                       return days <= 7 && days >= 0
                                     })
                                     const alertMessage = state.goalAlertMessages[subject.id]
-                                    const shouldShowMessage = alertGoals.length > 0 && alertMessage
+                                    const shouldShowNextGoal = nextGoal != null
+                                    const shouldShowAlertMessage = alertGoals.length > 0 && alertMessage && !shouldShowNextGoal
+
+                                    if (shouldShowNextGoal) {
+                                      const getRemainingDays = () => {
+                                        const end = new Date(nextGoal.endDate)
+                                        const today = new Date(todayStr())
+                                        const days = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+                                        return Math.max(0, days)
+                                      }
+                                      const remaining = getRemainingDays()
+                                      return (
+                                        <div style={{
+                                          marginTop: '8px',
+                                          padding: '8px 10px',
+                                          background: '#1a1a1a',
+                                          border: `2px solid ${subject.color}`,
+                                          borderRadius: '4px',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                        }}>
+                                          <div style={{
+                                            fontSize: '10px',
+                                            fontWeight: '700',
+                                            color: subject.color,
+                                            marginRight: '8px',
+                                            letterSpacing: '1px',
+                                            whiteSpace: 'nowrap',
+                                          }}>
+                                            NEXT
+                                          </div>
+                                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', background: '#1a1a1a' }}>
+                                            <tbody>
+                                              <tr>
+                                                <td style={{ padding: '0 4px', color: 'white', fontSize: '13px', fontWeight: '600', flex: 1 }}>
+                                                  {nextGoal.field}
+                                                </td>
+                                                <td style={{ padding: '0 4px', fontSize: '13px', fontWeight: '600', minWidth: '55px' }}>
+                                                  <span style={{ color: 'white' }}>残り</span>
+                                                  <span style={{ color: remaining <= 3 ? '#ff4444' : '#ffa500', fontWeight: '700', marginLeft: '2px' }}>{remaining}</span>
+                                                  <span style={{ color: 'white' }}>日</span>
+                                                </td>
+                                                <td style={{ padding: '0 4px', color: 'white', fontSize: '12px', fontWeight: '600' }}>
+                                                  {state.taskTypeMeta.find((t) => t.key === nextGoal.material)?.label || nextGoal.material}
+                                                </td>
+                                                <td style={{ textAlign: 'right', padding: '0 4px', fontSize: '13px', fontWeight: '600' }}>
+                                                  <span style={{ color: '#ffa500', fontWeight: '700' }}>{nextGoal.targetPage}</span>
+                                                  <span style={{ color: 'white', marginLeft: '2px' }}>ページまで</span>
+                                                </td>
+                                              </tr>
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      )
+                                    }
+
                                     return (
                                       <div style={{
                                         marginTop: '8px',
@@ -302,7 +369,7 @@ export function App() {
                                         display: 'flex',
                                         alignItems: 'center',
                                       }}>
-                                        {shouldShowMessage ? (
+                                        {shouldShowAlertMessage ? (
                                           <div style={{
                                             display: 'inline-block',
                                             whiteSpace: 'nowrap',
@@ -327,71 +394,6 @@ export function App() {
                                     )
                                   })()}
 
-                                  {/* 次の目標表示 */}
-                                  {(() => {
-                                    const upcomingGoals = goals
-                                      .filter((goal) => {
-                                        const end = new Date(goal.endDate)
-                                        const today = new Date(todayStr())
-                                        return end.getTime() >= today.getTime()
-                                      })
-                                      .sort((a, b) => {
-                                        const aEnd = new Date(a.endDate)
-                                        const bEnd = new Date(b.endDate)
-                                        return aEnd.getTime() - bEnd.getTime()
-                                      })
-                                    const nextGoal = upcomingGoals[1]
-                                    if (nextGoal) {
-                                      const getRemainingDays = () => {
-                                        const end = new Date(nextGoal.endDate)
-                                        const today = new Date(todayStr())
-                                        const days = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-                                        return Math.max(0, days)
-                                      }
-                                      const remaining = getRemainingDays()
-                                      return (
-                                        <div style={{
-                                          marginTop: '8px',
-                                          padding: '10px 12px',
-                                          background: '#1a1a1a',
-                                          border: `2px solid ${subject.color}`,
-                                          borderRadius: '4px',
-                                        }}>
-                                          <div style={{
-                                            fontSize: '11px',
-                                            fontWeight: '700',
-                                            color: subject.color,
-                                            marginBottom: '6px',
-                                            letterSpacing: '1px',
-                                          }}>
-                                            NEXT
-                                          </div>
-                                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', background: '#1a1a1a' }}>
-                                            <tbody>
-                                              <tr>
-                                                <td style={{ padding: '4px 6px', color: 'white', fontSize: '14px', fontWeight: '600', flex: 1 }}>
-                                                  {nextGoal.field}
-                                                </td>
-                                                <td style={{ padding: '4px 4px', fontSize: '14px', fontWeight: '600', minWidth: '60px' }}>
-                                                  <span style={{ color: 'white' }}>残り</span>
-                                                  <span style={{ color: remaining <= 3 ? '#ff4444' : '#ffa500', fontWeight: '700', marginLeft: '2px' }}>{remaining}</span>
-                                                  <span style={{ color: 'white' }}>日</span>
-                                                </td>
-                                                <td style={{ padding: '4px 4px', color: 'white', fontSize: '13px', fontWeight: '600' }}>
-                                                  {state.taskTypeMeta.find((t) => t.key === nextGoal.material)?.label || nextGoal.material}
-                                                </td>
-                                                <td style={{ textAlign: 'right', padding: '4px 6px', fontSize: '14px', fontWeight: '600' }}>
-                                                  <span style={{ color: '#ffa500', fontWeight: '700' }}>{nextGoal.targetPage}</span>
-                                                  <span style={{ color: 'white', marginLeft: '2px' }}>ページまで</span>
-                                                </td>
-                                              </tr>
-                                            </tbody>
-                                          </table>
-                                        </div>
-                                      )
-                                    }
-                                    return null
-                                  })()}
                                 </div>
                               )
                             })}

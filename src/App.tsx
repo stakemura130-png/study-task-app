@@ -258,19 +258,19 @@ export function App() {
                                           const remaining = getRemainingDays()
                                           return (
                                             <tr key={goal.id} style={{ borderBottom: `1px solid ${subject.color}20`, background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
-                                              <td style={{ padding: '10px 12px', color: 'white', fontSize: '16px', fontWeight: '500', flex: 1 }}>
+                                              <td style={{ padding: '10px 12px', color: 'white', fontSize: '18px', fontWeight: '700', flex: 1 }}>
                                                 {goal.field}
                                               </td>
-                                              <td style={{ padding: '10px 8px', fontSize: '15px', fontWeight: '500', minWidth: '80px' }}>
+                                              <td style={{ padding: '10px 8px', fontSize: '18px', fontWeight: '700', minWidth: '80px' }}>
                                                 <span style={{ color: 'white' }}>残り</span>
-                                                <span style={{ color: remaining <= 3 ? '#ff4444' : '#ffa500', fontWeight: '600' }}>{remaining}</span>
+                                                <span style={{ color: remaining <= 3 ? '#ff4444' : '#ffa500', fontWeight: '700' }}>{remaining}</span>
                                                 <span style={{ color: 'white' }}>日</span>
                                               </td>
-                                              <td style={{ padding: '10px 8px', color: 'white', fontSize: '14px', fontWeight: '500' }}>
+                                              <td style={{ padding: '10px 8px', color: 'white', fontSize: '18px', fontWeight: '700' }}>
                                                 {state.taskTypeMeta.find((t) => t.key === goal.material)?.label || goal.material}
                                               </td>
-                                              <td style={{ textAlign: 'right', padding: '10px 12px', fontSize: '16px', fontWeight: '500' }}>
-                                                <span style={{ color: '#ffa500', fontWeight: '600' }}>{goal.targetPage}</span>
+                                              <td style={{ textAlign: 'right', padding: '10px 12px', fontSize: '18px', fontWeight: '700' }}>
+                                                <span style={{ color: '#ffa500', fontWeight: '700' }}>{goal.targetPage}</span>
                                                 <span style={{ color: 'white', marginLeft: '4px' }}>ページまで</span>
                                               </td>
                                             </tr>

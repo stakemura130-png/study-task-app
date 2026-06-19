@@ -282,23 +282,6 @@ export function App() {
                     )
                   })()}
                 </div>
-
-                <div style={{ padding: '15px', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <h3 style={{ margin: '0 0 10px 0', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>🎯 今月の目標</h3>
-                  {(() => {
-                    const now = new Date()
-                    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-                    const monthGoal = state.monthGoals[monthKey]
-                    return monthGoal ? (
-                      <div>
-                        <p style={{ margin: '0 0 8px 0', fontSize: '13px' }}>{monthGoal.text}</p>
-                        <p style={{ margin: '0', fontSize: '12px', color: 'var(--text-secondary)' }}>目標: {monthGoal.target} 問</p>
-                      </div>
-                    ) : (
-                      <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>目標を設定してください</p>
-                    )
-                  })()}
-                </div>
               </div>
 
             </div>

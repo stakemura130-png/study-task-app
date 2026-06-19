@@ -189,7 +189,6 @@ export function App() {
             <div style={{ padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                 <div style={{ padding: '0', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-                  <h3 style={{ margin: '12px 12px 0 12px', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>📅 今週の目標</h3>
                   {(() => {
                     const currentMonth = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0')
                     const monthGoals = state.goals.filter((g) => g.month === currentMonth)

@@ -222,6 +222,8 @@ export interface AppState {
   quota: Quota
   /** 目標設定（科目・教材・分野・目標ページ） */
   goals: Goal[]
+  /** 科目別のゴールアラートメッセージ（期日3日以下の時に表示） */
+  goalAlertMessages: Record<string, string>
   /** 最後の更新時刻（デバイス間の同期判定に使用） */
   lastUpdatedAt?: number
 }

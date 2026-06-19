@@ -279,6 +279,45 @@ export function App() {
                                       </tbody>
                                     </table>
                                   )}
+
+                                  {/* ゴールアラート用マルキー */}
+                                  {(() => {
+                                    const alertGoals = goals.filter((goal) => {
+                                      const end = new Date(goal.endDate)
+                                      const today = new Date(todayStr())
+                                      const days = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+                                      return days <= 3 && days >= 0
+                                    })
+                                    const alertMessage = state.goalAlertMessages[subject.id]
+                                    if (alertGoals.length > 0 && alertMessage) {
+                                      return (
+                                        <div style={{
+                                          marginTop: '8px',
+                                          padding: '6px 10px',
+                                          background: '#1a1a1a',
+                                          border: `2px solid ${subject.color}`,
+                                          borderRadius: '4px',
+                                          overflow: 'hidden',
+                                          height: '28px',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                        }}>
+                                          <div style={{
+                                            display: 'inline-block',
+                                            whiteSpace: 'nowrap',
+                                            animation: 'marquee 20s linear infinite',
+                                            color: subject.color,
+                                            fontSize: '12px',
+                                            fontWeight: '700',
+                                            letterSpacing: '2px',
+                                          }}>
+                                            {'💡 ' + alertMessage + ' 💡 '.repeat(3)}
+                                          </div>
+                                        </div>
+                                      )
+                                    }
+                                    return null
+                                  })()}
                                 </div>
                               )
                             })}

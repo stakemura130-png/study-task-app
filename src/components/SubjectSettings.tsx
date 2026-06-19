@@ -21,6 +21,7 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, exams, store }:
     addSubject: true,
     subjectList: true,
     subjectFields: false,
+    goalAlerts: false,
     checklistColors: false,
     taskTypes: false,
     status: false,
@@ -335,6 +336,61 @@ export function SubjectSettings({ subjects, taskTypeMeta, tasks, exams, store }:
                       追加
                     </button>
                   </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="panel">
+        <h3
+          style={{
+            cursor: 'pointer',
+            userSelect: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+          onClick={() => toggleSection('goalAlerts')}
+        >
+          {expandedSections.goalAlerts ? '▼' : '▶'} ゴールアラートメッセージ
+        </h3>
+        {expandedSections.goalAlerts && (
+          <>
+            <p style={{ color: 'var(--text-soft)', marginTop: -8 }}>
+              期日が3日以下のゴールがある場合に表示するメッセージを科目ごとに設定できます。
+            </p>
+            <div style={{ display: 'grid', gap: 16 }}>
+              {subjects.map((subject) => (
+                <div key={subject.id} style={{ padding: '12px', background: 'var(--surface)', borderRadius: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <div
+                      style={{
+                        width: '16px',
+                        height: '16px',
+                        background: subject.color,
+                        borderRadius: '4px',
+                      }}
+                    />
+                    <span style={{ fontWeight: '600', flex: 1 }}>{subject.name}</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={store.state.goalAlertMessages[subject.id] || ''}
+                    onChange={(e) => store.updateGoalAlertMessage(subject.id, e.target.value)}
+                    placeholder="例：頑張れ！残り少し！"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '4px',
+                      border: '1px solid var(--border)',
+                      background: 'var(--panel)',
+                      color: 'var(--text)',
+                      fontSize: '13px',
+                      boxSizing: 'border-box',
+                    }}
+                  />
                 </div>
               ))}
             </div>

@@ -256,6 +256,7 @@ export function validateAndRepairAppState(data: any): AppState | null {
     quota: data.quota || { weekday: 50, weekend: 100 },
     goals: Array.isArray(data.goals) ? data.goals : [],
     subjectFields: typeof data.subjectFields === 'object' ? data.subjectFields : {},
+    goalAlertMessages: typeof data.goalAlertMessages === 'object' ? data.goalAlertMessages : {},
     lastUpdatedAt,
   }
 

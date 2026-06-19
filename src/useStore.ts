@@ -426,6 +426,16 @@ export function useStore() {
     }))
   }, [])
 
+  const updateGoalAlertMessage = useCallback((subjectId: string, message: string) => {
+    updateStateWithTimestamp((s) => ({
+      ...s,
+      goalAlertMessages: {
+        ...s.goalAlertMessages,
+        [subjectId]: message,
+      },
+    }))
+  }, [])
+
 
   return {
     state,
@@ -462,6 +472,7 @@ export function useStore() {
     updateMonthGoals,
     addSubjectField,
     removeSubjectField,
+    updateGoalAlertMessage,
   }
 }
 

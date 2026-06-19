@@ -306,7 +306,7 @@ export function App() {
                                           <div style={{
                                             display: 'inline-block',
                                             whiteSpace: 'nowrap',
-                                            animation: 'marqueeBounceback 8s linear infinite, blink 0.8s ease-in-out infinite',
+                                            animation: 'marqueeBounceback 10s ease-in-out infinite, blink 0.8s ease-in-out infinite',
                                             color: '#ff0000',
                                             fontSize: '12px',
                                             fontWeight: '700',

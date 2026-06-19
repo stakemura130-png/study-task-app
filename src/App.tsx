@@ -232,8 +232,8 @@ export function App() {
                                 })
                               const currentDisplayedGoal = upcomingGoals[0]
 
-                              // 目標一覧には、期限切れでなく、且つマルキーに表示されているゴール以外を表示
-                              const goals = upcomingGoals.filter((goal) => goal.id !== currentDisplayedGoal?.id)
+                              // 目標一覧：1つだけなら表示、2つ以上ならマルキーに表示されるゴール以外を表示
+                              const goals = upcomingGoals.length === 1 ? upcomingGoals : upcomingGoals.filter((goal) => goal.id !== currentDisplayedGoal?.id)
                               const totalTarget = upcomingGoals.reduce((sum, g) => sum + g.targetPage, 0)
                               const achieved = getAchieved(subject.id)
 

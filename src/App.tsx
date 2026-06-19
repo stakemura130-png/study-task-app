@@ -226,16 +226,16 @@ export function App() {
                                   <div style={{
                                     background: subject.color,
                                     color: '#000',
-                                    padding: '10px 12px',
+                                    padding: '12px 14px',
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
                                     fontWeight: '700',
-                                    fontSize: '14px',
+                                    fontSize: '18px',
                                     letterSpacing: '0.5px',
                                   }}>
                                     <div>{subject.name}</div>
-                                    <div style={{ fontSize: '12px' }}>
+                                    <div style={{ fontSize: '14px' }}>
                                       {achieved}/{totalTarget}
                                     </div>
                                   </div>
@@ -258,11 +258,14 @@ export function App() {
                                           const remaining = getRemainingDays()
                                           return (
                                             <tr key={goal.id} style={{ borderBottom: `1px solid ${subject.color}20`, background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
-                                              <td style={{ padding: '10px 12px', color: 'white', fontSize: '16px', fontWeight: '500' }}>
+                                              <td style={{ padding: '10px 12px', color: 'white', fontSize: '16px', fontWeight: '500', flex: 1 }}>
                                                 {goal.field}
-                                                <span style={{ marginLeft: '8px', color: '#ffa500', fontSize: '14px', fontWeight: '400' }}>
-                                                  {remaining}日
-                                                </span>
+                                              </td>
+                                              <td style={{ padding: '10px 8px', color: '#ffa500', fontSize: '15px', fontWeight: '500', minWidth: '50px' }}>
+                                                {remaining}日
+                                              </td>
+                                              <td style={{ padding: '10px 8px', color: 'white', fontSize: '14px', fontWeight: '500' }}>
+                                                {state.taskTypeMeta.find((t) => t.key === goal.material)?.label || goal.material}
                                               </td>
                                               <td style={{ textAlign: 'right', padding: '10px 12px', color: 'white', fontWeight: '600', fontSize: '16px' }}>{goal.targetPage} ページ</td>
                                             </tr>

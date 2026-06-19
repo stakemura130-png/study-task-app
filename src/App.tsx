@@ -261,13 +261,18 @@ export function App() {
                                               <td style={{ padding: '10px 12px', color: 'white', fontSize: '16px', fontWeight: '500', flex: 1 }}>
                                                 {goal.field}
                                               </td>
-                                              <td style={{ padding: '10px 8px', color: '#ffa500', fontSize: '15px', fontWeight: '500', minWidth: '50px' }}>
-                                                {remaining}日
+                                              <td style={{ padding: '10px 8px', fontSize: '15px', fontWeight: '500', minWidth: '80px' }}>
+                                                <span style={{ color: 'white' }}>期限は残り</span>
+                                                <span style={{ color: remaining <= 3 ? '#ff4444' : '#ffa500', fontWeight: '600' }}>{remaining}</span>
+                                                <span style={{ color: 'white' }}>日</span>
                                               </td>
                                               <td style={{ padding: '10px 8px', color: 'white', fontSize: '14px', fontWeight: '500' }}>
                                                 {state.taskTypeMeta.find((t) => t.key === goal.material)?.label || goal.material}
                                               </td>
-                                              <td style={{ textAlign: 'right', padding: '10px 12px', color: 'white', fontWeight: '600', fontSize: '16px' }}>{goal.targetPage} ページ</td>
+                                              <td style={{ textAlign: 'right', padding: '10px 12px', fontSize: '16px', fontWeight: '500' }}>
+                                                <span style={{ color: 'white' }}>ページまで</span>
+                                                <span style={{ color: '#ffa500', fontWeight: '600', marginLeft: '4px' }}>{goal.targetPage}</span>
+                                              </td>
                                             </tr>
                                           )
                                         })}

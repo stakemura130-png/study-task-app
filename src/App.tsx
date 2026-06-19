@@ -186,7 +186,7 @@ export function App() {
           <Calendar />
         ) : (
           <>
-            <div style={{ padding: '0', borderBottom: '1px solid var(--border-color)', marginLeft: '0', marginRight: '-200px', marginTop: '0', width: 'calc(100% + 200px)' }}>
+            <div style={{ padding: '0', borderBottom: '1px solid var(--border-color)', marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)', width: '100vw' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', marginBottom: '0' }}>
                 <div style={{ padding: '0', background: 'var(--card-bg)', borderRadius: '0', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
                   {(() => {

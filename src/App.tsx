@@ -286,7 +286,7 @@ export function App() {
                                       const end = new Date(goal.endDate)
                                       const today = new Date(todayStr())
                                       const days = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-                                      return days <= 3 && days >= 0
+                                      return days <= 7 && days >= 0
                                     })
                                     const alertMessage = state.goalAlertMessages[subject.id]
                                     const shouldShowMessage = alertGoals.length > 0 && alertMessage

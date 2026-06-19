@@ -466,66 +466,6 @@ export function GoalsPage({ store }: GoalsPageProps) {
               </div>
             </div>
           )}
-
-          {/* 今月の目標 */}
-          {goalsSubTab === 'monthly' && (
-            <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px', marginBottom: '24px' }}>
-              <h3>今月の目標を設定</h3>
-              <div style={{ display: 'grid', gap: '16px', marginBottom: '24px' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>目標</label>
-                  <textarea
-                    value={monthlyGoalText}
-                    onChange={(e) => setMonthlyGoalText(e.target.value)}
-                    placeholder="例：民法と行政法を深く理解する、問題集を2周する..."
-                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box', minHeight: '80px', fontFamily: 'inherit' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>目標問題数</label>
-                  <input
-                    type="number"
-                    value={monthlyGoalTarget}
-                    onChange={(e) => setMonthlyGoalTarget(e.target.value)}
-                    placeholder="例：500"
-                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
-                  />
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  if (monthlyGoalText && monthlyGoalTarget) {
-                    const month = todayStr().slice(0, 7)
-                    const newMonthGoals = { ...state.monthGoals, [month]: { text: monthlyGoalText, target: parseInt(monthlyGoalTarget) } }
-                    store.updateMonthGoals(newMonthGoals)
-                    setMonthlyGoalText('')
-                    setMonthlyGoalTarget('')
-                    alert('今月の目標を設定しました！')
-                  }
-                }}
-                style={{ width: '100%', padding: '10px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: '4px', fontWeight: '600', cursor: 'pointer' }}
-              >
-                目標を設定
-              </button>
-
-              {/* 設定済みの今月の目標 */}
-              <div style={{ marginTop: '24px', padding: '16px', background: 'var(--surface)', borderRadius: '8px' }}>
-                <h3 style={{ margin: '0 0 12px 0' }}>設定済みの目標</h3>
-                {(() => {
-                  const month = todayStr().slice(0, 7)
-                  const monthGoal = state.monthGoals[month]
-                  return monthGoal ? (
-                    <div style={{ padding: '12px', background: 'var(--panel)', borderRadius: '4px' }}>
-                      <p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>{monthGoal.text}</p>
-                      <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-soft)' }}>目標問題数：{monthGoal.target} 問</p>
-                    </div>
-                  ) : (
-                    <p style={{ margin: '0', color: 'var(--text-soft)' }}>今月の目標がまだ設定されていません。</p>
-                  )
-                })()}
-              </div>
-            </div>
-          )}
         </div>
       )}
 

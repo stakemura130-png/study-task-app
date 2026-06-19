@@ -187,8 +187,8 @@ export function App() {
         ) : (
           <>
             <div style={{ padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                <div style={{ padding: '0', background: 'var(--card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', marginBottom: '20px', margin: '-12px' }}>
+                <div style={{ padding: '0', background: 'var(--card-bg)', borderRadius: '0', border: '1px solid var(--border-color)', overflow: 'hidden', margin: '12px' }}>
                   {(() => {
                     const currentMonth = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0')
                     const monthGoals = state.goals.filter((g) => g.month === currentMonth)
@@ -264,7 +264,7 @@ export function App() {
                                                   {remaining}日
                                                 </span>
                                               </td>
-                                              <td style={{ textAlign: 'right', padding: '10px 12px', color: 'white', fontWeight: '600', fontSize: '16px' }}>{goal.targetPage}p</td>
+                                              <td style={{ textAlign: 'right', padding: '10px 12px', color: 'white', fontWeight: '600', fontSize: '16px' }}>{goal.targetPage}ページ</td>
                                             </tr>
                                           )
                                         })}

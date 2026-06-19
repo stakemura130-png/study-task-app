@@ -187,7 +187,7 @@ export function App() {
         ) : (
           <>
             <div style={{ padding: '0 28px', borderBottom: '1px solid var(--border-color)', marginLeft: '0', marginRight: '0', width: '100%' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', marginBottom: '0' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0', marginBottom: '0' }}>
                 <div style={{ padding: '0', background: 'var(--card-bg)', borderRadius: '0', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
                   {(() => {
                     const currentMonth = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0')

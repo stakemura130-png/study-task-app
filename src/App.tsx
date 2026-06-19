@@ -214,40 +214,40 @@ export function App() {
                       <div style={{ padding: '12px' }}>
                         {/* 今週の目標 - 2列グリッド */}
                         <div style={{ marginBottom: '16px' }}>
-                          <h4 style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)' }}>📅 今週の目標</h4>
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                          <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>📅 今週の目標</h4>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                             {state.subjects.map((subject) => {
                               const goals = groupedBySubject[subject.id] || []
                               const totalTarget = goals.reduce((sum, g) => sum + g.targetPage, 0)
                               const achieved = getAchieved(subject.id)
 
                               return (
-                                <div key={subject.id} style={{ background: '#1a1a1a', border: `2px solid ${subject.color}`, borderRadius: '6px', overflow: 'hidden' }}>
+                                <div key={subject.id} style={{ background: '#1a1a1a', border: `3px solid ${subject.color}`, borderRadius: '8px', overflow: 'hidden' }}>
                                   {/* 科目ヘッダー - 電光掲示板風 */}
                                   <div style={{
                                     background: subject.color,
                                     color: '#000',
-                                    padding: '6px 8px',
+                                    padding: '10px 12px',
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
                                     fontWeight: '700',
-                                    fontSize: '11px',
+                                    fontSize: '14px',
                                     letterSpacing: '0.5px',
                                   }}>
                                     <div>{subject.name}</div>
-                                    <div style={{ fontSize: '10px' }}>
+                                    <div style={{ fontSize: '12px' }}>
                                       {achieved}/{totalTarget}
                                     </div>
                                   </div>
 
                                   {/* 目標一覧 */}
                                   {goals.length === 0 ? (
-                                    <div style={{ padding: '4px 6px', color: 'var(--text-soft)', fontSize: '10px', textAlign: 'center' }}>
+                                    <div style={{ padding: '12px', color: 'var(--text-soft)', fontSize: '12px', textAlign: 'center' }}>
                                       -
                                     </div>
                                   ) : (
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', background: '#1a1a1a' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '16px', background: '#1a1a1a' }}>
                                       <tbody>
                                         {goals.map((goal, idx) => {
                                           const getRemainingDays = () => {
@@ -259,13 +259,13 @@ export function App() {
                                           const remaining = getRemainingDays()
                                           return (
                                             <tr key={goal.id} style={{ borderBottom: `1px solid ${subject.color}20`, background: idx % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
-                                              <td style={{ padding: '6px 8px', color: 'white', fontSize: '14px', fontWeight: '500' }}>
+                                              <td style={{ padding: '10px 12px', color: 'white', fontSize: '16px', fontWeight: '500' }}>
                                                 {goal.field}
-                                                <span style={{ marginLeft: '6px', color: '#ffa500', fontSize: '12px', fontWeight: '400' }}>
+                                                <span style={{ marginLeft: '8px', color: '#ffa500', fontSize: '14px', fontWeight: '400' }}>
                                                   {remaining}日
                                                 </span>
                                               </td>
-                                              <td style={{ textAlign: 'right', padding: '6px 8px', color: 'white', fontWeight: '600', fontSize: '14px' }}>{goal.targetPage}p</td>
+                                              <td style={{ textAlign: 'right', padding: '10px 12px', color: 'white', fontWeight: '600', fontSize: '16px' }}>{goal.targetPage}p</td>
                                             </tr>
                                           )
                                         })}
@@ -278,38 +278,6 @@ export function App() {
                           </div>
                         </div>
 
-                        {/* 今月の目標 */}
-                        <div style={{ marginBottom: '16px' }}>
-                          <h4 style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)' }}>🎯 今月の目標</h4>
-                          {(() => {
-                            const now = new Date()
-                            const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
-                            const monthGoal = state.monthGoals[monthKey]
-
-                            return monthGoal ? (
-                              <div style={{ background: '#1a1a1a', border: '2px solid #3b82f6', borderRadius: '6px', overflow: 'hidden' }}>
-                                <div style={{
-                                  background: '#3b82f6',
-                                  color: '#000',
-                                  padding: '6px 8px',
-                                  fontWeight: '700',
-                                  fontSize: '11px',
-                                  letterSpacing: '0.5px',
-                                }}>
-                                  {monthKey}
-                                </div>
-                                <div style={{ padding: '6px 8px', fontSize: '11px', color: 'white' }}>
-                                  <div style={{ marginBottom: '4px' }}>{monthGoal.text}</div>
-                                  <div style={{ fontSize: '10px', color: '#ffa500' }}>目標: {monthGoal.target} 問</div>
-                                </div>
-                              </div>
-                            ) : (
-                              <div style={{ background: '#1a1a1a', border: '2px solid #666', borderRadius: '6px', padding: '8px', textAlign: 'center', color: 'var(--text-soft)', fontSize: '11px' }}>
-                                目標を設定してください
-                              </div>
-                            )
-                          })()}
-                        </div>
                       </div>
                     )
                   })()}

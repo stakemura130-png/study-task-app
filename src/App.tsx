@@ -216,7 +216,24 @@ export function App() {
                           <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: 'var(--text-secondary)' }}>📅 今週の目標</h4>
                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                             {state.subjects.map((subject) => {
-                              const goals = groupedBySubject[subject.id] || []
+                              const allGoals = groupedBySubject[subject.id] || []
+
+                              // マルキーに表示される次のゴールを取得
+                              const upcomingGoals = allGoals
+                                .filter((goal) => {
+                                  const end = new Date(goal.endDate)
+                                  const today = new Date(todayStr())
+                                  return end.getTime() > today.getTime()
+                                })
+                                .sort((a, b) => {
+                                  const aEnd = new Date(a.endDate)
+                                  const bEnd = new Date(b.endDate)
+                                  return aEnd.getTime() - bEnd.getTime()
+                                })
+                              const currentDisplayedGoal = upcomingGoals[0]
+
+                              // 目標一覧には、マルキーに表示されているゴール以外を表示
+                              const goals = allGoals.filter((goal) => goal.id !== currentDisplayedGoal?.id)
                               const totalTarget = goals.reduce((sum, g) => sum + g.targetPage, 0)
                               const achieved = getAchieved(subject.id)
 

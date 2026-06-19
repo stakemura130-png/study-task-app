@@ -230,7 +230,7 @@ export function App() {
                                   const bEnd = new Date(b.endDate)
                                   return aEnd.getTime() - bEnd.getTime()
                                 })
-                              const currentDisplayedGoal = upcomingGoals[0]
+                              const currentDisplayedGoal = upcomingGoals.length >= 2 ? upcomingGoals[0] : null
 
                               // 目標一覧：1つだけなら表示、2つ以上ならマルキーに表示されるゴール以外を表示
                               const goals = upcomingGoals.length === 1 ? upcomingGoals : upcomingGoals.filter((goal) => goal.id !== currentDisplayedGoal?.id)
@@ -374,7 +374,7 @@ export function App() {
 
                                   {/* ゴールアラート用マルキー */}
                                   {(() => {
-                                    const upcomingGoals = goals
+                                    const goalsForMarquee = goals
                                       .filter((goal) => {
                                         const end = new Date(goal.endDate)
                                         const today = new Date(todayStr())
@@ -385,16 +385,20 @@ export function App() {
                                         const bEnd = new Date(b.endDate)
                                         return aEnd.getTime() - bEnd.getTime()
                                       })
-                                    const nextGoal = upcomingGoals[0]
-                                    const alertGoals = goals.filter((goal) => {
-                                      const end = new Date(goal.endDate)
+
+                                    // 目標が1つだけの場合はマルキー不要
+                                    if (goalsForMarquee.length <= 1) return null
+
+                                    const nextGoal = goalsForMarquee[0]
+                                    const alertMessage = state.goalAlertMessages[subject.id]
+                                    const remainingDays = (() => {
+                                      const end = new Date(nextGoal.endDate)
                                       const today = new Date(todayStr())
                                       const days = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-                                      return days <= 7 && days >= 0
-                                    })
-                                    const alertMessage = state.goalAlertMessages[subject.id]
-                                    const shouldShowNextGoal = nextGoal != null
-                                    const shouldShowAlertMessage = alertGoals.length > 0 && alertMessage && !shouldShowNextGoal
+                                      return Math.max(0, days)
+                                    })()
+                                    const shouldShowNextGoal = remainingDays > 7
+                                    const shouldShowAlertMessage = remainingDays <= 7 && alertMessage
 
                                     if (shouldShowNextGoal) {
                                       const getRemainingDays = () => {

@@ -19,12 +19,13 @@ const DEFAULT_CHECKLIST_COLOR_THRESHOLDS: ChecklistColorThresholds = {
 }
 
 const DEFAULT_MENU_CONFIG = [
-  { key: 'board' as const, label: 'メインボード', visible: true, order: 0 },
-  { key: 'stats' as const, label: '目標設定', visible: true, order: 1 },
-  { key: 'settings' as const, label: '各種設定', visible: true, order: 2 },
-  { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 3 },
-  { key: 'timer' as const, label: 'ポモドーロ', visible: true, order: 4 },
-  { key: 'calendar' as const, label: 'カレンダー', visible: true, order: 5 },
+  { key: 'board' as const, label: 'ダッシュボード', visible: true, order: 0 },
+  { key: 'tasks' as const, label: 'タスク管理', visible: true, order: 1 },
+  { key: 'stats' as const, label: '目標設定', visible: true, order: 2 },
+  { key: 'settings' as const, label: '各種設定', visible: true, order: 3 },
+  { key: 'checklist' as const, label: '学習チェックリスト', visible: true, order: 4 },
+  { key: 'timer' as const, label: 'ポモドーロ', visible: true, order: 5 },
+  { key: 'calendar' as const, label: 'カレンダー', visible: true, order: 6 },
 ]
 
 const DEFAULT_POMODORO_CUSTOMIZATION = {

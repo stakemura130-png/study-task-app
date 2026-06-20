@@ -15,7 +15,7 @@ import { ExamModal } from './components/ExamModal'
 import { LoginScreen } from './components/LoginScreen'
 import { Marquee } from './components/Marquee'
 
-export type View = 'board' | 'stats' | 'settings' | 'checklist' | 'calendar' | 'timer'
+export type View = 'board' | 'tasks' | 'stats' | 'settings' | 'checklist' | 'calendar' | 'timer'
 
 export function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -158,16 +158,18 @@ export function App() {
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center', width: '100%' }}>
             <h1 className="topbar__title">
               {view === 'board'
-                ? '学習ボード'
-                : view === 'stats'
-                  ? '目標・到達度'
-                  : view === 'settings'
-                    ? '各種設定'
-                    : view === 'checklist'
-                      ? '学習チェックリスト'
-                      : view === 'timer'
-                        ? 'ポモドーロタイマー'
-                        : 'カレンダー'}
+                ? 'ダッシュボード'
+                : view === 'tasks'
+                  ? 'タスク管理'
+                  : view === 'stats'
+                    ? '目標・到達度'
+                    : view === 'settings'
+                      ? '各種設定'
+                      : view === 'checklist'
+                        ? '学習チェックリスト'
+                        : view === 'timer'
+                          ? 'ポモドーロタイマー'
+                          : 'カレンダー'}
             </h1>
             <CountdownBar exams={state.exams} onEdit={(exam) => setExamModal(exam)} />
           </div>
@@ -184,6 +186,14 @@ export function App() {
           <PomodoroTimer store={store} />
         ) : view === 'calendar' ? (
           <Calendar />
+        ) : view === 'tasks' ? (
+          <Board
+            tasks={state.tasks}
+            subjects={state.subjects}
+            taskTypeMeta={state.taskTypeMeta}
+            store={store}
+            onOpenTask={(t) => setOpenTaskId(t.id)}
+          />
         ) : (
           <>
             <div style={{ padding: '0 28px', borderBottom: '1px solid var(--border-color)', marginLeft: '0', marginRight: '0', width: '100%' }}>

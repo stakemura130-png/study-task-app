@@ -510,14 +510,6 @@ export function App() {
               </div>
 
             </div>
-
-            <Board
-              tasks={state.tasks}
-              subjects={state.subjects}
-              taskTypeMeta={state.taskTypeMeta}
-              store={store}
-              onOpenTask={(t) => setOpenTaskId(t.id)}
-            />
           </>
         )}
       </main>

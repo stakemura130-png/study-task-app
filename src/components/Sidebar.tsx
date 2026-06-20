@@ -130,7 +130,7 @@ export function Sidebar({
             className={`nav-btn${view === menu.key ? ' active' : ''}`}
             onClick={() => setView(menu.key as View)}
           >
-            {menu.key === 'board' && '🗂'} {menu.key === 'stats' && '📊'} {menu.key === 'settings' && '⚙'}{' '}
+            {menu.key === 'board' && '🗂'} {menu.key === 'tasks' && '📝'} {menu.key === 'stats' && '📊'} {menu.key === 'settings' && '⚙'}{' '}
             {menu.key === 'checklist' && '✓'} {menu.key === 'calendar' && '📅'} {menu.key === 'timer' && '⏱'}{' '}
             {menu.label}
           </button>

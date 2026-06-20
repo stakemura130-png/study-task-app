@@ -201,18 +201,19 @@ export function validateAndRepairAppState(data: any): AppState | null {
   }
 
   // Repair menuConfig - must be array with proper structure
-  let menuConfig = data.menuConfig
-  if (!Array.isArray(menuConfig) || menuConfig.length === 0) {
-    menuConfig = [...DEFAULT_MENU_CONFIG]
-  } else {
-    // Validate structure of each menu item
-    menuConfig = menuConfig.map((item: any) => ({
-      key: item.key ?? 'board',
-      label: typeof item.label === 'string' ? item.label : '学習ボード',
-      visible: typeof item.visible === 'boolean' ? item.visible : true,
-      order: typeof item.order === 'number' ? item.order : 0,
-    }))
-  }
+  // Start with DEFAULT_MENU_CONFIG and merge user settings
+  const existingMenuConfig = Array.isArray(data.menuConfig) ? data.menuConfig : []
+  const existingByKey = new Map(existingMenuConfig.map((item: any) => [item.key, item]))
+
+  let menuConfig = DEFAULT_MENU_CONFIG.map((defaultItem) => {
+    const existing = existingByKey.get(defaultItem.key) as any
+    return {
+      key: defaultItem.key,
+      label: typeof existing?.label === 'string' ? existing.label : defaultItem.label,
+      visible: typeof existing?.visible === 'boolean' ? existing.visible : defaultItem.visible,
+      order: typeof existing?.order === 'number' ? existing.order : defaultItem.order,
+    }
+  })
 
   // Repair checklistColorThresholds - ensure all subjects have color settings
   const checklistColorThresholds: any = {}

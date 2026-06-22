@@ -365,7 +365,7 @@ export function GoalsPage({ store }: GoalsPageProps) {
           {goalsSubTab === 'weekly' && (
             <div style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px', marginBottom: '24px' }}>
               <h3>今週の目標を追加</h3>
-              <div style={{ display: 'grid', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 <div>
                   <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>期間</label>
                   <select
@@ -473,20 +473,21 @@ export function GoalsPage({ store }: GoalsPageProps) {
                 {state.goals.filter((g) => g.month === todayStr().slice(0, 7)).length === 0 ? (
                   <p style={{ margin: '0', color: 'var(--text-soft)' }}>今月の目標が登録されていません。</p>
                 ) : (
-                  <div style={{ display: 'grid', gap: '8px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
                     {state.goals
                       .filter((g) => g.month === todayStr().slice(0, 7))
                       .map((goal) => (
-                        <div key={goal.id} style={{ padding: '12px', background: 'var(--panel)', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div style={{ fontSize: '13px' }}>
-                            <div style={{ fontWeight: '600' }}>
-                              {state.subjects.find((s) => s.id === goal.subjectId)?.name} / {state.taskTypeMeta.find((t) => t.key === goal.material)?.label} / {goal.field}
+                        <div key={goal.id} style={{ padding: '12px', background: 'var(--panel)', borderRadius: '4px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                          <div style={{ fontSize: '13px', marginBottom: '8px' }}>
+                            <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                              {state.subjects.find((s) => s.id === goal.subjectId)?.name} / {state.taskTypeMeta.find((t) => t.key === goal.material)?.label}
                             </div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-soft)' }}>{goal.field}</div>
                             <div style={{ fontSize: '12px', color: 'var(--text-soft)', marginTop: '4px' }}>目標：{goal.targetPage}ページ</div>
                           </div>
                           <button
                             onClick={() => store.deleteGoal(goal.id)}
-                            style={{ padding: '4px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '11px' }}
+                            style={{ padding: '4px 8px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '11px', alignSelf: 'flex-start' }}
                           >
                             削除
                           </button>

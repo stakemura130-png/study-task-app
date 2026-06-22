@@ -476,14 +476,13 @@ export function App() {
                                     return (
                                       <div style={{
                                         marginTop: '8px',
-                                        padding: '6px 10px',
+                                        padding: '8px 10px',
                                         background: '#1a1a1a',
                                         border: `2px solid ${subject.color}`,
                                         borderRadius: '4px',
-                                        overflow: 'hidden',
-                                        height: '28px',
                                         display: 'flex',
                                         alignItems: 'center',
+                                        overflow: 'hidden',
                                       }}>
                                         {hasAlertMessage ? (
                                           <div style={{
@@ -500,7 +499,7 @@ export function App() {
                                         ) : (
                                           <div style={{
                                             color: subject.color,
-                                            fontSize: '12px',
+                                            fontSize: '13px',
                                             opacity: 0.4,
                                           }}>
                                             —

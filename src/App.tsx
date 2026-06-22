@@ -488,13 +488,13 @@ export function App() {
                                         {hasAlertMessage ? (
                                           <div style={{
                                             whiteSpace: 'nowrap',
-                                            animation: 'blink 0.8s ease-in-out infinite',
+                                            animation: 'marqueeCenter 15s ease-in-out infinite, blink 0.8s ease-in-out infinite',
                                             color: '#ff0000',
                                             fontSize: '13px',
                                             fontWeight: '700',
                                             letterSpacing: '2px',
                                           }}>
-                                            {'💡 ' + alertMessage + ' 💡'}
+                                            {'💡 ' + alertMessage + ' 💡 '.repeat(3)}
                                           </div>
                                         ) : (
                                           <div style={{

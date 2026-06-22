@@ -489,6 +489,7 @@ export function App() {
                                             display: 'inline-block',
                                             whiteSpace: 'nowrap',
                                             animation: 'marqueeAlternate 15s ease-in-out infinite, blink 0.8s ease-in-out infinite',
+                                            animationDelay: '-7.5s, 0s',
                                             color: '#ff0000',
                                             fontSize: '13px',
                                             fontWeight: '700',

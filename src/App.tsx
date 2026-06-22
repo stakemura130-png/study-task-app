@@ -488,13 +488,14 @@ export function App() {
                                           <div style={{
                                             display: 'inline-block',
                                             whiteSpace: 'nowrap',
-                                            animation: 'marqueeAlternate 15s ease-in-out infinite, blink 0.8s ease-in-out infinite',
+                                            animation: 'blink 0.8s ease-in-out infinite',
+                                            transform: 'translateX(-25%)',
                                             color: '#ff0000',
                                             fontSize: '13px',
                                             fontWeight: '700',
                                             letterSpacing: '2px',
                                           }}>
-                                            {'💡 ' + alertMessage + ' 💡 '.repeat(3)}
+                                            {'💡 ' + alertMessage + ' 💡'}
                                           </div>
                                         ) : (
                                           <div style={{

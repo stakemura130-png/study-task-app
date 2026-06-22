@@ -115,7 +115,7 @@ export function GoalsPage({ store }: GoalsPageProps) {
   }
 
   return (
-    <div className="goals-page" style={{ padding: '16px', maxWidth: '1200px', margin: '0 auto', overflow: 'auto', maxHeight: 'calc(100vh - 200px)' }}>
+    <div className="goals-page" style={{ padding: '24px 28px', overflow: 'auto', maxHeight: 'calc(100vh - 200px)' }}>
       {/* タブ */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
         <button

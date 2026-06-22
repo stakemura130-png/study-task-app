@@ -233,7 +233,7 @@ export function useStore() {
     }))
   }, [])
 
-  const addGoal = useCallback((month: string, subjectId: string, material: string, field: string, targetPage: number, unit: 'pages' | 'problems' = 'pages', startDate: string = '', endDate: string = '') => {
+  const addGoal = useCallback((month: string, subjectId: string, material: string, field: string, targetPage: number, unit: 'pages' | 'problems' | 'all' = 'pages', startDate: string = '', endDate: string = '') => {
     const id = uid()
     updateStateWithTimestamp((s) => ({
       ...s,

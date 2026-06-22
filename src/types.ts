@@ -149,7 +149,7 @@ export interface Goal {
   material: string
   field: string
   targetPage: number
-  unit: 'pages' | 'problems'
+  unit: 'pages' | 'problems' | 'all'
   startDate: string
   endDate: string
 }

@@ -258,7 +258,7 @@ export function validateAndRepairAppState(data: any): AppState | null {
     quota: data.quota || { weekday: 50, weekend: 100 },
     goals: Array.isArray(data.goals) ? data.goals.map((g: any) => ({
       ...g,
-      unit: g.unit || 'pages',
+      unit: ['pages', 'problems', 'all'].includes(g.unit) ? g.unit : 'pages',
     })) : [],
     goalEvaluations: Array.isArray(data.goalEvaluations) ? data.goalEvaluations : [],
     subjectFields: typeof data.subjectFields === 'object' ? data.subjectFields : {},

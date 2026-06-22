@@ -493,8 +493,10 @@ export function App() {
                                             fontSize: '13px',
                                             fontWeight: '700',
                                             letterSpacing: '2px',
+                                            paddingLeft: '100%',
+                                            paddingRight: '100%',
                                           }}>
-                                            {'💡 ' + alertMessage + ' 💡 '.repeat(3)}
+                                            {alertMessage}
                                           </div>
                                         ) : (
                                           <div style={{

@@ -493,10 +493,8 @@ export function App() {
                                             fontSize: '13px',
                                             fontWeight: '700',
                                             letterSpacing: '2px',
-                                            paddingLeft: '100%',
-                                            paddingRight: '100%',
                                           }}>
-                                            {alertMessage}
+                                            {'💡 ' + alertMessage + ' 💡'}
                                           </div>
                                         ) : (
                                           <div style={{

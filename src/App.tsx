@@ -494,7 +494,7 @@ export function App() {
                                             fontWeight: '700',
                                             letterSpacing: '2px',
                                           }}>
-                                            {'💡 ' + alertMessage + ' 💡'}
+                                            {'💡 ' + alertMessage + ' 💡 '.repeat(3)}
                                           </div>
                                         ) : (
                                           <div style={{

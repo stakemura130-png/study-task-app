@@ -153,6 +153,16 @@ export interface Goal {
   endDate: string
 }
 
+export type GoalStatus = 'in-progress' | 'achieved' | 'not-achieved'
+
+export interface GoalEvaluation {
+  id: string
+  goalId: string
+  status: GoalStatus
+  comment: string
+  evaluatedAt: string
+}
+
 export interface PomodoroConfig {
   /** セット数 */
   sets: number
@@ -222,6 +232,8 @@ export interface AppState {
   quota: Quota
   /** 目標設定（科目・教材・分野・目標ページ） */
   goals: Goal[]
+  /** 目標評価 */
+  goalEvaluations: GoalEvaluation[]
   /** 科目別のゴールアラートメッセージ（期日3日以下の時に表示） */
   goalAlertMessages: Record<string, string>
   /** 最後の更新時刻（デバイス間の同期判定に使用） */

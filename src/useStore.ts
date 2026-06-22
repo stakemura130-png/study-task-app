@@ -436,6 +436,25 @@ export function useStore() {
     }))
   }, [])
 
+  const addOrUpdateGoalEvaluation = useCallback((goalId: string, status: 'in-progress' | 'achieved' | 'not-achieved', comment: string) => {
+    updateStateWithTimestamp((s) => {
+      const existing = s.goalEvaluations.find((e) => e.goalId === goalId)
+      if (existing) {
+        return {
+          ...s,
+          goalEvaluations: s.goalEvaluations.map((e) =>
+            e.goalId === goalId ? { ...e, status, comment, evaluatedAt: todayStr() } : e,
+          ),
+        }
+      }
+      const id = uid()
+      return {
+        ...s,
+        goalEvaluations: [...s.goalEvaluations, { id, goalId, status, comment, evaluatedAt: todayStr() }],
+      }
+    })
+  }, [])
+
 
   return {
     state,
@@ -473,6 +492,7 @@ export function useStore() {
     addSubjectField,
     removeSubjectField,
     updateGoalAlertMessage,
+    addOrUpdateGoalEvaluation,
   }
 }
 

@@ -8,7 +8,7 @@ interface GoalsPageProps {
 
 export function GoalsPage({ store }: GoalsPageProps) {
   const { state } = store
-  const [activeTab, setActiveTab] = useState<'achievement' | 'goals' | 'logs' | 'settings'>('achievement')
+  const [activeTab, setActiveTab] = useState<'achievement' | 'goals' | 'logs' | 'settings' | 'evaluation' | 'achievements'>('achievement')
   const [selectedSubject, setSelectedSubject] = useState<string>('')
   const [selectedMaterial, setSelectedMaterial] = useState<string>('')
   const [fieldInput, setFieldInput] = useState<string>('')
@@ -24,6 +24,9 @@ export function GoalsPage({ store }: GoalsPageProps) {
   const [logProblems, setLogProblems] = useState<string>('')
   const [logCorrect, setLogCorrect] = useState<string>('')
   const [logMemo, setLogMemo] = useState<string>('')
+
+  // Tab 5: 目標評価フォーム（各目標の状態を管理）
+  const [evaluationForms, setEvaluationForms] = useState<Record<string, { status: 'in-progress' | 'achieved' | 'not-achieved'; comment: string }>>({})
 
   // --- タブ1: 到達度 ---
   const achievementData = useMemo(() => {
@@ -170,6 +173,34 @@ export function GoalsPage({ store }: GoalsPageProps) {
           }}
         >
           科目・設定
+        </button>
+        <button
+          onClick={() => setActiveTab('evaluation')}
+          style={{
+            padding: '8px 16px',
+            border: 'none',
+            background: activeTab === 'evaluation' ? 'var(--accent)' : 'transparent',
+            color: 'var(--text)',
+            cursor: 'pointer',
+            borderRadius: '4px',
+            fontWeight: activeTab === 'evaluation' ? '600' : '400',
+          }}
+        >
+          目標評価
+        </button>
+        <button
+          onClick={() => setActiveTab('achievements')}
+          style={{
+            padding: '8px 16px',
+            border: 'none',
+            background: activeTab === 'achievements' ? 'var(--accent)' : 'transparent',
+            color: 'var(--text)',
+            cursor: 'pointer',
+            borderRadius: '4px',
+            fontWeight: activeTab === 'achievements' ? '600' : '400',
+          }}
+        >
+          達成一覧
         </button>
       </div>
 
@@ -723,6 +754,192 @@ export function GoalsPage({ store }: GoalsPageProps) {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* タブ5: 目標評価 */}
+      {activeTab === 'evaluation' && (
+        <div>
+          <h2 style={{ marginTop: 0 }}>🎯 目標評価</h2>
+
+          {state.goals.length === 0 ? (
+            <div style={{ padding: '24px', background: 'var(--panel)', borderRadius: '8px', textAlign: 'center', color: 'var(--text-soft)' }}>
+              <p>まだ目標が設定されていません。目標設定タブから目標を追加してください。</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: '16px' }}>
+              {state.goals.map((goal) => {
+                const evaluation = state.goalEvaluations.find((e) => e.goalId === goal.id)
+                const form = evaluationForms[goal.id] || { status: evaluation?.status || 'in-progress' as const, comment: evaluation?.comment || '' }
+
+                return (
+                  <div key={goal.id} style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                    {/* 目標情報 */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600' }}>
+                        {state.subjects.find((s) => s.id === goal.subjectId)?.name} / {state.taskTypeMeta.find((t) => t.key === goal.material)?.label}
+                      </h3>
+                      <div style={{ fontSize: '13px', color: 'var(--text-soft)', display: 'grid', gap: '4px' }}>
+                        <div>分野：{goal.field}</div>
+                        <div>目標ページ数：{goal.targetPage}ページ</div>
+                        <div>期間：{goal.startDate} 〜 {goal.endDate}</div>
+                      </div>
+                    </div>
+
+                    {/* ステータス選択 */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>進捗状況</label>
+                      <div style={{ display: 'flex', gap: '12px' }}>
+                        {['in-progress', 'achieved', 'not-achieved'].map((status) => (
+                          <label key={status} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                            <input
+                              type="radio"
+                              name={`status-${goal.id}`}
+                              value={status}
+                              checked={form.status === status}
+                              onChange={() => setEvaluationForms({ ...evaluationForms, [goal.id]: { ...form, status: status as any } })}
+                              style={{ cursor: 'pointer' }}
+                            />
+                            <span style={{ fontSize: '13px' }}>
+                              {status === 'in-progress' && '進行中'}
+                              {status === 'achieved' && '達成'}
+                              {status === 'not-achieved' && '未達成'}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* コメント入力 */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>評価コメント</label>
+                      <textarea
+                        value={form.comment}
+                        onChange={(e) => setEvaluationForms({ ...evaluationForms, [goal.id]: { ...form, comment: e.target.value } })}
+                        placeholder="この目標について感じたことや、達成できなかった理由など..."
+                        style={{
+                          width: '100%',
+                          minHeight: '80px',
+                          padding: '8px',
+                          borderRadius: '4px',
+                          border: '1px solid var(--border)',
+                          background: 'var(--surface)',
+                          color: 'var(--text)',
+                          fontFamily: 'inherit',
+                          fontSize: '13px',
+                          boxSizing: 'border-box',
+                          resize: 'vertical',
+                        }}
+                      />
+                    </div>
+
+                    {/* 保存ボタン */}
+                    <button
+                      onClick={() => {
+                        store.addOrUpdateGoalEvaluation(goal.id, form.status, form.comment)
+                        alert('目標評価を保存しました！')
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        background: 'var(--accent)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                      }}
+                    >
+                      評価を保存
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* タブ6: 達成一覧 */}
+      {activeTab === 'achievements' && (
+        <div>
+          <h2 style={{ marginTop: 0 }}>📋 達成一覧</h2>
+
+          {state.goalEvaluations.length === 0 ? (
+            <div style={{ padding: '24px', background: 'var(--panel)', borderRadius: '8px', textAlign: 'center', color: 'var(--text-soft)' }}>
+              <p>評価がまだありません。目標評価タブから目標を評価してください。</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: '24px' }}>
+              {(() => {
+                // 月単位で評価をグループ化
+                const groupedByMonth: Record<string, typeof state.goalEvaluations> = {}
+                for (const evaluation of state.goalEvaluations) {
+                  const goal = state.goals.find((g) => g.id === evaluation.goalId)
+                  if (!goal) continue
+                  const month = evaluation.evaluatedAt.slice(0, 7)
+                  if (!groupedByMonth[month]) groupedByMonth[month] = []
+                  groupedByMonth[month].push(evaluation)
+                }
+
+                // 月を降順でソート
+                const months = Object.keys(groupedByMonth).sort().reverse()
+
+                return months.map((month) => (
+                  <div key={month} style={{ padding: '16px', background: 'var(--panel)', borderRadius: '8px' }}>
+                    <h3 style={{ margin: '0 0 16px 0', paddingBottom: '8px', borderBottom: '2px solid var(--border)' }}>
+                      {month}
+                    </h3>
+                    <div style={{ display: 'grid', gap: '12px' }}>
+                      {groupedByMonth[month].map((evaluation) => {
+                        const goal = state.goals.find((g) => g.id === evaluation.goalId)
+                        if (!goal) return null
+
+                        const statusColor = {
+                          'in-progress': '#f59e0b',
+                          'achieved': '#10b981',
+                          'not-achieved': '#ef4444',
+                        }[evaluation.status]
+
+                        const statusLabel = {
+                          'in-progress': '進行中',
+                          'achieved': '達成',
+                          'not-achieved': '未達成',
+                        }[evaluation.status]
+
+                        return (
+                          <div key={evaluation.id} style={{ padding: '12px', background: 'var(--surface)', borderRadius: '4px', borderLeft: `4px solid ${statusColor}` }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
+                              <div>
+                                <div style={{ fontWeight: '600', fontSize: '14px' }}>
+                                  {state.subjects.find((s) => s.id === goal.subjectId)?.name} / {state.taskTypeMeta.find((t) => t.key === goal.material)?.label}
+                                </div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-soft)', marginTop: '4px' }}>
+                                  分野：{goal.field}
+                                </div>
+                              </div>
+                              <div style={{ fontSize: '12px', fontWeight: '600', color: statusColor, background: 'rgba(255, 255, 255, 0.1)', padding: '4px 8px', borderRadius: '3px' }}>
+                                {statusLabel}
+                              </div>
+                            </div>
+                            {evaluation.comment && (
+                              <div style={{ fontSize: '12px', color: 'var(--text-soft)', padding: '8px', background: 'rgba(0, 0, 0, 0.1)', borderRadius: '3px', marginTop: '8px' }}>
+                                {evaluation.comment}
+                              </div>
+                            )}
+                            <div style={{ fontSize: '11px', color: 'var(--text-soft)', marginTop: '8px' }}>
+                              評価日：{evaluation.evaluatedAt}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))
+              })()}
+            </div>
+          )}
         </div>
       )}
     </div>

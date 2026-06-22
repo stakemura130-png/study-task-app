@@ -51,11 +51,11 @@ export function App() {
     }
   }, [])
 
-  // アラートメッセージと次のゴール表示を5秒ごとに切り替え
+  // アラートメッセージと次のゴール表示を10秒ごとに切り替え
   useEffect(() => {
     const interval = setInterval(() => {
       setShowAlertMessage((prev) => !prev)
-    }, 5000)
+    }, 10000)
     return () => clearInterval(interval)
   }, [])
 

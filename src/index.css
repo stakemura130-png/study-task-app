@@ -1833,13 +1833,13 @@ select:focus {
 
 @keyframes marqueeAlternate {
   0% {
-    transform: translateX(0%);
+    transform: translateX(-25%);
   }
   50% {
-    transform: translateX(-50%);
+    transform: translateX(-75%);
   }
   100% {
-    transform: translateX(0%);
+    transform: translateX(-25%);
   }
 }
 

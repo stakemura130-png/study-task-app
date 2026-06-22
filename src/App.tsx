@@ -482,14 +482,13 @@ export function App() {
                                         borderRadius: '4px',
                                         display: 'flex',
                                         alignItems: 'center',
+                                        justifyContent: 'center',
                                         overflow: 'hidden',
                                       }}>
                                         {hasAlertMessage ? (
                                           <div style={{
-                                            display: 'inline-block',
                                             whiteSpace: 'nowrap',
                                             animation: 'blink 0.8s ease-in-out infinite',
-                                            transform: 'translateX(-25%)',
                                             color: '#ff0000',
                                             fontSize: '13px',
                                             fontWeight: '700',

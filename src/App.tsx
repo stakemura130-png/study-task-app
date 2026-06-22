@@ -491,7 +491,7 @@ export function App() {
                                             whiteSpace: 'nowrap',
                                             animation: 'marquee 20s linear infinite, blink 0.8s ease-in-out infinite',
                                             color: '#ff0000',
-                                            fontSize: '12px',
+                                            fontSize: '13px',
                                             fontWeight: '700',
                                             letterSpacing: '2px',
                                           }}>

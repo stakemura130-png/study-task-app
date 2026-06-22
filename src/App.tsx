@@ -39,6 +39,8 @@ export function App() {
   // 'new' = 新規作成 / Exam = 編集 / null = 閉じる
   const [examModal, setExamModal] = useState<'new' | Exam | null>(null)
   const [pullDistance, setPullDistance] = useState(0)
+  // アラートメッセージと次のゴールの交互表示用
+  const [showAlertMessage, setShowAlertMessage] = useState(false)
 
   // URL パラメータから userId を読み込み
   useEffect(() => {
@@ -47,6 +49,14 @@ export function App() {
     if (userIdFromUrl) {
       localStorage.setItem('app:userId', userIdFromUrl)
     }
+  }, [])
+
+  // アラートメッセージと次のゴール表示を5秒ごとに切り替え
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowAlertMessage((prev) => !prev)
+    }, 5000)
+    return () => clearInterval(interval)
   }, [])
 
   // プルトゥリフレッシュ
@@ -397,17 +407,20 @@ export function App() {
                                     )
                                   })()}
 
-                                  {/* ゴールアラート用マルキー */}
+                                  {/* ゴールアラート用マルキー（アラートメッセージとNEXT目標の交互表示） */}
                                   {(() => {
                                     // currentDisplayedGoal がない場合はマルキー不要
                                     if (!currentDisplayedGoal) return null
 
                                     const alertMessage = state.goalAlertMessages[subject.id]
                                     const nextGoal = goals.length > 0 ? goals[0] : null
-                                    const shouldShowNextGoal = nextGoal != null
-                                    const shouldShowAlertMessage = !shouldShowNextGoal && alertMessage
+                                    const hasNextGoal = nextGoal != null
+                                    const hasAlertMessage = !!alertMessage
 
-                                    if (shouldShowNextGoal && nextGoal) {
+                                    // 両方ある場合は交互表示、片方だけの場合はそれを表示
+                                    const displayNextGoal = hasNextGoal && hasAlertMessage ? !showAlertMessage : hasNextGoal
+
+                                    if (displayNextGoal && nextGoal) {
                                       const getRemainingDays = () => {
                                         const end = new Date(nextGoal.endDate)
                                         const today = new Date(todayStr())
@@ -472,7 +485,7 @@ export function App() {
                                         display: 'flex',
                                         alignItems: 'center',
                                       }}>
-                                        {shouldShowAlertMessage ? (
+                                        {hasAlertMessage ? (
                                           <div style={{
                                             display: 'inline-block',
                                             whiteSpace: 'nowrap',

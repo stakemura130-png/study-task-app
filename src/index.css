@@ -1831,6 +1831,18 @@ select:focus {
   }
 }
 
+@keyframes marqueeAlternate {
+  0% {
+    transform: translateX(100%);
+  }
+  50% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 @keyframes marqueeBounceback {
   0% {
     transform: translateX(100%);

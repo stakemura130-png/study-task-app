@@ -267,8 +267,17 @@ export function App() {
                               // マルキーに表示するゴール（期日3日以下のもの）
                               const currentDisplayedGoal = alertGoals.length > 0 ? alertGoals[0] : null
 
-                              // 目標一覧：currentDisplayedGoal を除外
-                              const goals = upcomingGoals.filter((goal) => goal.id !== currentDisplayedGoal?.id)
+                              // 目標一覧：最初のゴール（最も期日が近い）と同じ期日のゴールのみ
+                              const firstGoal = upcomingGoals[0]
+                              const goals = firstGoal
+                                ? upcomingGoals.filter((goal) => goal.endDate === firstGoal.endDate)
+                                : []
+
+                              // 異なる期日のゴール（NEXT表示用）
+                              const nextGoals = firstGoal
+                                ? upcomingGoals.filter((goal) => goal.endDate !== firstGoal.endDate)
+                                : []
+
                               const totalTarget = upcomingGoals.reduce((sum, g) => sum + g.targetPage, 0)
                               const achieved = getAchieved(subject.id)
 
@@ -340,18 +349,7 @@ export function App() {
 
                                   {/* 追加の次のゴール表示 */}
                                   {(() => {
-                                    const upcomingGoals = goals
-                                      .filter((goal) => {
-                                        const end = new Date(goal.endDate)
-                                        const today = new Date(todayStr())
-                                        return end.getTime() > today.getTime()
-                                      })
-                                      .sort((a, b) => {
-                                        const aEnd = new Date(a.endDate)
-                                        const bEnd = new Date(b.endDate)
-                                        return aEnd.getTime() - bEnd.getTime()
-                                      })
-                                    const additionalGoals = upcomingGoals.slice(1)
+                                    const additionalGoals = nextGoals
 
                                     if (additionalGoals.length === 0) return null
 

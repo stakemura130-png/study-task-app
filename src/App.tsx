@@ -323,7 +323,7 @@ export function App() {
                                               </td>
                                               <td style={{ textAlign: 'right', padding: '10px 12px', fontSize: '18px', fontWeight: '700' }}>
                                                 <span style={{ color: '#ffa500', fontWeight: '700' }}>{goal.targetPage}</span>
-                                                <span style={{ color: 'white', marginLeft: '4px' }}>ページまで</span>
+                                                <span style={{ color: 'white', marginLeft: '4px' }}>{goal.unit === 'pages' ? 'ページまで' : '問目まで'}</span>
                                               </td>
                                             </tr>
                                           )
@@ -395,7 +395,7 @@ export function App() {
                                                     </td>
                                                     <td style={{ textAlign: 'right', padding: '0 4px', fontSize: '13px', fontWeight: '600' }}>
                                                       <span style={{ color: '#ffa500', fontWeight: '700' }}>{goal.targetPage}</span>
-                                                      <span style={{ color: 'white', marginLeft: '2px' }}>ページまで</span>
+                                                      <span style={{ color: 'white', marginLeft: '2px' }}>{goal.unit === 'pages' ? 'ページまで' : '問目まで'}</span>
                                                     </td>
                                                   </tr>
                                                 </tbody>
@@ -464,7 +464,7 @@ export function App() {
                                                 </td>
                                                 <td style={{ textAlign: 'right', padding: '0 4px', fontSize: '13px', fontWeight: '600' }}>
                                                   <span style={{ color: '#ffa500', fontWeight: '700' }}>{nextGoal.targetPage}</span>
-                                                  <span style={{ color: 'white', marginLeft: '2px' }}>ページまで</span>
+                                                  <span style={{ color: 'white', marginLeft: '2px' }}>{nextGoal.unit === 'pages' ? 'ページまで' : '問目まで'}</span>
                                                 </td>
                                               </tr>
                                             </tbody>

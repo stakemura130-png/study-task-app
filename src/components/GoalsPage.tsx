@@ -13,6 +13,7 @@ export function GoalsPage({ store }: GoalsPageProps) {
   const [selectedMaterial, setSelectedMaterial] = useState<string>('')
   const [fieldInput, setFieldInput] = useState<string>('')
   const [targetPageInput, setTargetPageInput] = useState<string>('')
+  const [selectedUnit, setSelectedUnit] = useState<'pages' | 'problems'>('pages')
   const [durationDays, setDurationDays] = useState<string>('7')
   const [goalsSubTab, setGoalsSubTab] = useState<'weekly' | 'monthly'>('weekly')
   const [monthlyGoalText, setMonthlyGoalText] = useState<string>('')
@@ -428,7 +429,7 @@ export function GoalsPage({ store }: GoalsPageProps) {
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>目標到達ページ</label>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>目標到達数</label>
                   <input
                     type="number"
                     value={targetPageInput}
@@ -437,6 +438,17 @@ export function GoalsPage({ store }: GoalsPageProps) {
                     style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)', boxSizing: 'border-box' }}
                   />
                 </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '600', fontSize: '14px' }}>単位</label>
+                  <select
+                    value={selectedUnit}
+                    onChange={(e) => setSelectedUnit(e.target.value as 'pages' | 'problems')}
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
+                  >
+                    <option value="pages">ページまで</option>
+                    <option value="problems">問目まで</option>
+                  </select>
+                </div>
               </div>
               <button
                 onClick={() => {
@@ -444,11 +456,12 @@ export function GoalsPage({ store }: GoalsPageProps) {
                     const month = todayStr().slice(0, 7)
                     const startDate = todayStr()
                     const endDate = new Date(new Date(startDate).getTime() + parseInt(durationDays) * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-                    store.addGoal(month, selectedSubject, selectedMaterial, fieldInput, parseInt(targetPageInput), startDate, endDate)
+                    store.addGoal(month, selectedSubject, selectedMaterial, fieldInput, parseInt(targetPageInput), selectedUnit, startDate, endDate)
                     setSelectedSubject('')
                     setSelectedMaterial('')
                     setFieldInput('')
                     setTargetPageInput('')
+                    setSelectedUnit('pages')
                     alert('目標を追加しました！')
                   }
                 }}

@@ -149,6 +149,7 @@ export interface Goal {
   material: string
   field: string
   targetPage: number
+  unit: 'pages' | 'problems'
   startDate: string
   endDate: string
 }

@@ -347,11 +347,13 @@ export function App() {
                                     </table>
                                   )}
 
-                                  {/* 追加の次のゴール表示 */}
+                                  {/* 追加の次のゴール表示（マルキーが表示されていない場合のみ） */}
                                   {(() => {
                                     const additionalGoals = nextGoals
+                                    const hasMarquee = currentDisplayedGoal !== null
 
-                                    if (additionalGoals.length === 0) return null
+                                    // マルキーが表示されている場合は NEXT を表示しない
+                                    if (additionalGoals.length === 0 || hasMarquee) return null
 
                                     return (
                                       <div style={{ display: 'grid', gap: '8px' }}>

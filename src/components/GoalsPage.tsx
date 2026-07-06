@@ -928,28 +928,52 @@ export function GoalsPage({ store }: GoalsPageProps) {
                         }[evaluation.status]
 
                         return (
-                          <div key={evaluation.id} style={{ padding: '12px', background: 'var(--surface)', borderRadius: '4px', borderLeft: `4px solid ${statusColor}` }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
-                              <div>
-                                <div style={{ fontWeight: '600', fontSize: '14px' }}>
-                                  {state.subjects.find((s) => s.id === goal.subjectId)?.name} / {state.taskTypeMeta.find((t) => t.key === goal.material)?.label}
-                                </div>
-                                <div style={{ fontSize: '12px', color: 'var(--text-soft)', marginTop: '4px' }}>
-                                  分野：{goal.field}
-                                </div>
+                          <div key={evaluation.id} style={{ padding: '16px', background: 'var(--surface)', borderRadius: '4px', borderLeft: `6px solid ${statusColor}` }}>
+                            {/* ステータスバー */}
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontSize: '24px' }}>
+                                  {evaluation.status === 'achieved' && '✅'}
+                                  {evaluation.status === 'not-achieved' && '❌'}
+                                  {evaluation.status === 'in-progress' && '⏳'}
+                                </span>
+                                <span style={{ fontSize: '16px', fontWeight: '700', color: statusColor }}>
+                                  {statusLabel}
+                                </span>
                               </div>
-                              <div style={{ fontSize: '12px', fontWeight: '600', color: statusColor, background: 'rgba(255, 255, 255, 0.1)', padding: '4px 8px', borderRadius: '3px' }}>
-                                {statusLabel}
+                              <div style={{ fontSize: '11px', color: 'var(--text-soft)' }}>
+                                {evaluation.evaluatedAt}
                               </div>
                             </div>
+
+                            {/* 目標詳細 */}
+                            <div style={{ marginBottom: '12px' }}>
+                              <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '6px' }}>
+                                {state.subjects.find((s) => s.id === goal.subjectId)?.name} / {state.taskTypeMeta.find((t) => t.key === goal.material)?.label}
+                              </div>
+                              <div style={{ fontSize: '13px', color: 'var(--text-soft)', display: 'grid', gap: '4px' }}>
+                                <div>分野：{goal.field}</div>
+                                <div>
+                                  目標：
+                                  {goal.unit === 'all' ? (
+                                    <span>全範囲</span>
+                                  ) : (
+                                    <span>
+                                      {goal.targetPage}{goal.unit === 'pages' ? 'ページ' : '問'}まで
+                                    </span>
+                                  )}
+                                </div>
+                                <div>期間：{goal.startDate} 〜 {goal.endDate}</div>
+                              </div>
+                            </div>
+
+                            {/* コメント */}
                             {evaluation.comment && (
-                              <div style={{ fontSize: '12px', color: 'var(--text-soft)', padding: '8px', background: 'rgba(0, 0, 0, 0.1)', borderRadius: '3px', marginTop: '8px' }}>
+                              <div style={{ fontSize: '12px', color: 'var(--text-soft)', padding: '10px', background: 'rgba(0, 0, 0, 0.1)', borderRadius: '3px', marginTop: '8px' }}>
+                                <div style={{ fontWeight: '600', marginBottom: '4px', color: 'var(--text)' }}>評価コメント：</div>
                                 {evaluation.comment}
                               </div>
                             )}
-                            <div style={{ fontSize: '11px', color: 'var(--text-soft)', marginTop: '8px' }}>
-                              評価日：{evaluation.evaluatedAt}
-                            </div>
                           </div>
                         )
                       })}

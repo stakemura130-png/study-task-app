@@ -347,16 +347,18 @@ export function App() {
                                     </table>
                                   )}
 
-                                  {/* 追加の次のゴール表示（マルキーがない場合 or マルキーがあっても異なる期日の目標がある場合の交互表示） */}
+                                  {/* 追加の次のゴール表示（マルキーに表示される nextGoals を除外） */}
                                   {(() => {
-                                    const additionalGoals = nextGoals
                                     const hasMarquee = currentDisplayedGoal !== null
+                                    const marqueeNextGoal = nextGoals.length > 0 ? nextGoals[0] : null
+
+                                    // マルキーで表示される nextGoal を除外して、残りを表示
+                                    const additionalGoals = hasMarquee && marqueeNextGoal
+                                      ? nextGoals.slice(1)
+                                      : nextGoals
 
                                     // 異なる期日の目標がない場合は NEXT を表示しない
                                     if (additionalGoals.length === 0) return null
-
-                                    // マルキーがあって異なる期日の目標がある場合、showAlertMessage で切り替え
-                                    if (hasMarquee && showAlertMessage) return null
 
                                     return (
                                       <div style={{ display: 'grid', gap: '8px' }}>

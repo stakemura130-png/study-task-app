@@ -428,12 +428,12 @@ export function App() {
                                     if (!currentDisplayedGoal) return null
 
                                     const alertMessage = state.goalAlertMessages[subject.id]
-                                    const nextGoal = goals.length > 0 ? goals[0] : null
-                                    const hasNextGoal = nextGoal != null
+                                    const nextGoal = nextGoals.length > 0 ? nextGoals[0] : null
+                                    const hasNextGoal = nextGoal != null && nextGoals.length > 0
                                     const hasAlertMessage = !!alertMessage
 
-                                    // 両方ある場合は交互表示、片方だけの場合はそれを表示
-                                    const displayNextGoal = hasNextGoal && hasAlertMessage ? !showAlertMessage : hasNextGoal
+                                    // 異なる期日の目標とアラートメッセージがある場合は交互表示
+                                    const displayNextGoal = hasNextGoal && hasAlertMessage ? !showAlertMessage : (hasNextGoal && !hasAlertMessage)
 
                                     if (displayNextGoal && nextGoal) {
                                       const getRemainingDays = () => {
